@@ -91,6 +91,10 @@ header.page p{color:var(--muted);font-size:13px;margin-top:6px;font-family:'IBM 
 .macro-step.p4:hover{background:rgba(245,158,11,.14);border-color:var(--inv)}
 .macro-step.p5{border-color:rgba(236,72,153,.5);background:rgba(236,72,153,.07)}
 .macro-step.p5:hover{background:rgba(236,72,153,.14);border-color:var(--prod)}
+.macro-step.p6{border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.07)}
+.macro-step.p6:hover{background:rgba(34,197,94,.14);border-color:var(--cont)}
+.macro-step.p7{border-color:rgba(249,115,22,.5);background:rgba(249,115,22,.07)}
+.macro-step.p7:hover{background:rgba(249,115,22,.14);border-color:var(--com)}
 
 .macro-code{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;margin-bottom:5px}
 .macro-step.p1 .macro-code{color:var(--mat)}
@@ -98,6 +102,8 @@ header.page p{color:var(--muted);font-size:13px;margin-top:6px;font-family:'IBM 
 .macro-step.p3 .macro-code{color:var(--sub)}
 .macro-step.p4 .macro-code{color:var(--inv)}
 .macro-step.p5 .macro-code{color:var(--prod)}
+.macro-step.p6 .macro-code{color:var(--cont)}
+.macro-step.p7 .macro-code{color:var(--com)}
 .macro-name{font-size:12.5px;font-weight:700;color:var(--white);line-height:1.3}
 .macro-hint{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:8px;opacity:.75}
 .macro-arrow{display:flex;align-items:center;color:var(--muted);font-size:18px;opacity:.5;user-select:none}
@@ -123,12 +129,16 @@ header.page p{color:var(--muted);font-size:13px;margin-top:6px;font-family:'IBM 
 .pcard.p3::before{background:var(--sub)}
 .pcard.p4::before{background:var(--inv)}
 .pcard.p5::before{background:var(--prod)}
+.pcard.p6::before{background:var(--cont)}
+.pcard.p7::before{background:var(--com)}
 .pcard:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.35)}
 .pcard.p1:hover{border-color:var(--mat)}
 .pcard.p2:hover{border-color:var(--plan)}
 .pcard.p3:hover{border-color:var(--sub)}
 .pcard.p4:hover{border-color:var(--inv)}
 .pcard.p5:hover{border-color:var(--prod)}
+.pcard.p6:hover{border-color:var(--cont)}
+.pcard.p7:hover{border-color:var(--com)}
 
 .pcard-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;padding-left:8px}
 .pcard-code{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:1.5px}
@@ -137,6 +147,8 @@ header.page p{color:var(--muted);font-size:13px;margin-top:6px;font-family:'IBM 
 .pcard.p3 .pcard-code{color:var(--sub)}
 .pcard.p4 .pcard-code{color:var(--inv)}
 .pcard.p5 .pcard-code{color:var(--prod)}
+.pcard.p6 .pcard-code{color:var(--cont)}
+.pcard.p7 .pcard-code{color:var(--com)}
 .pcard-type{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--muted);padding:1px 6px;border-radius:2px;border:1px solid var(--border);text-transform:uppercase;letter-spacing:1px}
 .pcard-title{font-size:15px;font-weight:700;color:var(--white);margin-bottom:10px;line-height:1.35;padding-left:8px}
 .pcard-desc{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:14px;padding-left:8px;flex:1}
@@ -165,6 +177,8 @@ header.page p{color:var(--muted);font-size:13px;margin-top:6px;font-family:'IBM 
 .pcard.p3 .pcard-cta{color:var(--sub)}
 .pcard.p4 .pcard-cta{color:var(--inv)}
 .pcard.p5 .pcard-cta{color:var(--prod)}
+.pcard.p6 .pcard-cta{color:var(--cont)}
+.pcard.p7 .pcard-cta{color:var(--com)}
 
 .p6-note{
   max-width:1100px;margin:24px auto 0;padding:12px 16px;
@@ -406,7 +420,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · MATRICERÍA · ARGUL Y COMPAÑÍA S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v4.2 · alineado con MF Matricería v4.2</footer>
+<footer>ODOO 17 ENTERPRISE · MATRICERÍA · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v4.3 · alineado con MF Matricería v4.3</footer>
 
 <script>
 /* ================================================================= */
@@ -424,7 +438,7 @@ const LANES = {
 };
 
 /* ================================================================= */
-/* PROCESS DEFINITIONS — MF Matricería v4.2 (20-may-2026)            */
+/* PROCESS DEFINITIONS — MF Matricería v4.3 (15-nov-2026)            */
 /* ================================================================= */
 
 const PROCESSES = {
@@ -437,40 +451,41 @@ p1: {
   type: 'Principal',
   rqRange: 'RQ-MAT-01 a 16',
   rqCount: 16,
-  description: 'Creación del molde como producto maestro con SKU por tipo y número de serie por instancia, generación de posiciones (semi-elaborados) y definición de la BOM multinivel. Rutas <em>Manufacture</em> y <em>Buy</em> habilitadas.',
+  description: 'Alta del molde en el maestro (equipo de Mantenimiento con su producto almacenable, sin número de serie), generación de posiciones (semi-elaborados) y definición de la BOM multinivel. Rutas <em>Manufacture</em> y <em>Buy</em> habilitadas.',
   shortDesc: 'Crea producto molde + posiciones + BOMs multinivel',
   lanes: ['mat','plan','com'],
-  intro: 'Disparador: decisión de iniciar un nuevo molde tras confirmación de pedido de cliente o necesidad de reproceso formal. Fernando, en su rol de Maestro de Productos, crea el molde (P###), sus posiciones (P###-NN) y la BOM multinivel completa. Modelo de identificación confirmado en sesión 2: SKU por tipo de molde + número de serie por instancia física. Lo más común es 1 molde único por producto; ocasionalmente moldes gemelos con mismo SKU y distinto N° de serie. Costeo estrictamente por agregación de materiales y subcontratación (sin horas hombre/máquina).',
-  archNote: 'DECISIÓN DE ARQUITECTURA — El molde se modela como <strong>producto almacenable con rutas Manufacture y Buy</strong> (confirmado: algunos moldes se compran completos del exterior). Cada posición es un <strong>producto semi-elaborado independiente</strong> con BOM propia. Coordinación con DEV-PLA-03 (<strong>mrp_tool_tracking</strong>) para evitar duplicación. Gobierno del Maestro de Moldes = <strong>Matricería</strong> (decisión 2026-04-30).',
+  intro: 'Disparador: decisión de iniciar un nuevo molde tras confirmación de pedido de cliente o necesidad de reproceso formal. Matricería da de alta el molde en Fabricación > Matricería > Moldes (clase Propio o Externo, código único) con su producto almacenable, sin número de serie: cada molde es único (DFT07, T01929). Fernando, en su rol de Maestro de Productos, crea las posiciones (P###-NN) y la BOM multinivel completa. Costeo estrictamente por agregación de materiales y subcontratación (sin horas hombre/máquina). <strong>[ABIERTO]</strong> La reunión de Matricería del 27/10 dejó la fabricación y el ensamble en DonPC; T01930 y T01931 volvieron a fabricar el molde con OF en Odoo (MF v4.3, 12.1).',
+  archNote: 'DECISIÓN DE ARQUITECTURA — El molde es un <strong>equipo de Mantenimiento de la «Categoría de moldes»</strong> con su producto almacenable, con rutas Manufacture y Buy (algunos moldes se compran completos del exterior). Se descartó <strong>mrp_tool_tracking</strong>, que no existía (DEV-PRO-05 · DFT07). Cada posición es un <strong>producto semi-elaborado independiente</strong> con BOM propia. Gobierno del Maestro de Moldes = <strong>Matricería</strong> (decisión 2026-04-30); ficha, estados, versiones y golpes en P-MAT-7.',
   steps: [
     { n: '01', label: 'Decisión de inicio', lane: 'mat', variant: 'mat',
       title: 'Confirmación de proyecto de molde',
-      desc: 'Llega pedido de cliente (MF Ventas v3.2) o necesidad interna. Ignacio y Fernando evalúan factibilidad y se aprueba el inicio del proyecto de molde. Se asigna código <em>P###</em>.',
+      desc: 'Llega pedido de cliente (MF Ventas v3.4) o necesidad interna. Ignacio y Fernando evalúan factibilidad y se aprueba el inicio del proyecto de molde. Se asigna código <em>P###</em>.',
       tags: ['RQ-MAT-05', 'inicio proyecto']
     },
-    { n: '02', label: 'Alta producto molde', lane: 'mat', variant: 'mat',
-      title: 'Creación del producto molde',
-      desc: 'Fernando crea el molde como <em>product.template</em> Almacenable, rutas <em>Manufacture + Buy</em> habilitadas. SKU por tipo de molde + número de serie por instancia física. Caso más común: 1 molde único; ocasionalmente moldes gemelos.',
-      tags: ['RQ-MAT-01', 'SKU+serie', 'Buy+Manufacture'],
-      cite: '"Sin haber terminado ya nació el producto" — Ignacio'
+    { n: '02', label: 'Alta del molde', lane: 'mat', variant: 'mat',
+      title: 'Creación del molde en el maestro',
+      desc: 'Matricería crea el molde en <em>Fabricación > Matricería > Moldes</em>: clase Propio o Externo (ME), código único (también entre los archivados), versión base /0 armada y cuenta analítica en el plan «Moldes». Nace <em>En diseño</em>. El producto molde es Almacenable, con rutas <em>Manufacture + Buy</em> y <strong>sin número de serie</strong>: ubicación, stock y valor se leen del producto (T01929).',
+      tags: ['RQ-MAT-01', 'RQ-MAT-07', 'DEV-PRO-05 · DFT07', 'sin serie'],
+      cite: '"Sin haber terminado ya nació el producto" — Ignacio',
+      pill: { color: 'sub', text: '[ABIERTO] Número de serie y formato del código (MF 12.1)' }
     },
     { n: '03', label: 'Atributos extendidos', lane: 'mat', variant: 'mat2',
-      title: 'Atributos técnicos del molde',
-      desc: 'Se completan campos específicos: cliente, tipo de molde, estado, plazo estimado, referencia a plano. Coordinación con <em>mrp_tool_tracking</em> (DEV-PLA-03, MF Planificación v4.2).',
-      tags: ['RQ-MAT-02', 'DEV-MAT-01 (cond.)', 'DEV-PLA-03'],
-      pill: { color: 'mat', text: '⚠ DEV-MAT-01 condicional: si DEV-PLA-03 no cubre' }
+      title: 'Ficha técnica del molde',
+      desc: 'Se completa la ficha: cliente propietario, plano, cavidades y ciclo, costo estimado y categorías de inyectoras (DFT40). Botones a Listas, OFs, Compras, Solicitudes y Costo analítico. El tipo y el plazo quedaron ocultos por el recorte del 27/10.',
+      tags: ['RQ-MAT-02', 'RQ-MAT-65', 'DEV-MAT-01 · DFT07', 'DFT40']
     },
     { n: '04', label: 'Permisos de creación', lane: 'mat', variant: 'mat3',
-      title: 'Record rules y menús filtrados',
-      desc: 'Solo Fernando/Ignacio pueden crear productos tipo molde. Se requieren <em>record rules (ir.rule)</em> y/o <em>menús filtrados por categoría</em> para separar responsabilidades entre Matricería, Ingeniería y otros sectores.',
-      tags: ['RQ-MAT-04', 'Gap', 'record rules', 'ir.rule']
+      title: 'Permisos de Matricería',
+      desc: 'Tres grupos: <em>Matricería / Administrador</em> (alta, código, estados, baja y versiones), <em>Armar versión y desbloquear</em> y <em>Usuario</em>. Fabricación consulta y Mantenimiento no modifica moldes (T01602). Para los productos (moldes y posiciones) sigue el gap de <em>record rules</em> o menús por categoría.',
+      tags: ['RQ-MAT-04', 'DEV-PRO-05 · DFT07', 'Gap productos']
     },
-    { divider: 'ESTRUCTURA MULTINIVEL — se generan las posiciones (semi-elaborados)' },
+    { divider: 'ESTRUCTURA MULTINIVEL — se generan las posiciones (semi-elaborados) · [ABIERTO] fabricación del molde en Odoo o en DonPC' },
     { n: '05', label: 'Creación posiciones', lane: 'mat', variant: 'mat',
       title: 'Alta de 50-300 posiciones',
       desc: 'Para cada posición del molde, Fernando crea un producto semi-elaborado con código <em>P321-NN</em>. Cada posición es un producto independiente con BOM y MO propias. Evaluar importación masiva xlsx para volumen.',
       tags: ['RQ-MAT-06', 'RQ-MAT-07', 'P###-NN'],
-      cite: '"Cada posición tiene su lista de materiales, su ruta, su orden de fabricación"'
+      cite: '"Cada posición tiene su lista de materiales, su ruta, su orden de fabricación"',
+      pill: { color: 'sub', text: '[ABIERTO] Pasos 05 a 09: dependen de la fabricación del molde (MF 12.1)' }
     },
     { n: '06', label: 'Tipo de posición', lane: 'mat', variant: 'mat2',
       title: 'Clasificación por tipo',
@@ -490,8 +505,8 @@ p1: {
     },
     { n: '09', label: 'BOM del molde', lane: 'mat', variant: 'mat',
       title: 'BOM jerárquica nivel superior',
-      desc: 'La BOM del producto molde (P321) lista como componentes <em>todas las posiciones</em> + materiales estándar para el ensamble final. <em>mrp_bom_hierarchy</em> (OCA 17.0) facilita la navegación.',
-      tags: ['RQ-MAT-11', 'BOM multinivel', 'mrp_bom_hierarchy (OCA)']
+      desc: 'La BOM del producto molde (P321) lista como componentes <em>todas las posiciones</em> + materiales estándar para el ensamble final. <em>mrp_bom_hierarchy</em> (OCA 17.0) facilita la navegación. La LdM del molde propone el tipo «Fabricación de matricería» (MT/MO) (T01930).',
+      tags: ['RQ-MAT-11', 'BOM multinivel', 'mrp_bom_hierarchy (OCA)', 'DEV-PRO-05 · DFT07']
     },
     { divider: 'VALIDACIÓN Y HABILITACIÓN DEL MRP' },
     { n: '10', label: 'Hoja de ruta (DonPC)', lane: 'mat', variant: 'mat3',
@@ -506,9 +521,9 @@ p1: {
     },
     { divider: 'CIERRE DEL PROCESO — estructura consolidada en Odoo', type: 'end' },
     { n: '12', label: 'Visibilidad compras', lane: 'com', variant: 'com2',
-      title: 'Visibilidad de demanda futura',
-      desc: 'Compras (MF Compras v3.2) tiene visibilidad anticipada de la demanda que se generará al correrse el MRP. Permite anticipar conversaciones con proveedores de aceros.',
-      tags: ['visibilidad planificación', 'MF Compras v3.2']
+      title: 'Sin visibilidad anticipada de aceros',
+      desc: 'La visibilidad anticipada de la demanda de aceros quedó fuera de alcance: "Eso no lo utilizamos" (Fernando Abal, sesión 2). Compras (MF Compras v3.3) ve la demanda cuando el MRP genera las solicitudes en P-MAT-2.',
+      tags: ['RQ-MAT-60', 'Fuera de alcance', 'MF Compras v3.3']
     }
   ],
   arrows: [
@@ -529,7 +544,7 @@ p2: {
   description: 'El scheduler MRP multinivel recorre la estructura del molde y genera todas las necesidades de compra. Circuito de PRs/POs hasta la recepción física de materiales en el taller de Matricería. RQ-MAT-60 (demanda anticipada de aceros) fuera de alcance.',
   shortDesc: 'MRP multinivel + compras + recepción en planta',
   lanes: ['mat','plan','com','inv'],
-  intro: 'Tras confirmar la estructura (salida de P-MAT-1), se ejecuta el scheduler MRP multinivel que recorre la jerarquía (molde → posiciones → materiales) y calcula todas las necesidades de compra. Plazo típico: 15-20 días. La planificación y explosión de materiales del molde se realiza dentro de Matricería (C-02). <strong>Nota v4.2:</strong> RQ-MAT-60 (visibilidad anticipada demanda aceros) confirmado Fuera de alcance — "Eso no lo utilizamos" (Fernando Abal, sesión 2).',
+  intro: 'Tras confirmar la estructura (salida de P-MAT-1), se ejecuta el scheduler MRP multinivel que recorre la jerarquía (molde → posiciones → materiales) y calcula todas las necesidades de compra. Plazo típico: 15-20 días. La planificación y explosión de materiales del molde se realiza dentro de Matricería (C-02). <strong>Nota (sesión 2):</strong> RQ-MAT-60 (visibilidad anticipada demanda aceros) confirmado Fuera de alcance — "Eso no lo utilizamos" (Fernando Abal, sesión 2).',
   archNote: 'MÓDULOS CLAVE — <strong>mrp_multi_level</strong> (OCA, ForgeFlow) scheduler multinivel · <strong>purchase_request</strong> (OCA) etapa previa a PO · <strong>purchase_origin_link</strong> (OCA) trazabilidad PO↔Molde · <strong>stock_request</strong> (OCA, ya en Libus) transferencias internas. Aprobación: Fernando Abal / Ignacio Argul como aprobadores (sesión 2).',
   steps: [
     { n: '01', label: 'Estructura confirmada', lane: 'mat', variant: 'mat',
@@ -551,8 +566,8 @@ p2: {
     { divider: 'CIRCUITO DE COMPRAS — las necesidades pasan al área de Compras' },
     { n: '04', label: 'Purchase Requests', lane: 'com', variant: 'com2',
       title: 'PRs generadas automáticamente',
-      desc: 'Por cada material, <em>purchase_request</em> (OCA, ForgeFlow) genera una Purchase Request. Se confirma en sesión 2: genera solicitudes, NO órdenes de compra directas.',
-      tags: ['RQ-MAT-22', 'purchase_request (OCA)'],
+      desc: 'Por cada material, <em>purchase_request</em> (OCA, ForgeFlow) genera una Purchase Request. Se confirma en sesión 2: genera solicitudes, NO órdenes de compra directas. La línea lleva el <em>molde</em> y propone su cuenta analítica; al pasar a la OC, el molde pasa a la línea (T01606).',
+      tags: ['RQ-MAT-22', 'purchase_request (OCA)', 'DEV-PRO-05 · DFT07'],
       pill: { color: 'com', text: '⚡ PR creadas automáticamente desde procurement' }
     },
     { n: '05', label: 'Aprobación PR', lane: 'com', variant: 'com',
@@ -562,25 +577,26 @@ p2: {
     },
     { n: '06', label: 'Conversión a POs', lane: 'com', variant: 'com',
       title: 'Generación de POs al proveedor',
-      desc: 'Compras convierte PRs en Purchase Orders. Datos <em>cuenta analítica=P321</em> y <em>origin</em> se propagan. Consolidación de solicitudes en una OC con <em>purchase_mrp_distribution</em> (OCA).',
-      tags: ['RQ-MAT-24', 'RQ-MAT-26', 'purchase_mrp_distribution']
+      desc: 'Compras convierte PRs en Purchase Orders. La línea de OC lleva <em>Molde</em> y <em>Versión del molde</em> y propone el 100 % en la cuenta analítica del molde. Servicios y consumibles se imputan en la compra; los <strong>almacenables no</strong>: su costo llega al consumirse en la OF del molde. Consolidación de solicitudes en una OC con <em>purchase_mrp_distribution</em> (OCA).',
+      tags: ['RQ-MAT-24', 'RQ-MAT-26', 'DEV-PRO-05 · DFT07', 'purchase_mrp_distribution']
     },
     { divider: 'PLAZO DE ESPERA — 15 a 20 días según lead time del proveedor', type: 'phys' },
     { n: '07', label: 'Seguimiento PO', lane: 'com', variant: 'com2',
       title: 'Monitoreo de entregas',
-      desc: 'Compras monitorea POs pendientes. Forecast nativo por producto (analizar durante pruebas). Smart button en formulario del molde para consulta de POs pendientes (parte de DEV-MAT-01).',
-      tags: ['RQ-MAT-25', 'RQ-MAT-56', 'DEV-MAT-01', 'forecast']
+      desc: 'Compras monitorea POs pendientes. Forecast nativo por producto (analizar durante pruebas). Desde la ficha del molde, botones <em>Compras</em> y <em>Solicitudes</em>.',
+      tags: ['RQ-MAT-25', 'RQ-MAT-56', 'DEV-MAT-01 · DFT07', 'forecast']
     },
     { n: '08', label: 'Recepción física', lane: 'inv', variant: 'inv',
       title: 'Ingreso de materiales al depósito',
-      desc: 'Inventario (MF Inv/WMS v3.3) valida la recepción contra la PO. La recepción actualiza automáticamente estado de la OC. Ruta de recepción definida para que materiales de Matricería vayan directamente a ubicación Matricería.',
-      tags: ['RQ-MAT-27', 'RQ-MAT-28', 'MF Inv/WMS v3.3'],
+      desc: 'Inventario (MF Inv/WMS v3.4) valida la recepción contra la PO. La recepción actualiza automáticamente estado de la OC. Ruta de recepción definida para que materiales de Matricería vayan directamente a ubicación Matricería.',
+      tags: ['RQ-MAT-27', 'RQ-MAT-28', 'MF Inv/WMS v3.4'],
       cite: '"Empezamos a recepcionar los materiales en bruto" — Fernando'
     },
     { n: '09', label: 'Stock request', lane: 'inv', variant: 'inv2',
       title: 'Transferencia a Matricería',
-      desc: 'Desde depósito central, material se transfiere a <em>Matricería/Stock</em> vía <em>stock_request</em> (OCA, ya en Libus). Dispara movimiento interno en equipos del depósito. <strong>Nota:</strong> trazabilidad por lote NO requerida (Fernando: "No es necesario para matricería").',
-      tags: ['RQ-MAT-30', 'RQ-MAT-29 Estándar', 'stock_request (OCA Libus)']
+      desc: 'Desde depósito central, material se transfiere a <em>Matricería/Stock</em> vía <em>stock_request</em> (OCA, ya en Libus). Dispara movimiento interno en equipos del depósito. Circuito de Matricería (almacén MT, ruta Pañol → MT, áreas MRP) por configuración (Anexo A2, script 28, T01930). <strong>Nota:</strong> trazabilidad por lote NO requerida (Fernando: "No es necesario para matricería").',
+      tags: ['RQ-MAT-30', 'RQ-MAT-29 Estándar', 'stock_request (OCA Libus)', 'Anexo A2'],
+      pill: { color: 'sub', text: '[ABIERTO] Qué artículos de Matricería salen de Pañol (MF 12.1)' }
     },
     { divider: 'MATERIALES DISPONIBLES — listos para consumo en fabricación (handoff a P-MAT-4)', type: 'end' },
     { n: '10', label: 'Disponibilidad', lane: 'mat', variant: 'mat',
@@ -592,10 +608,10 @@ p2: {
   arrows: [
     { from: 0, to: 1, lane: 'plan', label: 'dispara MRP' },
     { from: 2, to: 3, lane: 'com', label: 'necesidad → PR' },
-    { from: 5, to: 7, lane: 'com', label: 'PO enviada' },
-    { from: 7, to: 8, lane: 'inv', label: 'llegada material' },
-    { from: 8, to: 9, lane: 'inv', label: 'transferencia interna' },
-    { from: 9, to: 10, lane: 'mat', label: 'disponible' }
+    { from: 5, to: 6, lane: 'com', label: 'PO enviada' },
+    { from: 6, to: 7, lane: 'inv', label: 'llegada material' },
+    { from: 7, to: 8, lane: 'inv', label: 'transferencia interna' },
+    { from: 8, to: 9, lane: 'mat', label: 'disponible' }
   ]
 },
 
@@ -611,7 +627,7 @@ p3: {
   shortDesc: 'Operaciones externas: TT, rectificado, nitrurado',
   lanes: ['mat','plan','com','inv','sub','cont'],
   intro: 'Una posición requiere una operación no ejecutable en planta (ej: tratamiento térmico de aceros). El material sale físicamente al proveedor, recibe el tratamiento, y vuelve. <strong>Decisión Fase 1:</strong> el material vuelve con el mismo SKU (alineado con práctica SAP, confirmado sesión 2). En Fase 2 se evaluará diferenciación por estadio. Costeo por kg (RQ-MAT-38) y vínculo OF-subcontratación (RQ-MAT-39) confirmados como Etapa 2 por Fernando.',
-  archNote: 'DECISIÓN DE ARQUITECTURA — Se modela la operación subcontratada como un <strong>producto tipo Servicio</strong> consumido en la BOM de la posición (Opción A del RQ-MAT-32, recomendación confirmada, prueba de concepto requerida). Códigos de servicio <strong>unificados</strong> (mismo código para diferentes moldes, sesión 2). Se combina <strong>mrp_subcontracting</strong> nativo + OCA modules para cubrir el ciclo completo.',
+  archNote: 'DECISIÓN DE ARQUITECTURA — Se modela la operación subcontratada como un <strong>producto tipo Servicio</strong> consumido en la BOM de la posición (Opción A del RQ-MAT-32, recomendación confirmada, prueba de concepto requerida). Códigos de servicio <strong>unificados</strong> (mismo código para diferentes moldes, sesión 2). Se combina <strong>mrp_subcontracting</strong> nativo + OCA modules para cubrir el ciclo completo. El MRP multinivel lleva la demanda de los componentes que se envían al subcontratista al área de origen (<strong>DFT37</strong>, «tirar desde»). [SUPUESTO] Aplica a Matricería: el DFT37 no dice qué productos de Argul se subcontratan.',
   steps: [
     { n: '01', label: 'Operación externa', lane: 'mat', variant: 'mat',
       title: 'Identificación de operación externa',
@@ -631,8 +647,8 @@ p3: {
     },
     { n: '03b', label: '', lane: 'plan', variant: 'plan',
       title: 'Necesidad de servicio generada',
-      desc: 'Al confirmar la MO, el scheduler detecta la necesidad del servicio subcontratado y genera un procurement que dispara el circuito de compras.',
-      tags: ['mrp_multi_level (OCA)', 'procurement'],
+      desc: 'Al confirmar la MO, el scheduler detecta la necesidad del servicio subcontratado y genera un procurement que dispara el circuito de compras. La demanda de los componentes que se envían al subcontratista baja al área de origen («tirar desde»).',
+      tags: ['mrp_multi_level (OCA)', 'procurement', 'DFT37'],
       groupWith: '03'
     },
     { n: '04', label: 'Purchase Request', lane: 'mat', variant: 'mat2',
@@ -643,7 +659,7 @@ p3: {
     { divider: 'CIRCUITO DE COMPRAS — Matricería transfiere la gestión al área de Compras' },
     { n: '05', label: 'Aprobación PR', lane: 'com', variant: 'com',
       title: 'Revisión y aprobación de la PR',
-      desc: 'Compras (MF Compras v3.2) valida la PR. Según monto y política, aplica niveles de aprobación (tier validation). Fernando/Ignacio como aprobadores del sector.',
+      desc: 'Compras (MF Compras v3.3) valida la PR. Según monto y política, aplica niveles de aprobación (tier validation). Fernando/Ignacio como aprobadores del sector.',
       tags: ['RQ-MAT-23', 'purchase_request_tier_validation']
     },
     { n: '06', label: 'OC al subcontratista', lane: 'com', variant: 'com',
@@ -654,8 +670,8 @@ p3: {
     },
     { n: '07', label: 'Salida física', lane: 'inv', variant: 'inv',
       title: 'Picking "Send to Subcontractor"',
-      desc: 'Inventario ejecuta el picking de resupply: material sale de Matricería hacia <em>ubicación Subcontractor</em>. Contablemente sigue en stock de Argul pero físicamente está afuera.',
-      tags: ['RQ-MAT-33', 'mrp_subcontracting nativo', 'Resupply Subcontractor']
+      desc: 'Inventario ejecuta el picking de resupply: material sale de Matricería hacia <em>ubicación Subcontractor</em>. Contablemente sigue en stock de Argul pero físicamente está afuera. Envío en 3 pasos con remito (CD/RSUB) por configuración (Anexo A2, script 22) [SUPUESTO].',
+      tags: ['RQ-MAT-33', 'mrp_subcontracting nativo', 'Resupply Subcontractor', 'Anexo A2']
     },
     { divider: 'MATERIAL CRUZA A PLANTA EXTERNA — stock sigue en Argul (ubicación lógica subcontratista)', type: 'phys' },
     { n: '08', label: 'Recepción sub.', lane: 'sub', variant: 'sub', laneRow: 'sub',
@@ -687,8 +703,8 @@ p3: {
     },
     { n: '12b', label: '', lane: 'cont', variant: 'cont',
       title: 'Línea analítica al molde P321',
-      desc: 'Se genera línea en la cuenta analítica del molde por el costo del servicio subcontratado. <em>mrp_account_analytic</em> (OCA 17.0). Visible en tiempo real durante 6-8 meses de fabricación.',
-      tags: ['RQ-MAT-50,51', 'mrp_account_analytic (OCA)', 'cta. P321'],
+      desc: 'Se genera línea en la cuenta analítica del molde por el costo del servicio subcontratado, con su importe en USD (T01874). La imputación la hace el desarrollo (no usa <em>mrp_account_analytic</em>). Visible en tiempo real durante 6-8 meses de fabricación.',
+      tags: ['RQ-MAT-50,51', 'DEV-PRO-05 · DFT07', 'cta. del molde'],
       pill: { color: 'cont', text: '⚡ analytic line generada en tiempo real' },
       groupWith: '12'
     },
@@ -699,15 +715,15 @@ p3: {
     },
     { n: '13b', label: '', lane: 'cont', variant: 'cont2',
       title: 'Registro contable y pago',
-      desc: 'Contabilidad (MF Contabilidad v5.3) registra asiento de compra, IVA crédito fiscal, retenciones. Todo trazable a la cta. analítica del molde.',
-      tags: ['l10n_ar', 'IVA CF', 'retenciones', 'MF Contabilidad v5.3'],
+      desc: 'Contabilidad (MF Contabilidad v5.4) registra asiento de compra, IVA crédito fiscal, retenciones. Todo trazable a la cta. analítica del molde.',
+      tags: ['l10n_ar', 'IVA CF', 'retenciones', 'MF Contabilidad v5.4'],
       groupWith: '13'
     },
     { divider: 'CIERRE — Costo del servicio capturado en la cta. analítica del molde', type: 'end' },
     { n: '14', label: 'Análisis costo', lane: 'cont', variant: 'cont',
       title: 'Costo real vs. estimado del molde',
-      desc: 'Al cierre del molde, la cta. analítica <em>P321</em> muestra el costo total: materia prima + servicios subcontratados. Se compara con estimado inicial.',
-      tags: ['RQ-MAT-52,54', 'real vs. estimado', 'bi_view_editor (OCA)']
+      desc: 'Al cierre del molde, la solapa <em>Costeo</em> de la ficha muestra el costo total (materia prima + servicios subcontratados) contra el estimado, en pesos y en USD (P-MAT-6).',
+      tags: ['RQ-MAT-52,54', 'DEV-MAT-01 · DFT07', 'real vs. estimado']
     }
   ],
   arrows: [
@@ -735,8 +751,8 @@ p4: {
   description: 'Cada posición se fabrica en una MO individual. Cuando todas las posiciones están terminadas, el ensamble final consume posiciones + estándares y entrega el molde terminado a Producción.',
   shortDesc: 'MO por posición + ensamble final del molde',
   lanes: ['mat','inv','sub','prod'],
-  intro: 'Disparador: materiales disponibles en stock (salida de P-MAT-2) y MO de posición confirmada. Cada posición se fabrica en una MO individual. Una posición puede atravesar ciclos de P-MAT-3 si requiere operaciones externas. Cuando el 100% de las posiciones está terminado, se ejecuta la MO del ensamble. El costeo es estrictamente por agregación de materiales y subcontratación (sin horas hombre/máquina).',
-  archNote: 'DECISIÓN DE DISEÑO CRÍTICA — El costeo es por <strong>agregación de materiales y subcontratación</strong> únicamente. No se imputan horas hombre ni horas máquina (Ignacio: "no tiene cargado obras"). Las MOs de posiciones se configuran <strong>sin work orders ni workcenters</strong>. La gestión de rutas detalladas sigue en DonPC hasta Fase 2. El ensamble (RQ-MAT-44) es Estándar (Fase 2) para el ensamble formal; en Fase 1 se registra la terminación del molde.',
+  intro: 'Disparador: materiales disponibles en stock (salida de P-MAT-2) y MO de posición confirmada. Cada posición se fabrica en una MO individual. Una posición puede atravesar ciclos de P-MAT-3 si requiere operaciones externas. Cuando el 100% de las posiciones está terminado, se ejecuta la MO del ensamble. El costeo es estrictamente por agregación de materiales y subcontratación (sin horas hombre/máquina). <strong>[ABIERTO]</strong> La reunión de Matricería del 27/10 dejó la fabricación y el ensamble en DonPC; T01930 y T01931 los volvieron a Odoo. Recomendación: OF del molde en Odoo, fuera del MRP y del Gantt de inyectoras (MF v4.3, 12.1).',
+  archNote: 'DECISIÓN DE DISEÑO CRÍTICA — El costeo es por <strong>agregación de materiales y subcontratación</strong> únicamente. No se imputan horas hombre ni horas máquina (Ignacio: "no tiene cargado obras"). Las MOs de posiciones se configuran <strong>sin work orders ni workcenters</strong>. La gestión de rutas detalladas sigue en DonPC hasta Fase 2. El ensamble (RQ-MAT-44) es Estándar (Fase 2) para el ensamble formal; en Fase 1 se registra la terminación del molde. La LdM y la OF del molde usan el tipo <strong>«Fabricación de matricería» (MT/MO)</strong> y, al terminar, el molde entra al stock a costo estándar con el desvío asentado (DEV-PRO-05 · DFT07).',
   steps: [
     { n: '01', label: 'Materiales disponibles', lane: 'inv', variant: 'inv2',
       title: 'Materiales en stock de Matricería',
@@ -774,9 +790,10 @@ p4: {
     { divider: 'ENSAMBLE FINAL — se consumen todas las posiciones + materiales estándar' },
     { n: '07', label: 'MO del molde', lane: 'mat', variant: 'mat',
       title: 'MO del ensamble',
-      desc: 'Con el 100% de posiciones terminadas, se confirma la MO del molde padre (P321). La BOM lista como componentes todas las posiciones + estándares (tornillería, conexiones).',
-      tags: ['RQ-MAT-44', 'RQ-MAT-45'],
-      cite: '"Una vez que esté completado todos los procesos... se genera el ensamble" — Fernando'
+      desc: 'Con el 100% de posiciones terminadas, se confirma la MO del molde padre (P321). La BOM lista como componentes todas las posiciones + estándares (tornillería, conexiones). La LdM y la OF del molde proponen el tipo «Fabricación de matricería» (MT/MO); con otro tipo, aviso sin bloqueo (T01930).',
+      tags: ['RQ-MAT-44', 'RQ-MAT-45', 'DEV-PRO-05 · DFT07'],
+      cite: '"Una vez que esté completado todos los procesos... se genera el ensamble" — Fernando',
+      pill: { color: 'sub', text: '[ABIERTO] Fabricación del molde: Odoo o DonPC (MF 12.1)' }
     },
     { n: '08', label: 'Consumo posiciones', lane: 'mat', variant: 'mat2',
       title: 'Consumo de semi-elaborados',
@@ -791,14 +808,15 @@ p4: {
     },
     { n: '10', label: 'Molde completado', lane: 'mat', variant: 'mat',
       title: 'MO del molde finalizada',
-      desc: 'Se cierra la MO del molde. <em>P321</em> entra al stock de productos terminados de Matricería, con el costo total acumulado en su cuenta analítica.',
-      tags: ['molde terminado', 'costo final acumulado']
+      desc: 'Se cierra la MO del molde. Odoo recalcula el costo estándar desde la LdM (teórico) y <em>P321</em> entra al stock con ese valor; la diferencia con el costo real se asienta en la cuenta de desvío de fabricación de la categoría (T01931). Solapa <em>Costeo</em> de la OF con teórico, real, desvío y asientos.',
+      tags: ['RQ-MAT-44', 'RQ-MAT-53', 'DEV-PRO-05 · DFT07', 'costo estándar'],
+      pill: { color: 'sub', text: '[ABIERTO] Cuenta definitiva de desvío: Administración' }
     },
     { divider: 'ENTREGA — el molde se transfiere al área de Producción para uso en inyección', type: 'end' },
     { n: '11', label: 'Entrega producción', lane: 'prod', variant: 'prod',
       title: 'Handoff a Producción',
-      desc: 'El molde se traslada a Producción (MF Producción v5.2). Natalia lo pone en operación en inyección. Inicio del ciclo productivo y, eventualmente, de reprocesos (P-MAT-5). Estado en <em>mrp_tool_tracking</em>.',
-      tags: ['MF Producción v5.2', 'inicio uso productivo', 'mrp_tool_tracking']
+      desc: 'El molde se traslada a Producción (MF Producción v5.3). Matricería lo habilita con el botón <em>Habilitar</em> (pasa a Disponible, con motivo; P-MAT-7). Natalia lo pone en operación en inyección. Inicio del ciclo productivo y, eventualmente, de reprocesos (P-MAT-5).',
+      tags: ['MF Producción v5.3', 'RQ-MAT-61', 'Habilitar', 'DEV-PRO-05 · DFT07']
     }
   ],
   arrows: [
@@ -821,18 +839,18 @@ p5: {
   description: 'Un molde en uso productivo retorna a Matricería para reparación o modificación. Reutiliza el código del molde existente con una BOM de intervención focalizada. Representa la mayoría del trabajo del sector.',
   shortDesc: 'Molde vuelve de planta para reparación o modificación',
   lanes: ['prod','mat','plan','com','inv'],
-  intro: 'Disparador: un molde en uso productivo es devuelto desde Producción a Matricería. Cita de Ignacio: "se manejan totalmente distintos" respecto de moldes nuevos. Representa la mayoría del trabajo del sector (frente a 10-12 moldes nuevos/año). Un reproceso reutiliza el código del molde existente con una BOM de intervención focalizada. El molde se bloquea en el maestro vía <em>mrp_tool_tracking</em>.',
-  archNote: 'DECISIÓN DE ARQUITECTURA — Los reprocesos se diferencian mediante <strong>tags de MO</strong> (<em>mrp_tag</em> OCA) y opcionalmente <strong>órdenes de reparación</strong> (<em>mrp_repair_order</em> OCA). La BOM del reproceso es variante o ad-hoc. El flujo reutiliza P-MAT-2 (materiales), P-MAT-3 (subcontratación) y P-MAT-4 (fabricación de la intervención).',
+  intro: 'Disparador: un molde en uso productivo es devuelto desde Producción a Matricería. Cita de Ignacio: "se manejan totalmente distintos" respecto de moldes nuevos. Representa la mayoría del trabajo del sector (frente a 10-12 moldes nuevos/año). Un reproceso reutiliza el código del molde existente con una BOM de intervención focalizada. El molde se bloquea en el maestro con los botones de estado (P-MAT-7, DEV-PRO-05 · DFT07).',
+  archNote: 'DECISIÓN DE ARQUITECTURA — Los reprocesos se diferencian mediante <strong>tags de MO</strong> (<em>mrp_tag</em> OCA) y opcionalmente <strong>órdenes de reparación</strong> (<em>mrp_repair_order</em> OCA). La BOM del reproceso es variante o ad-hoc. El flujo reutiliza P-MAT-2 (materiales), P-MAT-3 (subcontratación) y P-MAT-4 (fabricación de la intervención). El tipo del molde (nuevo / reproceso / reparación) del DFT07 quedó oculto por el recorte del 27/10.',
   steps: [
     { n: '01', label: 'Devolución molde', lane: 'prod', variant: 'prod', laneRow: 'prod',
       title: 'Molde vuelve de planta',
-      desc: 'El molde <em>P321</em>, en uso productivo, presenta falla, desgaste o requiere modificación. Natalia (MF Producción v5.2) devuelve el molde a Matricería. Estado = bloqueado en <em>mrp_tool_tracking</em>.',
-      tags: ['RQ-MAT-49', 'disparador', 'falla / desgaste / modif.'],
+      desc: 'El molde <em>P321</em>, en uso productivo, presenta falla, desgaste o requiere modificación. Natalia (MF Producción v5.3) devuelve el molde a Matricería. Matricería lo pasa a <em>Bloqueado</em> o <em>En mantenimiento</em> con los botones <em>Bloquear</em> o <em>Enviar a mantenimiento</em>, con motivo e historial: la OF no se confirma ni se notifica con ese molde.',
+      tags: ['RQ-MAT-49', 'RQ-MAT-61', 'disparador', 'DEV-PRO-05 · DFT07'],
       cite: '"Se manejan totalmente distintos" — Ignacio, sobre moldes nuevos vs reprocesos'
     },
     { n: '02', label: 'Identificación', lane: 'mat', variant: 'mat',
       title: 'Localización del molde existente',
-      desc: 'Matricería busca el producto molde por código <em>P321</em> en Odoo. Accede a BOM original, historial de reprocesos anteriores (chatter), ficha técnica y estado en mrp_tool_tracking.',
+      desc: 'Matricería busca el molde <em>P321</em> en Fabricación > Matricería > Moldes. Accede a BOM original, historial de reprocesos anteriores (chatter) y a la ficha del molde, con su historial de estados, versiones y golpes.',
       tags: ['RQ-MAT-49', 'producto existente', 'historial chatter']
     },
     { n: '03', label: 'Diagnóstico', lane: 'mat', variant: 'mat2',
@@ -871,8 +889,8 @@ p5: {
     { divider: 'CIERRE — molde reparado vuelve a Producción', type: 'end' },
     { n: '08', label: 'Reentrega producción', lane: 'prod', variant: 'prod', laneRow: 'prod',
       title: 'Molde reparado devuelto',
-      desc: 'El molde <em>P321</em> se devuelve a Producción (MF Producción v5.2), ya reparado/modificado. Natalia lo reactiva en la línea de inyección. Estado = liberado en mrp_tool_tracking. Costo del reproceso capturado en cta. analítica.',
-      tags: ['RQ-MAT-47', 'RQ-MAT-48', 'costo reproceso capturado', 'mrp_tool_tracking']
+      desc: 'El molde <em>P321</em> se devuelve a Producción (MF Producción v5.3), ya reparado/modificado. Matricería lo vuelve a <em>Disponible</em> con <em>Desbloquear</em> o <em>Volver a disponible</em> (con motivo). Natalia lo reactiva en la línea de inyección. Costo del reproceso capturado en cta. analítica.',
+      tags: ['RQ-MAT-47', 'RQ-MAT-48', 'RQ-MAT-61', 'costo reproceso capturado']
     }
   ],
   arrows: [
@@ -880,6 +898,150 @@ p5: {
     { from: 4, to: 5, lane: 'plan', label: 'si materiales' },
     { from: 5, to: 6, lane: 'mat', label: 'repuestos' },
     { from: 7, to: 8, lane: 'prod', label: 'reentregado' }
+  ]
+},
+
+/* ==================== P-MAT-6 ==================== */
+p6: {
+  code: 'P-MAT-6',
+  name: 'Costeo Analítico del Molde',
+  shortName: 'Costeo del Molde',
+  type: 'Transversal',
+  rqRange: 'RQ-MAT-50 a 54',
+  rqCount: 5,
+  description: 'Acumula el costo del molde durante toda su vida en su cuenta analítica (plan «Moldes»): compras de servicios y consumibles, consumos de la OF del molde, importe en USD, costo estándar con desvío y análisis real vs. estimado.',
+  shortDesc: 'Cuenta analítica por molde + costo en USD + desvío',
+  lanes: ['mat','com','cont'],
+  intro: 'Proceso transversal: corre en paralelo a P-MAT-1 a P-MAT-5. Cada molde nace con su cuenta analítica en el plan «Moldes» (T01600). Compras imputa servicios y consumibles con molde; los almacenables llegan al costo cuando la OF del molde los consume. Cada línea analítica tiene su importe en USD al tipo de cambio de su fecha (T01874). Al terminar la OF del molde, el costo estándar se recalcula desde la LdM y el desvío se asienta (T01931). <strong>[ABIERTO]</strong> Tratamiento contable del molde (RQ-MAT-53) y cuenta definitiva de desvío.',
+  archNote: 'COSTEO DEL MOLDE —</strong> La cuenta analítica y la imputación las hace el desarrollo (DEV-PRO-05 · DFT07 y DEV-MAT-01 · DFT07); no se usa <em>mrp_account_analytic</em> [SUPUESTO]. Solapa <strong>Costeo</strong> en la ficha del molde (valor, fabricación y presupuesto en pesos y USD) y en la OF (teórico, real, desvío y asientos). Configuración: costo estándar y cuenta de desvío de ejemplo en «PT / Matricería / MOLDES» (Anexo A2, script 27).',
+  steps: [
+    { n: '01', label: 'Cuenta del molde', lane: 'mat', variant: 'mat',
+      title: 'Cuenta analítica del molde',
+      desc: 'Al dar de alta el molde se crea su cuenta analítica en el plan «Moldes». La acción «Crear cuentas analíticas» la crea para los moldes existentes (T01600).',
+      tags: ['RQ-MAT-51', 'DEV-PRO-05 · DFT07']
+    },
+    { divider: 'IMPUTACIÓN — compras y consumos van a la cuenta del molde' },
+    { n: '02', label: 'Compras con molde', lane: 'com', variant: 'com',
+      title: 'Solicitud y OC con molde',
+      desc: 'La solicitud y la línea de OC llevan el molde y proponen el 100 % en su cuenta analítica (P-MAT-2). Servicios y consumibles se imputan en la compra; los almacenables no (T01606).',
+      tags: ['RQ-MAT-22', 'RQ-MAT-24', 'RQ-MAT-50', 'DEV-PRO-05 · DFT07']
+    },
+    { n: '03', label: 'Consumo en la OF', lane: 'mat', variant: 'mat2',
+      title: 'La OF del molde imputa consumos',
+      desc: 'La OF que fabrica el molde imputa sus consumos a la cuenta del molde: así llega el costo de los almacenables (P-MAT-4).',
+      tags: ['RQ-MAT-50', 'RQ-MAT-52', 'DEV-PRO-05 · DFT07'],
+      pill: { color: 'sub', text: '[ABIERTO] Fabricación del molde: Odoo o DonPC (MF 12.1)' }
+    },
+    { n: '04', label: 'Importe en USD', lane: 'cont', variant: 'cont2',
+      title: 'Línea analítica con importe en USD',
+      desc: 'Cada línea analítica tiene «Importe USD» al tipo de cambio de su fecha, o el último anterior, como toda conversión de moneda (DFT58, MF Contabilidad v5.4).',
+      tags: ['RQ-MAT-54', 'DFT58', 'DEV-PRO-05 · DFT07']
+    },
+    { divider: 'CIERRE DE LA OF DEL MOLDE — costo estándar y desvío' },
+    { n: '05', label: 'Costo estándar', lane: 'cont', variant: 'cont',
+      title: 'Estándar desde la LdM y desvío',
+      desc: 'Al terminar la OF, Odoo recalcula el costo estándar desde la LdM (teórico) y el molde entra al stock con ese valor. Costo real = consumos + órdenes de trabajo; la diferencia va a la «Cuenta de desvío de fabricación» de la categoría (T01931).',
+      tags: ['RQ-MAT-53', 'DEV-PRO-05 · DFT07', 'Anexo A2'],
+      pill: { color: 'sub', text: '[ABIERTO] Cuenta definitiva (Administración) y costo con órdenes de trabajo' }
+    },
+    { divider: 'ANÁLISIS — real vs. estimado del molde', type: 'end' },
+    { n: '06', label: 'Solapa Costeo', lane: 'mat', variant: 'mat',
+      title: 'Real vs. estimado del molde',
+      desc: 'Solapa «Costeo» de la ficha: valor del molde, fabricación (teórico, real y desvío de sus OF) y presupuesto del proyecto con real, estimado y desvío en pesos y en USD.',
+      tags: ['RQ-MAT-52', 'RQ-MAT-54', 'DEV-MAT-01 · DFT07']
+    },
+    { n: '07', label: 'Tratamiento contable', lane: 'cont', variant: 'cont2',
+      title: 'Activo fijo o costo',
+      desc: 'Contabilidad define con Ezequiel Molina si el molde es activo fijo (<em>account_asset</em>) o costo (MF Contabilidad v5.4).',
+      tags: ['RQ-MAT-53', 'Gap', 'account_asset'],
+      pill: { color: 'sub', text: '[ABIERTO] RQ-MAT-53: tratamiento contable del molde' }
+    }
+  ],
+  arrows: [
+    { from: 0, to: 1, lane: 'com', label: 'cuenta del molde' },
+    { from: 1, to: 2, lane: 'mat', label: 'almacenables al consumir' },
+    { from: 2, to: 3, lane: 'cont', label: 'línea analítica' },
+    { from: 4, to: 5, lane: 'mat', label: 'costo final' }
+  ]
+},
+
+/* ==================== P-MAT-7 ==================== */
+p7: {
+  code: 'P-MAT-7',
+  name: 'Maestro de Moldes',
+  shortName: 'Maestro de Moldes',
+  type: 'Transversal',
+  rqRange: 'RQ-MAT-61 a 65',
+  rqCount: 5,
+  description: 'Gobierno del maestro de moldes por Matricería: el molde es un equipo de Mantenimiento con código, estados con flujo controlado, versiones, cambios de versión programados, contador de golpes y categorías de inyectoras. Planificación y Producción lo usan en la LdM y en la OF.',
+  shortDesc: 'Ficha, estados, versiones, golpes y categorías del molde',
+  lanes: ['mat','plan','prod'],
+  intro: 'Proceso transversal: acompaña al molde desde el alta (P-MAT-1) hasta la baja. Menú Fabricación > Matricería: Moldes, Cambios de versión y Golpes de moldes. Se descartó <em>mrp_tool_tracking</em>, que no existía: el molde es un equipo de Mantenimiento de la «Categoría de moldes» con su producto almacenable. Gobierno: Matricería (decisión 2026-04-30). Implementado con DEV-PRO-05 · DFT07 (con DEV-MAT-01 y DEV-MAT-02) y DFT40.',
+  archNote: 'MAESTRO DE MOLDES —</strong> Un molde es <strong>usable</strong> si no está archivado, está <strong>Disponible</strong> y no tiene una solicitud de mantenimiento abierta. La OF no se confirma ni se notifica con un molde o una versión no usable. Permisos: Matricería / Administrador, Armar versión y desbloquear, y Usuario; Fabricación consulta y elige la versión; Mantenimiento no modifica moldes.',
+  steps: [
+    { divider: 'ALTA Y HABILITACIÓN DEL MOLDE' },
+    { n: '01', label: 'Alta del molde', lane: 'mat', variant: 'mat',
+      title: 'Molde en el maestro',
+      desc: 'Matricería crea el molde (clase Propio o Externo ME, código único también entre los archivados) con su versión base /0 armada y su cuenta analítica. Nace <em>En diseño</em>.',
+      tags: ['RQ-MAT-01', 'RQ-MAT-07', 'DEV-PRO-05 · DFT07'],
+      pill: { color: 'sub', text: '[ABIERTO] Formato del código: P### o solo números y ME' }
+    },
+    { n: '02', label: 'Ficha y categorías', lane: 'mat', variant: 'mat2',
+      title: 'Ficha técnica y categorías de inyectoras',
+      desc: 'Cliente, plano, cavidades, ciclo y costo estimado. Categorías de inyectoras en que puede trabajar: abarcan sus subcategorías; sin categorías, el molde no restringe. «Requiere robot»: aviso sin bloqueo.',
+      tags: ['RQ-MAT-02', 'RQ-MAT-65', 'DEV-MAT-01 · DFT07', 'DFT40'],
+      pill: { color: 'sub', text: '[ABIERTO] Categorías por versión del molde' }
+    },
+    { n: '03', label: 'Habilitar', lane: 'mat', variant: 'mat',
+      title: 'Molde Disponible',
+      desc: 'Con el botón <em>Habilitar</em> (con motivo) el molde pasa de En diseño / En fabricación / En prueba a <em>Disponible</em> y queda en el historial de estados (T01872).',
+      tags: ['RQ-MAT-61', 'RQ-MAT-05', 'DEV-PRO-05 · DFT07']
+    },
+    { divider: 'USO EN LA LdM Y LA OF — versiones y cambios de versión' },
+    { n: '04', label: 'Versión en la operación', lane: 'plan', variant: 'plan',
+      title: 'Molde y versión en la LdM',
+      desc: 'En la operación de la LdM se elige la versión del molde: solo versiones no bloqueadas de moldes Disponibles y de la categoría de la máquina. La OF corta al confirmar si el molde o la versión no son usables. En el Gantt, las órdenes de trabajo con molde no liberado se ven rayadas.',
+      tags: ['RQ-MAT-62', 'RQ-PLA-06', 'RQ-MAT-65', 'DEV-PRO-05 · DFT07', 'DEV-PLA-02 · DFT03']
+    },
+    { n: '05', label: 'Versiones', lane: 'mat', variant: 'mat2',
+      title: 'Nueva versión /1, /2…',
+      desc: 'Matricería / Administrador crea versiones con descripción del cambio, plano, cavidades, ciclo y «Cambio a cargo de». Estados En preparación, Vigente y Bloqueada; si el molde no está Disponible se ven «Bloqueada por el molde» (T01928).',
+      tags: ['RQ-MAT-62', 'DEV-PRO-05 · DFT07']
+    },
+    { n: '06', label: 'Cambio programado', lane: 'prod', variant: 'prod',
+      title: 'OF con otra versión',
+      desc: 'Si una OF pide una versión distinta de la armada, se confirma igual, con aviso, y se programa un cambio de versión CV/AAAA/NNNN al fin de la OF anterior del molde, con actividad al responsable. Se reacomoda solo al reprogramar (T02022).',
+      tags: ['RQ-MAT-63', 'DEV-PRO-05 · DFT07'],
+      pill: { color: 'sub', text: '[ABIERTO] Responsables de los cambios de versión (T01888)' }
+    },
+    { n: '07', label: 'Armar versión', lane: 'mat', variant: 'mat',
+      title: 'Asistente «Armar versión»',
+      desc: 'El grupo «Armar versión y desbloquear» arma la versión: cierra el cambio programado y guarda fecha real, usuario y golpes del molde.',
+      tags: ['RQ-MAT-63', 'DEV-PRO-05 · DFT07']
+    },
+    { divider: 'PRODUCCIÓN — cada notificación suma golpes al molde', type: 'phys' },
+    { n: '08', label: 'Golpes', lane: 'prod', variant: 'prod2',
+      title: 'Contador de golpes',
+      desc: 'Cada cierre de producción suma piezas ÷ cavidades activas, redondeado hacia arriba; el desmontaje descuenta. Los golpes son del molde, no de la versión (T01873).',
+      tags: ['RQ-MAT-64', 'RQ-PLA-09', 'RQ-PRO-04', 'DEV-PRO-05 · DFT07']
+    },
+    { n: '09', label: 'Mantenimiento', lane: 'mat', variant: 'mat2',
+      title: 'Límite de golpes y mantenimiento',
+      desc: 'Al alcanzar el límite, aviso y actividad «Mantenimiento por golpes» a Matricería. «Registrar mantenimiento» pone el parcial en cero; el trabajo se registra en DonPC. Anular y ajustar golpes, solo Matricería / Administrador.',
+      tags: ['RQ-MAT-64', 'DEV-PRO-05 · DFT07']
+    },
+    { divider: 'ESTADOS — bloqueo, mantenimiento y baja (P-MAT-5)', type: 'end' },
+    { n: '10', label: 'Estados', lane: 'mat', variant: 'mat3',
+      title: 'Bloquear, mantenimiento y baja',
+      desc: 'Botones con motivo e historial: Bloquear / Desbloquear, Enviar a mantenimiento o Servicio externo / Volver a disponible, Dar de baja / Reactivar. Una solicitud de mantenimiento abierta también deja el molde no usable.',
+      tags: ['RQ-MAT-61', 'RQ-PRO-08', 'DEV-PRO-05 · DFT07']
+    }
+  ],
+  arrows: [
+    { from: 2, to: 3, lane: 'plan', label: 'molde Disponible' },
+    { from: 3, to: 5, lane: 'prod', label: 'OF con otra versión' },
+    { from: 5, to: 6, lane: 'mat', label: 'armar' },
+    { from: 7, to: 8, lane: 'mat', label: 'límite alcanzado' }
   ]
 }
 
@@ -909,7 +1071,8 @@ function el(tag, attrs={}, ...children){
 /* ROUTE BAR                                                          */
 /* ================================================================= */
 
-function renderRouteBar(route){const MF_URL='https://docs.google.com/document/d/1b1KnNos7Fmdi--77zprWMEHBk9NTiJ15RYNi2aLJXro/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🔧 MATRICERÍA'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v4.2'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v4.2 · 20-may-2026'));}
+const MF_URL='https://drive.google.com/file/d/122APBXL2z2u98HZbacUZXzlD53qUlqei/view';
+function renderRouteBar(route){const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🔧 MATRICERÍA'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v4.3'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v4.3 · 15-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -920,8 +1083,8 @@ function renderOverview(){
   app.innerHTML = '';
 
   const header = el('header',{class:'page'});
-  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Matricería · Argul y Compañía S.A.'));
-  header.appendChild(el('span',{class:'version-badge'},'MF v4.2 · 6 procesos · 60 RQs'));
+  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Matricería · Argul y Cía. S.A.'));
+  header.appendChild(el('span',{class:'version-badge'},'MF v4.3 · 7 procesos · 65 RQs'));
   const h1 = el('h1');
   h1.innerHTML = 'Procesos de Negocio del área de <span>Matricería</span>';
   header.appendChild(h1);
@@ -939,7 +1102,7 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma muestra los 6 procesos del área de Matricería. Los 5 procesos <strong>principales y bucle</strong> tienen diagrama de flujo propio; el proceso transversal de <strong>Costeo Analítico</strong> (P-MAT-6) no tiene diagrama (documentado en el MF v4.2). Hacé click en cualquier tarjeta para ver el flujo detallado de swimlanes. <a href="#" style="color:var(--accent)">Ver Modelo Funcional v4.2</a>'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma muestra los 7 procesos del área de Matricería según el MF v4.3 (20261115_Sistemas_Matriceria_MF_v4_3), todos con diagrama de flujo propio. El macro-flujo va de P-MAT-1 a P-MAT-4 y sigue en el <strong>Maestro de Moldes</strong> (P-MAT-7), donde el molde terminado se habilita para Producción. P-MAT-5 es el bucle de reprocesos y P-MAT-6 (Costeo Analítico) y P-MAT-7 son <strong>transversales</strong>. Los reportes transversales (sección 11 del MF, RQ-MAT-55 a 59) no tienen diagrama. Hacé click en cualquier tarjeta para ver el flujo detallado de swimlanes. <a href="'+MF_URL+'" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Ver Modelo Funcional v4.3</a>'
   }));
 
   const overviewWrap = el('div',{class:'overview-wrap'});
@@ -957,18 +1120,20 @@ function renderOverview(){
   macro.appendChild(macroStep('p3'));
   macro.appendChild(macroArrow());
   macro.appendChild(macroStep('p4'));
+  macro.appendChild(macroArrow());
+  macro.appendChild(macroStep('p7'));
   overviewWrap.appendChild(macro);
 
   overviewWrap.appendChild(el('div',{
     class:'loop-hint',
-    html:'↻ <strong>BUCLE</strong> — El proceso <strong>P-MAT-5 (Reprocesos)</strong> es un ciclo que se activa desde <strong>Producción</strong> y reingresa en P-MAT-2 (si requiere materiales) y/o P-MAT-4 (fabricación/ensamble focalizado). Representa la mayoría del trabajo del sector.'
+    html:'↻ <strong>BUCLE</strong> — El proceso <strong>P-MAT-5 (Reprocesos)</strong> es un ciclo que se activa desde <strong>Producción</strong> y reingresa en P-MAT-2 (si requiere materiales) y/o P-MAT-4 (fabricación/ensamble focalizado). Representa la mayoría del trabajo del sector. <strong>TRANSVERSAL</strong> — P-MAT-6 (Costeo Analítico) y P-MAT-7 (Maestro de Moldes) acompañan al molde durante toda su vida.'
   }));
 
   overviewWrap.appendChild(el('div',{class:'section-title'},'Procesos · click para navegar al diagrama'));
 
   const grid = el('div',{class:'pgrid'});
 
-  ['p1','p2','p3','p4','p5'].forEach(pid => {
+  ['p1','p2','p3','p4','p5','p6','p7'].forEach(pid => {
     const p = PROCESSES[pid];
     const card = el('a',{class:`pcard ${pid}`, href:`#/${pid}`});
     const head = el('div',{class:'pcard-head'});
@@ -999,7 +1164,7 @@ function renderOverview(){
 
   overviewWrap.appendChild(el('div',{
     class:'p6-note',
-    html:'<strong>▶ P-MAT-6 · COSTEO ANALÍTICO DEL MOLDE</strong> — Proceso transversal (RQ-MAT-50 a 54). Acumula costos en tiempo real vía <em>mrp_account_analytic</em> (OCA). Cada molde = cuenta analítica P###. Análisis real vs. estimado al cierre. RQ-MAT-53 (activo fijo vs. costo) pendiente de definición con Ezequiel Molina (MF Contabilidad v5.3). <strong>Sección 10 — Reportes transversales:</strong> RQ-MAT-55 Dashboard (DEV-MAT-02, Fase 2) · RQ-MAT-56 Materiales pendientes · RQ-MAT-57 Avance por posición · RQ-MAT-58 Historial BOMs · RQ-MAT-59 Exportación xlsx.'
+    html:'<strong>▶ SECCIÓN 11 · REPORTES Y SEGUIMIENTO TRANSVERSALES</strong> — Sin diagrama propio (RQ-MAT-55 a 59): RQ-MAT-55 tablero de moldes en fabricación (DEV-MAT-02 · DFT07: implementado y oculto por el recorte del 27/10) · RQ-MAT-56 materiales pendientes · RQ-MAT-57 avance por posición · RQ-MAT-58 historial de BOMs · RQ-MAT-59 exportación xlsx. El costo del molde está en el diagrama de P-MAT-6.'
   }));
 
   app.appendChild(overviewWrap);
@@ -1021,7 +1186,7 @@ function renderProcess(pid){
   app.innerHTML = '';
 
   const header = el('header',{class:'page'});
-  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Matricería · Argul y Compañía S.A.'));
+  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Matricería · Argul y Cía. S.A.'));
   header.appendChild(el('span',{class:'version-badge'}, proc.code + ' · ' + proc.type));
   const h1 = el('h1');
   h1.innerHTML = 'Proceso de <span>' + proc.shortName + '</span> en Fabricación de Moldes';
@@ -1375,7 +1540,7 @@ window.addEventListener('resize', () => {
 });
 </script>
 
-<!-- ========== FEATURES v4.2 ========== -->
+<!-- ========== FEATURES v4.3 ========== -->
 
 <div class="features-bar" id="featuresBar">
   <div class="toggle-header" onclick="collapseBar()">⚙ Features <span id="collapseArrow">▼</span></div>
@@ -1430,21 +1595,21 @@ window.addEventListener('resize', () => {
 
 <div class="pres-controls" id="presControls">
   <button class="pres-btn" onclick="presNav(-1)">◀ Anterior</button>
-  <div class="pres-info" id="presInfo">Proceso 1 / 5</div>
+  <div class="pres-info" id="presInfo">Proceso 1 / 7</div>
   <button class="pres-btn" onclick="presNav(1)">Siguiente ▶</button>
   <button class="pres-btn" onclick="exitPres()">Salir [ESC]</button>
 </div>
 
 <script>
 /* ================================================================= */
-/* FEATURE STATE v4.2                                                */
+/* FEATURE STATE v4.3                                                */
 /* ================================================================= */
 const FT = { analytics:false, presentation:false, context:false, minimap:false, filters:false };
 const FL = { dev:false, oca:false, critical:false, mat:false, plan:false, com:false };
 let _zoom = 1;
 let _presIdx = 0;
-const PRES_ORDER = ['p1','p2','p3','p4','p5'];
-const HEAT = { p1:1, p2:2, p3:3, p4:4, p5:5 };
+const PRES_ORDER = ['p1','p2','p3','p4','p5','p6','p7'];
+const HEAT = { p1:1, p2:2, p3:3, p4:4, p5:5, p6:3, p7:4 };
 
 function collapseBar(){
   const bar = document.getElementById('featuresBar');
