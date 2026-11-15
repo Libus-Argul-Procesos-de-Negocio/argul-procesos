@@ -345,7 +345,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · PLANIFICACIÓN Y ABASTECIMIENTO · ARGUL Y COMPAÑÍA S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v4.2 · alineado con MF Planificación v4.2</footer>
+<footer>ODOO 17 ENTERPRISE · PLANIFICACIÓN Y ABASTECIMIENTO · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v4.3 · alineado con MF Planificación v4.3</footer>
 
 <script>
 /* ================================================================= */
@@ -376,13 +376,13 @@ const PROCESSES = {
     pcls: 'pm',
     rqRange: 'RQ-PLA-01 a 04',
     rqCount: 4,
-    description: 'Recepción de OC del cliente, carga del pedido de venta por el equipo de Planificación (Customer Service), resolución de códigos de cliente a SKU interno, y fechado con partición de entregas parciales. Incluye el <em>Circuito A</em> (facturación Argul) y el <em>Circuito B</em> (facturación intercompany — preliminar, requiere sesión con Finanzas).',
+    description: 'Recepción de OC del cliente, carga del pedido de venta por el equipo de Planificación (Customer Service), resolución de códigos de cliente a SKU interno, y fechado con varias fechas comprometidas por línea (DEV-VTA-01 · DFT02). Incluye el <em>Circuito A</em> (facturación Argul) y el <em>Circuito B</em> (facturación intercompany — preliminar, requiere sesión con Finanzas).',
     shortDesc: 'OC → PV → fechado · circuito A/B · DEV-PLA-01',
     inputs: 'OC del cliente · código de cliente / SKU · catálogo de productos',
     outputs: 'sale.order confirmado · demanda para MRP (→ P-PLA-3)',
     lanes: ['cli','plan','ven','adm','sis'],
-    intro: 'El equipo de Planificación / Customer Service (Victoria Gini, Brian, Gastón) carga todos los pedidos de venta en Odoo, no el equipo comercial (RQ-PLA-01). Los pedidos responden a distintas modalidades: pedidos mensuales formales contra OC (Unilever), entregas continuas de gran volumen (Sides: ~16M u/mes de tapones) y clientes para los que se fabrica contra previsión de demanda sin OC. El desarrollo DEV-PLA-01 resuelve la tabla de equivalencias código de cliente → SKU interno, que en SAP opera de forma nativa. El Circuito B (facturación desde otra razón social) requiere sesión dedicada con Finanzas para definir el tratamiento multicompany; se incluye aquí de forma preliminar.',
-    archNote: 'INPUTS — OC del cliente (mail/portal/contacto comercial) · tabla de referencias cruzadas SKU ← DEV-PLA-01 (OCA product_supplierinfo_for_customer) · catálogo activo. OUTPUTS — sale.order confirmado → alimenta MRP (RQ-PLA-10) · fechas de entrega por sub-línea → control de cumplimiento (RQ-PLA-20). REFERENCIAS CRUZADAS — el OUTPUT de este proceso es el INPUT principal de P-PLA-3 (MRP). El fechado (RQ-PLA-03) es prerrequisito crítico del go-live.',
+    intro: 'El equipo de Planificación / Customer Service (Victoria Gini, Brian, Gastón) carga todos los pedidos de venta en Odoo, no el equipo comercial (RQ-PLA-01). Los pedidos responden a distintas modalidades: pedidos mensuales formales contra OC (Unilever), entregas continuas de gran volumen (Sides: ~16M u/mes de tapones) y clientes para los que se fabrica contra previsión de demanda sin OC. La tabla de equivalencias código de cliente → SKU interno, que en SAP opera de forma nativa, se resolvió con el OCA product_supplierinfo_for_customer y extensiones de DEV-PRO-01 · DFT09: DEV-PLA-01 no se desarrolló como módulo propio. El Circuito B (facturación desde otra razón social) requiere sesión dedicada con Finanzas para definir el tratamiento multicompany; se incluye aquí de forma preliminar.',
+    archNote: 'INPUTS — OC del cliente (mail/portal/contacto comercial) · tabla de referencias cruzadas SKU ← OCA product_supplierinfo_for_customer con campo Destino (DEV-PLA-01, DFT09, DFT34) · catálogo activo. OUTPUTS — sale.order confirmado → alimenta MRP (RQ-PLA-10) · fechas comprometidas por línea (DEV-VTA-01 · DFT02) → MRP con «Fecha de entrega» (DFT39) y control de cumplimiento (RQ-PLA-20). REFERENCIAS CRUZADAS — el OUTPUT de este proceso es el INPUT principal de P-PLA-3 (MRP). El fechado (RQ-PLA-03) es prerrequisito crítico del go-live.',
     steps: [
       { n: '01', label: 'OC del cliente', lane: 'cli', variant: 'cli',
         title: 'Cliente envía orden de compra',
@@ -395,21 +395,21 @@ const PROCESSES = {
         tags: ['RQ-PLA-01', 'rol Customer Service', 'estándar']
       },
       { n: '03', label: 'Código cliente → SKU', lane: 'sis', variant: 'sis',
-        title: 'Resolución automática código de cliente → SKU interno',
-        desc: 'Al ingresar el código del cliente, el sistema resuelve el SKU interno mediante la tabla de equivalencias. El código externo se propaga al PV, remito y factura. Soporta múltiples clientes por SKU. Módulo OCA <em>product_supplierinfo_for_customer</em> provee la base funcional.',
-        tags: ['RQ-PLA-04', 'DEV-PLA-01', 'OCA product_supplierinfo_for_customer'],
-        pill: { color: 'plan', text: '🔧 DEV-PLA-01 · acotado a propagación a remito/factura + migración de datos' }
+        title: 'Resolución código de cliente → SKU interno',
+        desc: 'En la línea del PV, Odoo busca el producto por el código del cliente y muestra ese código (OCA product_supplierinfo_for_customer_sale, T02051). La tabla de equivalencias es la del OCA product_supplierinfo_for_customer, con campo Destino (Ambos / Mercado local / Exportación); un código de un cliente apunta a un solo SKU y no exige precio, cantidad mínima ni validez (DEV-PRO-01 · DFT09). Factura y remito imprimen «SKU - código del cliente»; si el código venció, el más reciente con aviso (DFT34). <strong>[ABIERTO]</strong> DFT34 no identifica RQ.',
+        tags: ['RQ-PLA-04', 'DEV-PLA-01', 'DEV-PRO-01 · DFT09', 'DFT34', 'OCA product_supplierinfo_for_customer'],
+        pill: { color: 'plan', text: '🔧 DEV-PLA-01 resuelto con OCA (DFT09) · falta la carga real de la tabla (T01591)' }
       },
       { n: '04', label: 'Fechado entregas', lane: 'plan', variant: 'plan2',
-        title: 'Fechado y partición de entregas por línea de PV',
-        desc: 'Una línea de PV (ej.: 3.000.000 u.) se parte en sub-entregas con fecha individual (ej.: 500.000 × 6 semanas), generando <em>stock.picking</em> independientes por sub-línea. Sin esta funcionalidad el proceso de Sides (16M u/mes con entregas diarias) no puede gestionarse en sistema.',
-        tags: ['RQ-PLA-03', 'sale_order_line_date (OCA — verificar 17.0)', 'prerrequisito go-live'],
-        pill: { color: 'dep', text: '⚠ GAP CRÍTICO — prerrequisito go-live · evaluar OCA/sale-workflow' }
+        title: 'Fechado: varias fechas comprometidas por línea de PV',
+        desc: 'Una línea de PV (ej.: 3.000.000 u.) admite varias fechas comprometidas, cada una con su cantidad (ej.: 500.000 × 6 semanas), sin duplicar líneas (libus_fechado, DEV-VTA-01 · DFT02, MF Ventas v3.3). Las fechas son planificación: no generan un remito por fecha. El MRP las toma si la compañía elige «Fecha de entrega» en «Fecha de la demanda de ventas en el MRP» (DFT39). <strong>[ABIERTO]</strong> Granularidad semanal en el MRP.',
+        tags: ['RQ-PLA-03', 'DEV-VTA-01 · DFT02', 'DFT39', 'prerrequisito go-live'],
+        pill: { color: 'plan', text: '🔧 DEV-VTA-01 · DFT02 implementado · se descartó sale_order_line_date' }
       },
       { divider: 'CIRCUITO A — Facturación Argul (estándar)' },
       { n: '05', label: 'Tipo A confirmado', lane: 'plan', variant: 'plan',
         title: 'Pedido tipo A: confirmación y flujo estándar',
-        desc: 'Pedido facturado desde Argul y Compañía S.A. El stock es de Argul. El proceso operativo de depósito, producción y WMS es idéntico al tipo B. Solo la entidad de facturación distingue los dos tipos.',
+        desc: 'Pedido facturado desde Argul y Cía. S.A. El stock es de Argul. El proceso operativo de depósito, producción y WMS es idéntico al tipo B. Solo la entidad de facturación distingue los dos tipos.',
         tags: ['RQ-PLA-02', 'tipo A', 'estándar']
       },
       { divider: 'CIRCUITO B — Intercompany / otra razón social (PRELIMINAR — requiere sesión con Finanzas)', type: 'warn' },
@@ -422,8 +422,9 @@ const PROCESSES = {
       { divider: 'OUTPUT — Pedido confirmado alimenta el MRP', type: 'end' },
       { n: '07', label: 'PV → MRP', lane: 'sis', variant: 'sis2',
         title: 'Pedido de venta confirmado: input principal del MRP',
-        desc: 'El sale.order confirmado con fechas de sub-entrega alimenta el MRP multinivel. Es el handshake central entre Ventas/Planificación y Producción. Las fechas de sub-línea (RQ-PLA-03) determinan la granularidad con que el MRP planifica.',
-        tags: ['RQ-PLA-01', 'ref. RQ-PLA-10', 'sale.order → mrp.production']
+        desc: 'El sale.order confirmado alimenta el MRP multinivel de OCA. La demanda entra en la ubicación que se configura por compañía o por tipo de pedido y, si la compañía elige «Fecha de entrega» en «Fecha de la demanda de ventas en el MRP», en las fechas del fechado; por defecto entra con la fecha del día (DFT39, T02047). Es el handshake central entre Ventas/Planificación y Producción. <strong>[ABIERTO]</strong> Qué opción usa Argul: se recomienda «Fecha de entrega».',
+        tags: ['RQ-PLA-01', 'ref. RQ-PLA-10', 'DFT39', 'sale.order → MRP'],
+        pill: { color: 'adm', text: '⚠ ABIERTO · fecha de la demanda de ventas: Hoy o Fecha de entrega' }
       }
     ],
     arrows: [
@@ -444,47 +445,47 @@ const PROCESSES = {
     pcls: 'ps',
     rqRange: 'RQ-PLA-05 a 09',
     rqCount: 5,
-    description: 'Configuración de la estructura base de planificación: BOM con explosión multinivel, hojas de ruta con operaciones y centros de trabajo, y maestro de moldes como recurso controlado. Los moldes son el elemento central que vincula el producto con la inyectora. El requerimiento mínimo para go-live es un maestro de moldes gestionado (entidad propia) con selector controlado en la BOM y en la OF.',
-    shortDesc: 'BOM multinivel · hojas de ruta · maestro de moldes · DEV mrp_tool_tracking',
+    description: 'Configuración de la estructura base de planificación: BOM con explosión multinivel, hojas de ruta con operaciones y centros de trabajo, y maestro de moldes como recurso controlado. Los moldes son el elemento central que vincula el producto con la inyectora. El maestro de moldes es un equipo de Mantenimiento con selector controlado en la operación de la LdM y en la OF (DEV-PRO-05 · DFT07), y las inyectoras se agrupan en categorías (DFT40).',
+    shortDesc: 'BOM multinivel · hojas de ruta · maestro de moldes · DEV-PRO-05 · DFT07',
     inputs: 'Datos maestros SAP (BOM, rutas, tiempos, centros de trabajo) · registro físico de moldes',
     outputs: 'BOM activas en Odoo · hojas de ruta configuradas · maestro de moldes gestionado',
     lanes: ['plan','dep','sis'],
-    intro: 'La sesión 2 confirmó que el requerimiento mínimo para go-live es el maestro de moldes como entidad gestionada: el molde M0246 debe ser el mismo registro para todas las BOM que lo usen, y el selector en la BOM / OF debe ser un dropdown controlado (no texto libre). Los tipos de operación (molde / periférico / ensamble) y el contador de golpes quedan diferidos a Phase 2. El módulo <em>mrp_tool_tracking</em> (MF Producción) implementa este scope. La migración correcta de parámetros de planificación desde SAP es crítica para que el MRP funcione bien desde el día 1.',
-    archNote: 'INPUTS — datos SAP: BOM multinivel, hojas de ruta, tiempos estándar, cavidades, lead times, lotes mínimos, centros de trabajo · registro de moldes de Matricería. OUTPUTS — BOM activas con parámetros migrados → alimentan MRP (P-PLA-3) · maestro de moldes gestionado → selector controlado en OF → base para módulo Matricería (Phase 2). DEV — mrp_tool_tracking Phase 1 (MF Producción RQ-PRO-xx / RQ-PLA-06).',
+    intro: 'La sesión 2 confirmó que el requerimiento mínimo para go-live es el maestro de moldes como entidad gestionada: el molde M0246 debe ser el mismo registro para todas las BOM que lo usen, y el selector en la BOM / OF debe ser un dropdown controlado (no texto libre). Los tipos de operación (molde / periférico / ensamble) quedan diferidos a Phase 2; el contador de golpes quedó implementado. El molde es un equipo de Mantenimiento gestionado por Matricería (DEV-PRO-05 · DFT07, MF Producción v5.2); se descartó <em>mrp_tool_tracking</em>. Las inyectoras se agrupan en categorías y el molde se elige por categoría (DFT40). La migración correcta de parámetros de planificación desde SAP es crítica para que el MRP funcione bien desde el día 1.',
+    archNote: 'INPUTS — datos SAP: BOM multinivel, hojas de ruta, tiempos estándar, cavidades, lead times, lotes mínimos, centros de trabajo · registro de moldes de Matricería. OUTPUTS — BOM activas con parámetros migrados → alimentan MRP (P-PLA-3) · maestro de moldes gestionado → selector controlado en OF → contador de golpes por notificación. DEV — DEV-PRO-05 · DFT07 (MF Producción v5.2) y DFT40 (categorías de inyectoras). ALTA AUTOMÁTICA — parámetros de área MRP al crear el producto y la LdM (DFT36). <strong>[ABIERTO]</strong> Fabricación del molde en Odoo o en Don PC (T01930, T01931).',
     steps: [
       { n: '01', label: 'BOM y rutas', lane: 'sis', variant: 'sis',
         title: 'BOM multinivel, hojas de ruta y parámetros de planificación',
-        desc: 'Se configuran BOM y rutas de fabricación con los mismos atributos que SAP: operaciones, centros de trabajo, tiempos estándar, cavidades, lead times, lote mínimo y punto de reorden. Implementado en Libus; se adapta y migra para Argul. La migración correcta de parámetros es prerrequisito del MRP.',
-        tags: ['RQ-PLA-05', 'mrp.bom', 'migración datos SAP', 'estándar']
+        desc: 'Se configuran BOM y rutas de fabricación con los mismos atributos que SAP: operaciones, centros de trabajo, tiempos estándar, cavidades, lead times, lote mínimo y punto de reorden. Con el MRP multinivel de OCA, los parámetros de planificación viven en el parámetro de área MRP: el alta de un almacenable y de una LdM de fabricación lo crea sin verificar (DFT36). El MRP convierte la UdM de la línea de la LdM (DFT38). Implementado en Libus; se adapta y migra para Argul. La migración correcta de parámetros es prerrequisito del MRP.',
+        tags: ['RQ-PLA-05', 'mrp.bom', 'DFT36', 'migración datos SAP']
       },
       { n: '02', label: 'Maestro moldes', lane: 'dep', variant: 'dep',
-        title: 'Maestro de moldes: entidad gestionada (requerimiento mínimo go-live)',
-        desc: 'El molde es una entidad propia en Odoo, gestionable en pantalla dedicada. No es texto libre en la operación de ruta. M0246 debe ser el mismo registro para todas las BOM que lo usen. Matricería crea y mantiene el maestro; Planificación lo utiliza al configurar BOM y OF.',
-        tags: ['RQ-PLA-06', 'DEV mrp_tool_tracking Phase 1', 'ref. MF Producción'],
-        pill: { color: 'dep', text: '🔧 DEV mrp_tool_tracking · Phase 1: maestro + selector controlado' }
+        title: 'Maestro de moldes: equipo de Mantenimiento gestionado por Matricería',
+        desc: 'El molde es un equipo de Mantenimiento de la categoría de moldes, con código único, estados con flujo controlado, versiones y bloqueo. No es texto libre en la operación de ruta: M0246 es el mismo registro para todas las LdM que lo usen. Matricería crea y mantiene el maestro; Planificación lo usa al configurar LdM y OF. Se descartó mrp_tool_tracking. <strong>[ABIERTO]</strong> Fabricación del molde: Don PC u OF en Odoo (T01930, T01931).',
+        tags: ['RQ-PLA-06', 'DEV-PRO-05 · DFT07', 'ref. MF Producción v5.2'],
+        pill: { color: 'adm', text: '⚠ ABIERTO · fabricación del molde en Odoo o en Don PC · pruebas T01503 y T01504 pendientes' }
       },
-      { n: '03', label: 'Selector en BOM/OF', lane: 'sis', variant: 'sis2',
-        title: 'Selector controlado de molde en BOM y orden de fabricación',
-        desc: 'El campo de molde en la BOM y en la OF es un dropdown que solo permite seleccionar valores existentes en el maestro. Elimina los duplicados y valores libres actuales de SAP. Base para el contador de golpes en Phase 2.',
-        tags: ['RQ-PLA-06', 'mrp_tool_tracking', 'dropdown controlado']
+      { n: '03', label: 'Selector en LdM/OF', lane: 'sis', variant: 'sis2',
+        title: 'Selector controlado de molde en la LdM y en la OF',
+        desc: 'El molde y su versión se eligen en la operación de la LdM con un selector que solo ofrece moldes Disponibles que abarcan la categoría de la máquina (DFT40). Si la LdM tiene varios moldes, la OF en borrador elige el «Molde a usar». La OF no se confirma ni se notifica con un molde no usable.',
+        tags: ['RQ-PLA-06', 'DEV-PRO-05 · DFT07', 'DFT40', 'selector controlado']
       },
       { divider: 'CENTROS DE TRABAJO ALTERNATIVOS' },
       { n: '04', label: 'Máquinas alternativas', lane: 'plan', variant: 'plan2',
-        title: 'Centros de trabajo alternativos con selección manual',
-        desc: 'Grupos de máquinas equivalentes (ej.: 5 inyectoras de 50T). Un molde habilitado puede ejecutarse en cualquiera del grupo. El planificador elige la máquina manualmente al liberar la OF. El sistema no debe reasignar automáticamente al presionar "Planificar orden".',
-        tags: ['RQ-PLA-08', 'GAP · verificar comportamiento nativo', 'prueba requerida'],
-        pill: { color: 'adm', text: '⚠ GAP — comportamiento nativo puede sobreescribir asignación manual · requiere prueba en test' }
+        title: 'Máquinas alternativas por categoría de inyectoras',
+        desc: 'Las inyectoras se agrupan en categorías en árbol (OCA mrp_workcenter_category). Con «Máquinas alternativas entre sí», las de una misma categoría quedan como alternativas y el planificador nativo elige la que termina antes. En la OF, la OT y el Gantt la máquina se puede cambiar a mano, restringida a las categorías del molde (DFT40). <strong>[ABIERTO]</strong> La v4.2 pedía selección manual, sin reasignación automática.',
+        tags: ['RQ-PLA-08', 'DFT40', 'OCA mrp_workcenter_category', 'prueba requerida'],
+        pill: { color: 'adm', text: '⚠ ABIERTO · elección automática de la alternativa o selección manual · probar en test' }
       },
-      { divider: 'PHASE 2 — Contador de golpes y tipos de operación (diferidos)', type: 'loop' },
+      { divider: 'TIPOS DE OPERACIÓN (PHASE 2) Y CONTADOR DE GOLPES (IMPLEMENTADO)', type: 'loop' },
       { n: '05', label: 'Tipos de operación', lane: 'dep', variant: 'dep2',
         title: 'Tipos de operación: molde / periférico / ensamble (Phase 2)',
-        desc: 'La operación de fabricación tendrá un campo tipo (molde / periférico / ensamble). Un producto puede requerir varias operaciones de tipos distintos. Los periféricos (robot, láser) los gestiona Mantenimiento. Confirmado como NO necesario para go-live en sesión 2.',
-        tags: ['RQ-PLA-07', 'Phase 2', 'mrp_tool_tracking v2', 'diferido']
+        desc: 'La operación de fabricación tendrá un campo tipo (molde / periférico / ensamble). Un producto puede requerir varias operaciones de tipos distintos. Los periféricos (robot, láser) los gestiona Mantenimiento. Confirmado como NO necesario para go-live en sesión 2. DFT07: no implementado; no hay campo de tipo de operación ni pedido vigente.',
+        tags: ['RQ-PLA-07', 'Phase 2', 'diferido', 'DFT07: no implementado']
       },
       { n: '06', label: 'Contador golpes', lane: 'dep', variant: 'dep2',
-        title: 'Contador de golpes por molde (Phase 2)',
-        desc: 'Dos contadores: acumulado total e intervalo desde último mantenimiento. Se actualiza en cada declaración de producción. Clientes como Unilever, Avon y Natura solicitan reportes de estado de sus moldes. Confirmado como NO necesario para go-live.',
-        tags: ['RQ-PLA-09', 'Phase 2', 'Unilever/Avon/Natura requieren reporte', 'diferido']
+        title: 'Contador de golpes por molde',
+        desc: 'Cada notificación de producción suma golpes al molde usado: contador acumulado y desde el último mantenimiento, con reinicio por mantenimiento, límite y actividad (maintenance_equipment_mold_shot_counter, T01873). Clientes como Unilever, Avon y Natura solicitan reportes de estado de sus moldes. La sesión 2 lo había diferido a Phase 2; quedó implementado.',
+        tags: ['RQ-PLA-09', 'DEV-PRO-05 · DFT07', 'Unilever/Avon/Natura requieren reporte']
       }
     ],
     arrows: [
@@ -502,44 +503,61 @@ const PROCESSES = {
     shortName: 'MRP',
     type: 'Principal',
     pcls: 'pm',
-    rqRange: 'RQ-PLA-10 a 14, RQ-PLA-30',
-    rqCount: 6,
-    description: 'Ejecución diaria del MRP multinivel: genera órdenes de fabricación sugeridas, solicitudes de compra automáticas y órdenes de transferencia interna. Considera PV confirmados, previsiones de demanda y stock de seguridad. La restricción de lote (RQ-PLA-13) cubre el control de consumo de MMPP sin reserva de stock. La prueba de volumen (RQ-PLA-14) es prerrequisito del go-live.',
-    shortDesc: 'MRP diario · plan borrador/firme · restricción de lote (OCA) · prueba volumen',
+    rqRange: 'RQ-PLA-10 a 14, RQ-PLA-30 y 31',
+    rqCount: 7,
+    description: 'Ejecución diaria del MRP multinivel de OCA (mrp_multi_level) con módulos propios (DFT36 a DFT39): genera órdenes planificadas que Planificación libera como órdenes de fabricación, solicitudes de compra y órdenes de transferencia interna. Considera PV confirmados, previsiones de demanda y stock de seguridad. El lote de la OF (RQ-PLA-13) cubre el control de consumo de MMPP sin reserva de stock. La prueba de volumen (RQ-PLA-14) es prerrequisito del go-live.',
+    shortDesc: 'MRP multinivel OCA · DFT36 a DFT39 · borrador/firme · lote de la OF · prueba volumen',
     inputs: 'sale.order confirmados (← P-PLA-1) · stock actual · parámetros de planificación (← P-PLA-2) · previsiones de demanda',
-    outputs: 'Órdenes de fabricación sugeridas (borrador/confirmadas) · solicitudes de compra · órdenes de transferencia interna',
+    outputs: 'Órdenes planificadas → OF (borrador/confirmadas) · solicitudes de compra · órdenes de transferencia interna',
     lanes: ['plan','dep','sis'],
-    intro: 'La planificación es diaria: el equipo corre el MRP, controla el avance de las órdenes activas y ajusta la carga de máquinas. El MRP tiene tres tipos de outputs: fabricar, comprar y transferir entre almacenes. Argul NO reserva material en órdenes de fabricación porque múltiples máquinas pueden consumir simultáneamente del mismo palet; la restricción de lote (RQ-PLA-13) es el mecanismo de control equivalente. En Libus se detectaron problemas de rendimiento del MRP multinivel; la prueba de volumen con datos reales de Argul es prerrequisito explícito del go-live.',
-    archNote: 'INPUTS — sale.order confirmados con fechas de sub-entrega · stock actual por ubicación · parámetros de planificación por producto (lead time, lote mínimo, stock de seguridad, método de abastecimiento). OUTPUTS — mrp.production (borrador → confirmado) · purchase.order (solicitudes automáticas) · stock.picking interno · Gantt actualizado → input de P-PLA-4. OCA — stock_restrict_lot (OCA/stock-logistics-workflow, verificar rama 17.0 con Franco Nicolau).',
+    intro: 'La planificación es diaria: el equipo corre el MRP, controla el avance de las órdenes activas y ajusta la carga de máquinas. El MRP es el multinivel de OCA (mrp_multi_level), con corrida automática diaria a las 03:00 (T01916) y tres tipos de outputs: fabricar, comprar y transferir entre almacenes. Argul NO reserva material en órdenes de fabricación porque múltiples máquinas pueden consumir simultáneamente del mismo palet; el lote asignado en la OF (RQ-PLA-13) es el mecanismo de control equivalente: el abastecimiento al PR lo reserva en el depósito central (DEV-PLA-03 · DFT04). En Libus se detectaron problemas de rendimiento del MRP multinivel; la prueba de volumen con datos reales de Argul es prerrequisito explícito del go-live.',
+    archNote: 'INPUTS — sale.order confirmados con fechas de sub-entrega · stock actual por ubicación · parámetros de planificación por producto (lead time, lote mínimo, stock de seguridad, método de abastecimiento). OUTPUTS — órdenes planificadas → mrp.production (borrador → confirmado) · solicitudes de compra (purchase_request, COM-CFG-21) · stock.picking interno · Gantt actualizado → input de P-PLA-4. OCA — mrp_multi_level / mrp_multi_level_estimate, purchase_request y stock_restrict_lot. DFT — DFT36 (parámetros de área MRP), DFT37 (subcontratación), DFT38 (oferta, demanda y fechas) y DFT39 (demanda de ventas y reparto de la OF). <strong>[ABIERTO]</strong> Los DFT36 a DFT38 asignan sus desarrollos a RQ-PLA-10 como supuesto.',
     steps: [
       { n: '01', label: 'Ejecución MRP', lane: 'sis', variant: 'sis',
-        title: 'Ejecución diaria del MRP multinivel',
-        desc: 'El MRP se ejecuta diariamente. Considera PV confirmados, previsiones de demanda y stock de seguridad. Genera tres tipos de output: órdenes de fabricación sugeridas, solicitudes de compra automáticas y órdenes de transferencia interna entre almacenes. Implementado en Libus; se adapta para Argul.',
-        tags: ['RQ-PLA-10', 'MRP multinivel', 'estándar', 'implementado en Libus']
+        title: 'Ejecución diaria del MRP multinivel (OCA)',
+        desc: 'El MRP multinivel de OCA (mrp_multi_level) corre todos los días a las 03:00 (T01916) y también a mano. Planifica por áreas (CD, PR): considera PV confirmados, previsiones de demanda, stock de seguridad, solicitudes de compra y presupuestos en curso y OF en borrador (DFT38). La demanda de ventas entra en la ubicación configurada por compañía o tipo de pedido y, de la OF, se reparten por día solo los componentes (DFT39). Genera órdenes planificadas para fabricar, comprar y transferir.',
+        tags: ['RQ-PLA-10', 'OCA mrp_multi_level', 'DFT38', 'DFT39'],
+        pill: { color: 'sis', text: '🔵 OCA mrp_multi_level + DFT36 a DFT39 · pruebas T01585 y T01457 pendientes' }
       },
       { n: '02', label: 'Políticas de stock', lane: 'sis', variant: 'sis2',
         title: 'Políticas de stock de seguridad diferenciadas por producto',
-        desc: 'Cada producto tiene su propia política: algunos tienen stock de varios meses (colorantes clave de Ses: 3 meses); otros se fabrican estrictamente contra OC; otros, contra previsión. En Odoo cada producto tiene configurados individualmente: método de abastecimiento, stock de seguridad, lead time y lote mínimo.',
-        tags: ['RQ-PLA-11', 'reglas de reposición', 'estándar', 'migración crítica']
+        desc: 'Cada producto tiene su propia política: algunos tienen stock de varios meses (colorantes clave de Ses: 3 meses); otros se fabrican estrictamente contra OC; otros, contra previsión. Con el MRP multinivel, cada producto tiene su parámetro de área MRP con stock de seguridad, plazo de entrega, cantidades mínima y máxima por orden y múltiplo; el método de abastecimiento sale de sus rutas. Los campos tienen etiquetas claras y sus cambios quedan en el historial (DFT36, T02027).',
+        tags: ['RQ-PLA-11', 'parámetro de área MRP', 'DFT36', 'migración crítica']
       },
-      { n: '03', label: 'Borrador vs. firme', lane: 'plan', variant: 'plan',
+      { n: '03', label: 'Alta de parámetros', lane: 'sis', variant: 'sis2',
+        title: 'Alta automática y verificación de parámetros de área MRP',
+        desc: 'Al crear un producto almacenable, Odoo crea su parámetro de área MRP; al crear una LdM de fabricación, también en el área donde se consumen sus componentes (CD/PR). El parámetro nace sin verificar, con una actividad para el responsable, que lo revisa con el filtro «Sin verificar» y lo marca verificado (DFT36, T01859).',
+        tags: ['RQ-PLA-10', 'ref. RQ-PLA-05 y RQ-PLA-11', 'DFT36']
+      },
+      { n: '04', label: 'Subcontratación', lane: 'sis', variant: 'sis',
+        title: 'Subcontratación «tirar desde» en el MRP',
+        desc: 'Cuando un componente va al subcontratista con «tirar desde», la demanda del área del subcontratista se crea en el área de origen y se planifica ahí: el MRP propone la compra o la fabricación donde corresponde (DFT37). <strong>[ABIERTO]</strong> No hay registro de una corrida con un producto subcontratado real de Argul.',
+        tags: ['RQ-PLA-10', 'DFT37', 'subcontratación'],
+        pill: { color: 'adm', text: '⚠ ABIERTO · probar con un producto que Argul subcontrate' }
+      },
+      { n: '05', label: 'Revisión del MRP', lane: 'plan', variant: 'plan',
+        title: 'Revisión del Inventario MRP y liberación de órdenes planificadas',
+        desc: 'Planificación revisa el Inventario MRP por producto y área: lanzamiento real, días de atraso y llegada si se pide hoy, con el filtro «Lanzamiento atrasado» (DFT38). Libera las órdenes planificadas como OF o solicitudes de compra (COM-CFG-21); el botón «RfQ» abre la solicitud de compra cuando la fila viene de una. Los botones del MRP se abren sin el permiso de Ajustes (T02041). Desde la línea, el «Pronosticado simple» muestra los movimientos y los saldos (DFT39). La OF liberada desde el MRP se cuenta una sola vez (DFT38).',
+        tags: ['RQ-PLA-10', 'DFT38', 'DFT39', 'ref. RQ-PLA-25 y RQ-PLA-26']
+      },
+      { n: '06', label: 'Borrador vs. firme', lane: 'plan', variant: 'plan',
         title: 'Plan maestro en borrador vs. órdenes confirmadas en firme',
-        desc: 'Dos niveles: (a) plan maestro en borrador, sin lote asignado, para el mes; (b) órdenes confirmadas en firme que llegan a producción con número de orden. El Gantt diferencia visualmente ambos estados. Solo las órdenes confirmadas se publican en el tablero de planta.',
-        tags: ['RQ-PLA-12', 'borrador → confirmado', 'verificar Gantt Odoo', 'estándar']
+        desc: 'Dos niveles: (a) plan maestro en borrador, sin lote asignado, para el mes; (b) órdenes confirmadas en firme que llegan a producción con número de orden. La OF en borrador cuenta en el MRP: el terminado como oferta en su fin y los componentes como demanda por día (DFT38, DFT39). El Gantt la muestra en celeste, con fechas tentativas y sin reservar la máquina (DEV-PLA-02 · DFT03). Solo las órdenes confirmadas se publican en el tablero de planta.',
+        tags: ['RQ-PLA-12', 'borrador → confirmado', 'DFT38', 'DEV-PLA-02 · DFT03']
       },
-      { n: '04', label: 'Restricción de lote', lane: 'dep', variant: 'dep',
-        title: 'Restricción de lote en consumo de materias primas (sin reserva)',
-        desc: 'Argul NO reserva material en OF: 10 máquinas pueden consumir simultáneamente del mismo palet. La restricción de lote es el control equivalente. Módulo OCA <em>stock_restrict_lot</em> restringe el lote sin pre-escribir el stock move line. El operario en pantalla simplificada no puede cambiar el lote unilateralmente; requiere acceso de administrador de fabricación.',
-        tags: ['RQ-PLA-13', 'OCA stock_restrict_lot', 'OCA/stock-logistics-workflow', 'verificar 17.0'],
-        pill: { color: 'sis', text: '🔵 OCA stock_restrict_lot — verificar disponibilidad 17.0 con Franco Nicolau' }
+      { n: '07', label: 'Lote de la OF', lane: 'dep', variant: 'dep',
+        title: 'Lote de la OF en el consumo de materias primas (sin reserva)',
+        desc: 'Argul NO reserva material en OF: 10 máquinas pueden consumir simultáneamente del mismo palet. El lote de componente asignado en la OF (el restringido con stock_restrict_lot o el elegido con libus_mrp) es el control equivalente: el abastecimiento al PR lo reserva en el depósito central para la transferencia, no en la OF (DEV-PLA-03 · DFT04). El operario en pantalla simplificada no puede cambiar el lote unilateralmente. <strong>[ABIERTO]</strong> stock_restrict_lot y el lote del abastecimiento al PR cubren una idea parecida y conviven sin definición.',
+        tags: ['RQ-PLA-13', 'DEV-PLA-03 · DFT04', 'OCA stock_restrict_lot'],
+        pill: { color: 'adm', text: '⚠ ABIERTO · lote de la OF y stock_restrict_lot conviven sin definición' }
       },
-      { n: '05', label: 'Prueba volumen', lane: 'plan', variant: 'plan2',
+      { n: '08', label: 'Prueba volumen', lane: 'plan', variant: 'plan2',
         title: 'Prueba de volumen del MRP con datos reales de Argul',
         desc: 'Antes del go-live: prueba de volumen en entorno con las mismas características técnicas que producción, con datos reales (SKUs, BOM, parámetros). Se mide tiempo de ejecución y consumo de recursos del servidor. En Libus se detectaron problemas de rendimiento; Argul tiene más SKUs y mayor volumen transaccional.',
         tags: ['RQ-PLA-14', 'GAP · prerrequisito go-live', 'infraestructura'],
         pill: { color: 'dep', text: '⚠ GAP CRÍTICO — sin prueba de volumen no se garantiza el ciclo diario de planificación' }
       },
-      { n: '06', label: 'Moldes familiares', lane: 'sis', variant: 'sis',
+      { n: '09', label: 'Moldes familiares', lane: 'sis', variant: 'sis',
         title: 'MRP con moldes familiares (mrp_byproduct)',
         desc: 'Los moldes familiares generan dos o más productos simultáneamente. El MRP debe considerar que al planificar la producción de un SKU con molde familiar, el co-producto también se genera. El módulo OCA <em>mrp_byproduct</em> permite definir subproductos en la BOM. La planificación debe considerar el stock del co-producto al decidir cuándo producir (alineado con RQ-PRO-07).',
         tags: ['RQ-PLA-30', 'OCA mrp_byproduct', 'moldes familiares · alineado con PRO-07'],
@@ -547,8 +565,9 @@ const PROCESSES = {
       }
     ],
     arrows: [
-      { from: 0, to: 3, lane: 'dep', label: 'lote → consumo' },
-      { from: 2, to: 4, lane: 'plan', label: 'volumen real' }
+      { from: 0, to: 4, lane: 'plan', label: 'órdenes planificadas' },
+      { from: 0, to: 6, lane: 'dep', label: 'lote → consumo' },
+      { from: 5, to: 7, lane: 'plan', label: 'volumen real' }
     ]
   },
 
@@ -561,41 +580,53 @@ const PROCESSES = {
     shortName: 'Gantt',
     type: 'Principal',
     pcls: 'pm',
-    rqRange: 'RQ-PLA-15 a 17, RQ-PLA-31',
-    rqCount: 4,
-    description: 'Visualización de la carga de máquinas (40 inyectoras) y reprogramación en cascada de órdenes de fabricación. Reemplaza dos archivos Excel: el relevamiento de producción (app de Gustavo/Ángel) y la carga de máquinas planificada. La replanificación en cascada tiene trigger manual (DEV-PLA-02): el planificador la ejecuta una vez por día al imprimir el estado de planta.',
-    shortDesc: 'Gantt por inyectora · recálculo cascada manual · DEV-PLA-02 · reporte plan vs. real',
+    rqRange: 'RQ-PLA-15 a 17 · ref. RQ-PLA-31',
+    rqCount: 3,
+    description: 'Visualización de la carga de máquinas (40 inyectoras) y reprogramación en cascada de órdenes de fabricación. Reemplaza dos archivos Excel: el relevamiento de producción (app de Gustavo/Ángel) y la carga de máquinas planificada. La replanificación en cascada tiene trigger manual (DEV-PLA-02 · DFT03): es un documento con historial sobre las órdenes de trabajo, que el planificador ejecuta una vez por día al imprimir el estado de planta.',
+    shortDesc: 'Gantt de OT por inyectora · recálculo cascada manual · DEV-PLA-02 · DFT03 · reporte plan vs. real',
     inputs: 'Órdenes de fabricación confirmadas (← P-PLA-3) · declaraciones de producción parciales · datos de avance real (app planta)',
     outputs: 'Gantt actualizado · fechas recalculadas en cascada · reporte plan vs. real',
     lanes: ['plan','dep','sis'],
-    intro: 'Hoy el equipo trabaja con dos archivos Excel: un relevamiento de producción (estado en tiempo real de cada inyectora, alimentado por la app de Gustavo/Ángel) y una carga de máquinas (plan secuenciado por inyectora con estimaciones en horas). El objetivo es reemplazar ambos con el Gantt de Odoo. La sesión 2 confirmó que el trigger de replanificación debe ser manual (una vez por día, al imprimir el estado de planta) para evitar el colapso del sistema con ~300 notificaciones diarias. DEV-PLA-02 implementa esta lógica; verificar módulos OCA/manufacture antes del desarrollo custom.',
-    archNote: 'INPUTS — mrp.production confirmados · notificaciones parciales de producción · avance real de la app de planta (Gustavo/Ángel). OUTPUTS — Gantt actualizado por centro de trabajo (inyectora) · fechas inicio/fin recalculadas en cascada · reporte plan vs. real por centro de trabajo. DEV — DEV-PLA-02: investigar mrp_workorder_sequence u otros en OCA/manufacture rama 17.0 antes del desarrollo custom.',
+    intro: 'Hoy el equipo trabaja con dos archivos Excel: un relevamiento de producción (estado en tiempo real de cada inyectora, alimentado por la app de Gustavo/Ángel) y una carga de máquinas (plan secuenciado por inyectora con estimaciones en horas). El objetivo es reemplazar ambos con el Gantt de Odoo. La sesión 2 confirmó que el trigger de replanificación debe ser manual (una vez por día, al imprimir el estado de planta) para evitar el colapso del sistema con ~300 notificaciones diarias. DEV-PLA-02 · DFT03 implementa esta lógica como módulo propio (mrp_gantt_replan): en Odoo 17 el Gantt es de órdenes de trabajo, así que la replanificación trabaja sobre las OT. La máquina se restringe a las categorías del molde (DFT40).',
+    archNote: 'INPUTS — mrp.production confirmados · notificaciones parciales de producción · avance real de la app de planta (Gustavo/Ángel). OUTPUTS — Gantt actualizado por centro de trabajo (inyectora) · fechas inicio/fin recalculadas en cascada · reporte plan vs. real por centro de trabajo. DEV — DEV-PLA-02 · DFT03: documento de replanificación RPL con vista previa, aplicar y revertir; entrega en riesgo; OF en borrador, ensayos y molde no liberado en el Gantt. DFT40: máquina restringida a las categorías del molde. <strong>[ABIERTO]</strong> Desplazamiento en horas de reloj, no productivas.',
     steps: [
       { n: '01', label: 'Gantt por inyectora', lane: 'sis', variant: 'sis',
-        title: 'Gantt de órdenes de fabricación por centro de trabajo',
-        desc: 'El Gantt muestra todas las órdenes activas y futuras por inyectora, con fechas calculadas en base a ciclo, cavidades y cantidad. El equipo ve la secuencia completa diferenciando órdenes en borrador y confirmadas. El Excel auxiliar de carga de máquinas se elimina con la implementación.',
-        tags: ['RQ-PLA-15', 'Gantt nativo', 'estándar', 'verificar diferenciación visual borrador/confirmado']
+        title: 'Gantt de órdenes de trabajo por centro de trabajo',
+        desc: 'El Gantt de Odoo 17 muestra las órdenes de trabajo (OT) por inyectora; la OF toma el inicio y el fin de sus OT. Las OF en borrador se ven en celeste, con fechas tentativas y sin reservar la máquina. Mover una barra conserva su largo y corre las OT encadenadas; no se planifica antes de ahora y Ctrl + arrastrar no duplica (DEV-PLA-02 · DFT03). La máquina se cambia solo dentro de las categorías del molde (DFT40). El Excel auxiliar de carga de máquinas se elimina con la implementación.',
+        tags: ['RQ-PLA-15', 'Gantt de OT', 'DEV-PLA-02 · DFT03', 'DFT40'],
+        pill: { color: 'plan', text: '🔧 DEV-PLA-02 · DFT03 · prueba PLA-CFG-01/15 (T01584) pendiente' }
       },
       { n: '02', label: 'Recálculo cascada', lane: 'plan', variant: 'plan',
-        title: 'Replanificación en cascada con trigger manual',
-        desc: 'Proceso ejecutado bajo demanda (una vez por día) que recalcula las fechas de inicio y fin de todas las órdenes activas y futuras por centro de trabajo, propagando los desvíos en cascada. El trigger es manual para que el planificador evalúe el impacto antes de reprogramar masivamente ~400 órdenes (40 inyectoras × 10 órdenes). El botón nativo "Planificar orden" puede cambiar la máquina asignada: comportamiento no deseado para Argul.',
-        tags: ['RQ-PLA-16', 'DEV-PLA-02', 'verificar OCA/manufacture'],
-        pill: { color: 'plan', text: '🔧 DEV-PLA-02 · verificar mrp_workorder_sequence u OCA/manufacture antes del custom' }
+        title: 'Replanificación en cascada: documento RPL con trigger manual',
+        desc: 'Planificación crea un documento de replanificación RPL/aa/nnnn (Fabricación > Planeación > Replanificar en cascada): centros de trabajo, horizonte en semanas (4 por defecto), buffer y motivo. Recalcula en cascada sobre las OT, respeta turnos, días no laborables y ausencias y conserva el inicio real de la OT en curso. Vista previa con reorden, inicio fijado y conflictos; «Aplicar» deja nota en el chatter de cada OF y «Revertir» devuelve las fechas originales. Disparo siempre manual, sin acción planificada. <strong>[ABIERTO]</strong> El desplazamiento se mide en horas de reloj.',
+        tags: ['RQ-PLA-16', 'DEV-PLA-02 · DFT03', 'mrp_gantt_replan'],
+        pill: { color: 'plan', text: '🔧 DEV-PLA-02 · DFT03 implementado · prueba PLA-CFG-05 (T01588) pendiente' }
       },
-      { n: '03', label: 'Reporte plan vs. real', lane: 'plan', variant: 'plan2',
+      { n: '03', label: 'Entrega en riesgo', lane: 'sis', variant: 'sis2',
+        title: 'OF con entrega en riesgo',
+        desc: 'Al aplicar la replanificación, la OF cuyo fin supera su fecha límite queda marcada «Entrega en riesgo», con filtro en el listado. Se enciende por compañía («Mostrar entrega en riesgo»). No mide la entrega del PV contra el fechado (ref. RQ-PLA-20).',
+        tags: ['RQ-PLA-16', 'ref. RQ-PLA-20', 'DEV-PLA-02 · DFT03']
+      },
+      { n: '04', label: 'Reporte plan vs. real', lane: 'plan', variant: 'plan2',
         title: 'Reporte plan vs. real por centro de trabajo',
         desc: 'Comparación diaria: fecha de inicio planificada vs. real, horas estándar vs. reales, cantidad planificada vs. producida. Permite detectar desvíos que impactan fechas de entrega comprometidas. Quick win identificado en el ASIS. Posible integración futura con la app de planta para recibir datos en tiempo real.',
         tags: ['RQ-PLA-17', 'GAP · configuración de reporte nativo', 'quick win']
       },
-      { n: '04', label: 'Ensayos en Gantt', lane: 'plan', variant: 'plan',
+      { n: '05', label: 'Ensayos en Gantt', lane: 'plan', variant: 'plan',
         title: 'Órdenes de ensayo en el Gantt de producción',
-        desc: 'Las órdenes de ensayo originadas por Ingeniería (RQ-ING-26) se reciben en Planificación para asignarles inyectora y bloque horario en el Gantt. La orden de ensayo bloquea la capacidad de la máquina asignada y aparece diferenciada (flag ensayo). Alineado con RQ-PRO-26 (ejecución en planta).',
-        tags: ['RQ-PLA-31', 'gap', 'cadena ING-26 → PLA-31 → PRO-26 · flag ensayo en Gantt'],
-        pill: { color: 'plan', text: '⚠ GAP · órdenes ensayo en Gantt · bloqueo capacidad · alineado con ING-26 y PRO-26' }
+        desc: 'Las órdenes de ensayo originadas por Ingeniería (RQ-ING-26) son OF de un tipo de operación con la marca «Órdenes de ensayo» (prefijo ENS). Planificación les asigna máquina y tiempo en la OT. En el Gantt se ven con borde violeta y filtros Ensayos / Sin ensayos; en borrador no reservan la máquina (DEV-PLA-02 · DFT03, T01516). Sin PLM. Falta correr el circuito completo con un usuario (RQ-PRO-26 y RQ-PRO-35, MF Producción v5.2).',
+        tags: ['RQ-PLA-31', 'DEV-PLA-02 · DFT03', 'cadena ING-26 → PLA-31 → PRO-26'],
+        pill: { color: 'plan', text: '🔧 Resuelto con configuración y DEV-PLA-02 · DFT03 · funciona parcial' }
+      },
+      { n: '06', label: 'Molde no liberado', lane: 'dep', variant: 'dep',
+        title: 'OT con molde no liberado en el Gantt',
+        desc: 'Las OT cuyo molde no está liberado se ven rayadas en el Gantt, con el molde y el motivo en el detalle (puente mrp_gantt_replan_mold_version entre DEV-PLA-02 · DFT03 y DEV-PRO-05 · DFT07). La OF no se confirma ni se notifica con un molde no usable.',
+        tags: ['RQ-PLA-15', 'ref. RQ-PLA-06', 'DEV-PLA-02 · DFT03', 'DEV-PRO-05 · DFT07']
       }
     ],
     arrows: [
-      { from: 0, to: 1, lane: 'plan', label: 'desvío → cascada' }
+      { from: 0, to: 1, lane: 'plan', label: 'desvío → cascada' },
+      { from: 1, to: 2, lane: 'sis', label: 'fin > fecha límite' }
     ]
   },
 
@@ -610,35 +641,47 @@ const PROCESSES = {
     pcls: 'po',
     rqRange: 'RQ-PLA-18 a 19',
     rqCount: 2,
-    description: 'Sub-MRP de abastecimiento al depósito productivo (PR): espacio entre el depósito central y las inyectoras, con capacidad de 30–48 horas de producción. El equipo calcula las necesidades para el horizonte configurado (ej.: 40 hs), contrasta con el stock real contado físicamente (no el del sistema) y genera las solicitudes de transferencia. Hoy se realiza completamente fuera de SAP, con un cuaderno y planillas ad hoc.',
-    shortDesc: 'Sub-MRP por horizonte de horas · stock real físico · DEV-PLA-03 · abastecimiento PR',
+    description: 'Sub-MRP de abastecimiento al depósito productivo (PR): espacio entre el depósito central y las inyectoras, con capacidad de 30–48 horas de producción. El equipo calcula las necesidades para el horizonte configurado (ej.: 40 hs), contrasta con el stock real contado físicamente (no el del sistema) y genera las solicitudes de transferencia. Hoy se realiza completamente fuera de SAP, con un cuaderno y planillas ad hoc. En Odoo lo resuelve DEV-PLA-03 · DFT04: cálculo y abastecimiento como documentos, con el lote de la OF.',
+    shortDesc: 'Sub-MRP por presupuesto de horas · stock real físico · DEV-PLA-03 · DFT04 · abastecimiento PR',
     inputs: 'Órdenes de fabricación activas · horizonte de horas configurable · stock real físico contado en PR',
-    outputs: 'Listado de materiales a transferir · solicitudes de transferencia depósito central → PR',
+    outputs: 'Cálculo de necesidades del PR · abastecimiento al PR (ABPR) con el lote de la OF · transferencias Stock → Isla PR → PR',
     lanes: ['plan','dep','sis'],
-    intro: 'El depósito productivo (PR) tiene una lógica particular: la producción se declara al completar el palet (no en tiempo real), por lo que el sistema puede mostrar stock disponible que ya está en proceso de fabricación. El abastecimiento se calcula siempre contra el stock real contado en el PR. Victoria Gini desarrolló un prototipo funcional en la base de desarrollo de Libus (Odoo Studio + server actions); el paso a módulo instalable debe coordinarse con Franco Nicolau. El modo secuencial es clave: si la primera orden durará 24 hs, para la segunda solo se piden las horas restantes del horizonte.',
-    archNote: 'INPUTS — mrp.production activas y futuras · horizonte de horas configurable (ej.: 40 hs, 100 hs en fines de semana largos) · stock real físico contado físicamente en el PR (no el stock del sistema). OUTPUTS — lista de materiales necesarios por línea de producción · solicitudes de transferencia (stock.picking) depósito central → PR. DEV — DEV-PLA-03: convertir prototipo de Victoria Gini en módulo instalable; coordinar con Franco Nicolau.',
+    intro: 'El depósito productivo (PR) tiene una lógica particular: la producción se declara al completar el palet (no en tiempo real), por lo que el sistema puede mostrar stock disponible que ya está en proceso de fabricación. El abastecimiento se calcula siempre contra el stock real contado en el PR. Victoria Gini había desarrollado un prototipo en la base de desarrollo de Libus; DEV-PLA-03 · DFT04 se construyó desde cero, sin el prototipo, como módulo propio (mrp_pr_supply). El modo secuencial es clave: si la primera orden durará 24 hs, para la segunda solo se piden las horas restantes del horizonte.',
+    archNote: 'INPUTS — mrp.production activas y futuras · presupuesto de horas por centro de trabajo (40 hs por defecto; más en fines de semana largos) · stock real físico contado físicamente en el PR (no el stock del sistema). OUTPUTS — documento de cálculo con una línea por material · abastecimiento al PR (ABPR) con el lote de la OF · transferencias por la ruta Stock → Isla PR → PR, sin incidencia de movimiento manual (DFT15). DEV — DEV-PLA-03 · DFT04 (mrp_pr_supply). <strong>[ABIERTO]</strong> Abastecimiento fuera de hora: asistente del DFT04 o stock_request.',
     steps: [
       { n: '01', label: 'Cálculo por horizonte', lane: 'plan', variant: 'plan',
-        title: 'Cálculo de necesidades por horizonte de horas',
-        desc: 'Planificación selecciona las órdenes activas y el horizonte (configurable: ej. 40 hs estándar, 100 hs en fines de semana largos). El sistema calcula los materiales necesarios, contemplando el modo secuencial (si la primera orden dura 24 hs, para la segunda solo se calculan las horas restantes) y el modo individual. El prototipo de Victoria en Libus ya implementa esta lógica.',
-        tags: ['RQ-PLA-18', 'DEV-PLA-03', 'prototipo Victoria Gini en Libus'],
-        pill: { color: 'plan', text: '🔧 DEV-PLA-03 · prototipo funcional en base Libus → convertir a módulo instalable' }
+        title: 'Cálculo de necesidades del PR por presupuesto de horas',
+        desc: 'Planificación crea un «Cálculo de necesidades del PR» (Fabricación > Planeación): Borrador → Calculado → Abastecido. El horizonte es un presupuesto de horas por centro de trabajo (40 hs por defecto) y la OF a caballo entra prorrateada. Modo secuencial (si la primera orden dura 24 hs, para la segunda solo se calculan las horas restantes) o individual. Una línea por material con necesidad del horizonte, necesidad total restante, teórico, físico contado y faltante, con detalle por lote y OF y exportación a Excel.',
+        tags: ['RQ-PLA-18', 'DEV-PLA-03 · DFT04', 'mrp_pr_supply'],
+        pill: { color: 'plan', text: '🔧 DEV-PLA-03 · DFT04 · construido desde cero · pruebas T01589 y T01501 pendientes' }
       },
       { n: '02', label: 'Stock real físico', lane: 'dep', variant: 'dep',
         title: 'Ingreso de stock real físico contado en el PR',
-        desc: 'El operario cuenta físicamente el stock disponible en el PR e ingresa los valores reales en el proceso. Estos datos reemplazan al stock del sistema en el cálculo de necesidades, compensando la ventana de tiempo entre fabricación real y declaración por palet. Permite detectar desvíos de consumo.',
-        tags: ['RQ-PLA-19', 'DEV-PLA-03', 'stock real vs. sistema']
+        desc: 'El operario cuenta físicamente el stock del PR y lo carga en la línea. El físico contado reemplaza al stock del sistema en el cálculo: se propone el teórico y no lo puede superar; queda quién contó y cuándo. Compensa la ventana entre fabricación real y declaración por palet. El menú «Recuentos del PR» lista los conteos con su diferencia.',
+        tags: ['RQ-PLA-19', 'DEV-PLA-03 · DFT04', 'stock real vs. sistema']
+      },
+      { n: '03', label: 'Lote de la OF', lane: 'sis', variant: 'sis',
+        title: 'Abastecimiento con el lote de la OF',
+        desc: '«Generar abastecimiento» crea el abastecimiento al PR (ABPR) con el lote asignado en cada OF. Valida el disponible del depósito central y reserva ese lote para la transferencia, no en la OF (ref. RQ-PLA-13).',
+        tags: ['RQ-PLA-18', 'ref. RQ-PLA-13', 'DEV-PLA-03 · DFT04']
       },
       { divider: 'OUTPUT — Solicitudes de transferencia al PR', type: 'end' },
-      { n: '03', label: 'Transferencia al PR', lane: 'sis', variant: 'sis2',
-        title: 'Generación de solicitudes de transferencia depósito → PR',
-        desc: 'El output del sub-MRP son las solicitudes de transferencia de materiales desde el depósito central al depósito productivo. El proceso las genera directamente en Odoo (stock.picking), eliminando el cuaderno y las planillas ad hoc actuales. La generación puede ser directa o con aprobación del planificador.',
-        tags: ['DEV-PLA-03', 'stock.picking', 'depósito central → PR']
+      { n: '04', label: 'Transferencia al PR', lane: 'sis', variant: 'sis2',
+        title: 'Transferencia al PR por la ruta Stock → Isla PR → PR',
+        desc: 'El abastecimiento sale por la ruta configurada en Ajustes (en Argul, dos pasos: Stock → Isla PR → PR) y genera las transferencias en Odoo, eliminando el cuaderno y las planillas ad hoc actuales. No genera incidencia de movimiento manual (DFT15).',
+        tags: ['DEV-PLA-03 · DFT04', 'stock.picking', 'depósito central → PR', 'DFT15']
+      },
+      { n: '05', label: 'Fuera de hora', lane: 'plan', variant: 'plan2',
+        title: 'Abastecer PR (fuera de hora)',
+        desc: 'Para un pedido fuera del ciclo diario, el asistente «Abastecer PR (fuera de hora)» crea un abastecimiento en borrador con origen, solicitante y motivo; si ninguna OF abierta tiene lote, propone el lote FIFO. <strong>[ABIERTO]</strong> Convivencia con stock_request y movimiento manual (MF Inventario/WMS v3.3 y MF Producción v5.2).',
+        tags: ['RQ-PLA-18', 'DEV-PLA-03 · DFT04', 'fuera de hora'],
+        pill: { color: 'adm', text: '⚠ ABIERTO · asistente del DFT04 o stock_request para el PR' }
       }
     ],
     arrows: [
       { from: 0, to: 1, lane: 'dep', label: 'necesidades → stock real' },
-      { from: 1, to: 2, lane: 'sis', label: 'net → transferencia' }
+      { from: 1, to: 2, lane: 'sis', label: 'faltante → abastecimiento' },
+      { from: 2, to: 3, lane: 'sis', label: 'ABPR → transferencia' }
     ]
   },
 
@@ -658,25 +701,25 @@ const PROCESSES = {
     inputs: 'Entregas pendientes · fechas comprometidas (← RQ-PLA-03) · solicitud de devolución del cliente',
     outputs: 'Alertas de incumplimiento · RMA referenciado al PV · nota de crédito o reposición',
     lanes: ['cli','plan','sis'],
-    intro: 'Las alertas de incumplimiento de fechas comprometidas están directamente vinculadas al módulo de fechado (RQ-PLA-03): su utilidad real depende de que el fechado esté implementado. Sin fechado, las alertas no pueden calcularse con la precisión requerida y el control sigue siendo 100% manual. Las devoluciones de Sides representan el caso más complejo: 300.000 u. de un producto entregado en decenas de camiones a lo largo de meses no puede referenciarse a una entrega individual. El módulo OCA rma_sale (rama 17.0 activa) cubre este caso.',
+    intro: 'Las alertas de incumplimiento de fechas comprometidas están directamente vinculadas al módulo de fechado (RQ-PLA-03): su utilidad real depende del fechado, que ya está implementado (DEV-VTA-01 · DFT02, MF Ventas v3.3). Sin fechado, las alertas no pueden calcularse con la precisión requerida y el control sigue siendo 100% manual. Las devoluciones de Sides representan el caso más complejo: 300.000 u. de un producto entregado en decenas de camiones a lo largo de meses no puede referenciarse a una entrega individual. El módulo OCA rma_sale (rama 17.0 activa) cubre este caso.',
     archNote: 'INPUTS — stock.picking entregados · fechas comprometidas por sub-línea (condicionado a RQ-PLA-03) · solicitud de RMA del cliente (producto, cantidad, motivo). OUTPUTS — alertas de incumplimiento en tablero de órdenes abiertas · RMA (rma.rma referenciado a sale.order) → nota de crédito o stock.picking de reposición. OCA — rma + rma_sale (OCA/rma, rama 17.0 activa) · Evaluar y probar en entorno de test.',
     steps: [
       { n: '01', label: 'Alertas fechas', lane: 'sis', variant: 'sis',
         title: 'Alertas de incumplimiento de fechas comprometidas',
-        desc: 'Odoo alerta cuando una entrega comprometida está en riesgo de incumplimiento (falta de stock, retraso en producción, desvío del plan). Las alertas se visualizan en el tablero de órdenes abiertas. La utilidad está condicionada al fechado (RQ-PLA-03): sin él, las fechas comprometidas no existen en el sistema.',
-        tags: ['RQ-PLA-20', 'GAP · condicionado a RQ-PLA-03', 'tablero de órdenes'],
-        pill: { color: 'adm', text: '⚠ GAP ALTO — impacto condicionado a implementación del fechado (RQ-PLA-03)' }
+        desc: 'Odoo alerta cuando una entrega comprometida está en riesgo de incumplimiento (falta de stock, retraso en producción, desvío del plan). Las alertas se visualizan en el tablero de órdenes abiertas. La utilidad está condicionada al fechado (RQ-PLA-03, DEV-VTA-01 · DFT02). Ref. DEV-PLA-02 · DFT03: «Entrega en riesgo» marca la OF cuyo fin supera su fecha límite, pero no mide la entrega del PV contra el fechado. [SUPUESTO] Las alertas sobre el fechado no están implementadas.',
+        tags: ['RQ-PLA-20', 'GAP · condicionado a RQ-PLA-03', 'ref. DEV-PLA-02 · DFT03', 'tablero de órdenes'],
+        pill: { color: 'adm', text: '⚠ GAP ALTO — alertas sobre el fechado sin implementar [SUPUESTO]' }
       },
       { n: '02', label: 'Gestión entregas', lane: 'plan', variant: 'plan',
         title: 'Gestión y seguimiento de entregas pendientes',
-        desc: 'El equipo de Customer Service controla el cumplimiento de fechas cruzando stock disponible con fechas comprometidas. El forecasted report de Odoo muestra: stock actual + entradas previstas − salidas previstas, día a día. Para tapones (+20 clientes), la distribución equitativa es crítica.',
-        tags: ['RQ-PLA-20', 'forecasted report', 'distribución equitativa']
+        desc: 'El equipo de Customer Service controla el cumplimiento de fechas cruzando stock disponible con fechas comprometidas. El forecasted report de Odoo muestra: stock actual + entradas previstas − salidas previstas, día a día; el «Pronosticado simple» (DFT39) muestra lo mismo sin gráfico ni permisos de Contabilidad [SUPUESTO: Customer Service lo usa para este control]. Para tapones (+20 clientes), la distribución equitativa es crítica.',
+        tags: ['RQ-PLA-20', 'forecasted report', 'DFT39', 'distribución equitativa']
       },
       { divider: 'DEVOLUCIONES DE CLIENTES — referenciadas al PV (no a la entrega individual)', type: 'phys' },
       { n: '03', label: 'RMA contra PV', lane: 'cli', variant: 'cli',
         title: 'Devolución de cliente referenciada al pedido de venta',
-        desc: 'Sides puede devolver 300.000 unidades entregadas en decenas de camiones a lo largo de meses. La devolución se referencia al PV, no a cada entrega individual. Módulo OCA <em>rma + rma_sale</em> (OCA/rma, rama 17.0 activa) cubre este caso. La devolución puede implicar nota de crédito o reposición según la política del cliente.',
-        tags: ['RQ-PLA-21', 'OCA rma_sale', 'OCA/rma — rama 17.0 activa', 'Sides · Unilever'],
+        desc: 'Sides puede devolver 300.000 unidades entregadas en decenas de camiones a lo largo de meses. La devolución se referencia al PV, no a cada entrega individual. Módulo OCA <em>rma + rma_sale</em> (OCA/rma, rama 17.0 activa) cubre este caso. La devolución puede implicar nota de crédito o reposición según la política del cliente. La nota de crédito se hace desde la recepción de la devolución, una por factura original (DFT60, MF Ventas v3.3).',
+        tags: ['RQ-PLA-21', 'OCA rma_sale', 'OCA/rma — rama 17.0 activa', 'ref. DFT60'],
         pill: { color: 'cli', text: '🔵 OCA rma_sale — rama 17.0 activa · evaluar y probar en entorno de test' }
       }
     ],
@@ -696,43 +739,50 @@ const PROCESSES = {
     pcls: 'ps',
     rqRange: 'RQ-PLA-22 a 26',
     rqCount: 5,
-    description: 'Herramientas de consulta e informes de uso cotidiano: cálculo inverso de BOM equivalente al CS15 de SAP (DEV-PLA-04), filtrado masivo por lista de SKUs, criterio de uso de variantes de producto, perfiles de seguridad transversales y vista de pronóstico/MD04 accesible. RQ-PLA-26 fue identificado en la sesión 2 como gap de usabilidad prioritario.',
-    shortDesc: 'CS15 (DEV-PLA-04) · filtro masivo SKUs · variantes · perfiles seguridad · pronóstico/MD04',
+    description: 'Herramientas de consulta e informes de uso cotidiano: cálculo inverso de BOM equivalente al CS15 de SAP (DEV-PLA-04 · DFT05), consulta de materiales equivalente al CS03 (DFT39), filtrado masivo por lista de SKUs (DFT08), criterio de uso de variantes de producto, perfiles de seguridad transversales y vista de pronóstico/MD04 accesible. RQ-PLA-26 fue identificado en la sesión 2 como gap de usabilidad prioritario.',
+    shortDesc: 'CS15 (DEV-PLA-04 · DFT05) · CS03 · filtro masivo SKUs (DFT08) · variantes · perfiles seguridad · pronosticado simple',
     inputs: 'Componente + cantidad disponible · lista de SKUs · catálogo de productos · estructura de roles de usuario',
     outputs: 'Unidades fabricables por producto terminado · resultados filtrados · vista de pronóstico accesible sin permisos de Contabilidad',
     lanes: ['plan','adm','sis'],
-    intro: 'Esta sección cubre los requerimientos de consulta transversales identificados durante el relevamiento. El cálculo inverso de BOM (CS15) es de uso cotidiano para optimizar materiales escasos: "Tengo 4 kg de máster X; ¿para cuánto de cada producto me alcanza?". El filtrado masivo por SKUs afecta a todas las áreas (mismo requerimiento identificado en Compras). La vista de pronóstico (MD04) identificada en la sesión 2 tiene tres gaps de usabilidad concretos que pueden resolverse sin desarrollo custom. La definición de variantes de producto requiere validación con Miguel Caro antes de la carga de datos maestros.',
-    archNote: 'INPUTS — componente + cantidad disponible → CS15 · lista de SKUs → filtro masivo · estructura de roles de negocio → perfiles de seguridad. OUTPUTS — reporte de unidades fabricables por PT (DEV-PLA-04) · resultados filtrados en cualquier listado · vista de pronóstico con acceso directo desde menú de Planificación. DEV — DEV-PLA-04 (CS15): evaluar si existe reporte OCA equivalente antes del custom. GAP — RQ-PLA-26: acceso de menú, vista compacta sin gráfico, revisión de permisos.',
+    intro: 'Esta sección cubre los requerimientos de consulta transversales identificados durante el relevamiento. El cálculo inverso de BOM (CS15) es de uso cotidiano para optimizar materiales escasos: "Tengo 4 kg de máster X; ¿para cuánto de cada producto me alcanza?". El filtrado masivo por SKUs afecta a todas las áreas (mismo requerimiento identificado en Compras). La vista de pronóstico (MD04) identificada en la sesión 2 tenía tres gaps de usabilidad; el «Pronosticado simple» (DFT39) los resuelve. La definición de variantes de producto requiere validación con Miguel Caro antes de la carga de datos maestros.',
+    archNote: 'INPUTS — componente + cantidad disponible → CS15 · lista de SKUs → filtro masivo · estructura de roles de negocio → perfiles de seguridad. OUTPUTS — reporte de unidades fabricables por PT (DEV-PLA-04 · DFT05) · resultados filtrados en cualquier listado · pronosticado simple desde el producto y el Inventario MRP. DEV — DEV-PLA-04 · DFT05 (CS15, mrp_bom_reverse) · DFT39 (CS03 con mrp_bom_material_query y pronosticado simple con stock_forecast_simple_list) · DFT08 (product_sku_multi_search). <strong>[ABIERTO]</strong> Stock propuesto del CS15 y fecha de la OF en borrador en el pronosticado.',
     steps: [
       { n: '01', label: 'CS15 inverso BOM', lane: 'plan', variant: 'plan',
         title: 'Cálculo inverso de BOM: componente → unidades fabricables (equiv. CS15)',
-        desc: 'Dado un componente (materia prima, colorante u otro insumo) y una cantidad disponible, calcula cuántas unidades de cada producto terminado se pueden fabricar según las BOM activas. Si un colorante se usa en 10 productos, el resultado trae los 10 con sus cantidades. De uso cotidiano para optimizar materiales escasos o alternativos. Complementario: acceso simplificado a la composición de BOM sin permisos de Contabilidad (equiv. CS03).',
-        tags: ['RQ-PLA-22', 'DEV-PLA-04', 'equiv. SAP CS15'],
-        pill: { color: 'plan', text: '🔧 DEV-PLA-04 · evaluar reporte OCA equivalente antes del desarrollo custom' }
+        desc: 'Asistente «Cálculo inverso de BOM» (Fabricación > Planeación): se elige el componente y la cantidad disponible se propone desde su stock (se puede cambiar). Lista una fila por LdM activa que usa el componente en su primer nivel, con unidades fabricables, stock del PT y, si se pide, el componente limitante. Exporta a Excel, sin permisos de Contabilidad. Si un colorante se usa en 10 productos, el resultado trae los 10. <strong>[ABIERTO]</strong> El stock propuesto suma todos los almacenes.',
+        tags: ['RQ-PLA-22', 'DEV-PLA-04 · DFT05', 'equiv. SAP CS15'],
+        pill: { color: 'plan', text: '🔧 DEV-PLA-04 · DFT05 implementado · un nivel · prueba PLA-CFG-04 (T01587) pendiente' }
       },
-      { n: '02', label: 'Filtro masivo SKUs', lane: 'plan', variant: 'plan2',
+      { n: '02', label: 'Consulta CS03', lane: 'plan', variant: 'plan2',
+        title: 'Consulta de materiales de una LdM (equiv. CS03)',
+        desc: '«Consulta de materiales» (Fabricación > Productos) muestra la composición de una LdM en uno o todos los niveles, sin costos ni permisos de Contabilidad (mrp_bom_material_query, DFT39, T01865).',
+        tags: ['RQ-PLA-22', 'DFT39', 'equiv. SAP CS03']
+      },
+      { n: '03', label: 'Filtro masivo SKUs', lane: 'plan', variant: 'plan2',
         title: 'Filtrado masivo por lista de SKUs (equiv. tabla SAP)',
-        desc: 'En SAP se puede pegar un listado de códigos de material en cualquier transacción para filtrar resultados al conjunto exacto. El workaround actual (editor de dominio Python en modo desarrollador) no es accesible para usuarios operativos. Afecta todas las áreas. Evaluar módulo App Store <em>sw_multi_search</em> (Smart Way) con Franco Nicolau antes de desarrollo custom.',
-        tags: ['RQ-PLA-23', 'GAP · transversal', 'evaluar sw_multi_search (App Store)', 'ref. MF Compras']
+        desc: 'En SAP se puede pegar un listado de códigos de material en cualquier transacción para filtrar resultados al conjunto exacto. En Odoo se pega la lista de códigos en la búsqueda y se filtra por todos juntos, sin editor de dominio (product_sku_multi_search, DFT08). Afecta todas las áreas.',
+        tags: ['RQ-PLA-23', 'DFT08', 'transversal', 'ref. MF Compras v3.2']
       },
-      { n: '03', label: 'Variantes producto', lane: 'plan', variant: 'plan2',
+      { n: '04', label: 'Variantes producto', lane: 'plan', variant: 'plan2',
         title: 'Criterio de uso de variantes de producto',
         desc: 'Variantes útiles para: (a) insumos de pañol con atributos de tamaño (etiquetas 50/60/70 mm); (b) materias primas homologadas con distintos proveedores. Para productos comerciales inyectados (cascos, tapones) NO se usarán por exigencias de trazabilidad y certificación IRAM, salvo casos específicos. Próximo paso: prueba de concepto con Miguel Caro (maestro de producto).',
         tags: ['RQ-PLA-24', 'GAP · decisión pendiente', 'prueba de concepto · Miguel Caro', 'criterio IRAM']
       },
-      { n: '04', label: 'Perfiles seguridad', lane: 'adm', variant: 'adm',
+      { n: '05', label: 'Perfiles seguridad', lane: 'adm', variant: 'adm',
         title: 'Perfiles de seguridad: acceso transversal con edición acotada',
-        desc: 'Planificación accede a prácticamente todos los módulos (ventas, fabricación, inventario, calidad, compras) pero con permisos de edición acotados. Los perfiles genéricos de Libus (usuario / administrador de fabricación) son insuficientes. Se definen durante la fase UAT. Prerrequisito del go-live productivo.',
-        tags: ['RQ-PLA-25', 'GAP · fase UAT', 'prerrequisito go-live', 'configuración granular']
+        desc: 'Planificación accede a prácticamente todos los módulos (ventas, fabricación, inventario, calidad, compras) pero con permisos de edición acotados. Los perfiles genéricos de Libus (usuario / administrador de fabricación) son insuficientes. Se definen durante la fase UAT. Prerrequisito del go-live productivo. Los botones del MRP multinivel se abren sin el permiso de Ajustes (DFT38, T02041).',
+        tags: ['RQ-PLA-25', 'GAP · fase UAT', 'prerrequisito go-live', 'ref. DFT38']
       },
-      { n: '05', label: 'Pronóstico / MD04', lane: 'sis', variant: 'sis',
-        title: 'Vista de pronóstico por producto: accesibilidad y usabilidad (equiv. MD04)',
-        desc: 'Tres gaps de usabilidad identificados en sesión 2: (1) sin acceso directo desde menú de Planificación — hay que navegar al producto o Inventario > Productos > Pronóstico; (2) el gráfico acumulado ocupa ~50% de la pantalla, reduciendo la visibilidad de la tabla operativa; (3) requiere permisos de Contabilidad para acceder, excluyendo a usuarios de Planificación. Resolución: acceso de menú directo, vista compacta sin gráfico, revisión de permisos.',
-        tags: ['RQ-PLA-26', 'GAP · usabilidad', 'equiv. SAP MD04', 'configuración de menú y vista']
+      { n: '06', label: 'Pronóstico / MD04', lane: 'sis', variant: 'sis',
+        title: 'Pronosticado simple por producto (equiv. MD04)',
+        desc: 'Los tres gaps de la sesión 2 (sin acceso desde Planificación, gráfico que ocupa media pantalla, permisos de Contabilidad) se resolvieron con el botón «Pronosticado simple» en el producto y en la línea del Inventario MRP: tabla tipo MD04, sin gráfico y sin permisos de Contabilidad, con una línea por movimiento (confirmados, borradores y lo que agrega el MRP), stock de seguridad y dos saldos: pronosticado y planificado (DFT39, T01866, T01904, T02048). <strong>[ABIERTO]</strong> Fecha de la OF en borrador: fin real o fecha adelantada del MRP.',
+        tags: ['RQ-PLA-26', 'DFT39', 'equiv. SAP MD04', 'stock_forecast_simple_list'],
+        pill: { color: 'adm', text: '⚠ ABIERTO · fecha de la OF en borrador en el pronosticado' }
       }
     ],
     arrows: [
-      { from: 0, to: 1, lane: 'plan', label: 'SKU → filtro' }
+      { from: 0, to: 1, lane: 'plan', label: 'componente → LdM' },
+      { from: 0, to: 2, lane: 'plan', label: 'SKU → filtro' }
     ]
   },
 
@@ -747,57 +797,63 @@ const PROCESSES = {
     pcls: 'pm',
     rqRange: 'RQ-PLA-27 a 29',
     rqCount: 3,
-    description: 'Tres escenarios interrelacionados en la vida de una OF no cubiertos nativamente por Odoo 17: cierre técnico (cancelar pendiente sin perder registro original), notificación de producción excedente (declarar más de lo planificado — habitual en inyección) y extensión de OF completada (reabrir/ampliar una OF finalizada). Los tres requieren preservar la cantidad original liberada a lo largo de toda la vida de la OF y sus backorders. Consolidados en <em>DEV-PLA-05</em>.',
-    shortDesc: 'Cierre técnico · excedente · extensión OF completada · DEV-PLA-05 · sesión 3',
+    description: 'Tres escenarios interrelacionados en la vida de una OF no cubiertos nativamente por Odoo 17: cierre técnico (cerrar el pendiente sin perder el registro), notificación de producción excedente (declarar más de lo planificado — habitual en inyección) y extensión de OF completada. Con <em>DEV-PLA-05 · DFT06</em> la OF conserva lo planificado y los campos «Cantidad no producida» y «Excedente» registran el desvío.',
+    shortDesc: 'Cierre técnico · excedente · extensión OF completada · DEV-PLA-05 · DFT06',
     inputs: 'OF en curso o completada · notificaciones de producción · decisión operativa (supervisor / planificador)',
-    outputs: 'OF cerrada técnicamente con registro · OF extendida con registro de excedente · campo «cantidad original liberada» preservado',
+    outputs: 'OF Hecha con Ciclo de vida «Cierre técnico» y cantidad no producida · excedente registrado · extensión como backorder fiel',
     lanes: ['plan','dep','sis'],
-    intro: 'La sesión 3 con Victoria Gini (28/04/2026) identificó tres escenarios que comparten una necesidad estructural: en SAP, la cabecera de la OF preserva la cantidad original liberada y las notificaciones parciales no la destruyen. En Odoo, el mecanismo de backorder fragmenta la orden en documentos independientes y la cantidad original se pierde. La notificación de excedente es el escenario más crítico operativamente (moneda corriente en inyección). El cierre técnico es un dato de trazabilidad/auditoría frecuente pero no cambia la operación. La extensión de OF completada es menos habitual pero evita crear OFs nuevas que rompen la trazabilidad. Victoria y Franco coincidieron en que la solución debe ser liviana: botón + campo + lógica reutilizada. Se investigó el módulo OCA <em>mrp_production_request</em> (entidad padre de OF) pero la última rama disponible es 11.0; no existe en 17.0.',
-    archNote: 'INPUTS — OF activa/completada/a cerrar · notificaciones de producción (declaración parcial o total) · decisión del supervisor de planta. OUTPUTS — campo «cantidad original liberada» + campo «tipo de cierre» (técnico vs. cancelación) + campo «cantidad excedente notificada» → exportable y filtrable. DEV — DEV-PLA-05: cierre técnico + tolerancia de excedente + extensión de OF completada. Línea de investigación: entidad padre (solicitud de fabricación) que agrupe backorders. REFERENCIAS CRUZADAS — backorders y lotes (RQ-PLA-13): si la entidad padre resulta viable, la asignación de lote se haría una sola vez en el encabezado. Bug detectado en Libus: primera notificación post-extensión declara solo cantidad pendiente anterior; abrir ticket.',
+    intro: 'La sesión 3 con Victoria Gini (28/04/2026) identificó tres escenarios que comparten una necesidad estructural: en SAP, la cabecera de la OF preserva la cantidad original liberada y las notificaciones parciales no la destruyen. En Odoo, el mecanismo de backorder fragmenta la orden en documentos independientes y la cantidad original se pierde. La notificación de excedente es el escenario más crítico operativamente (moneda corriente en inyección). El cierre técnico es un dato de trazabilidad/auditoría frecuente pero no cambia la operación. La extensión de OF completada es menos habitual pero evita crear OFs nuevas que rompen la trazabilidad. Victoria y Franco coincidieron en que la solución debe ser liviana: botón + campo + lógica reutilizada. DEV-PLA-05 · DFT06 lo resolvió sin entidad padre (mrp_production_lifecycle). El OCA <em>mrp_production_request</em> se portó después desde la rama 18.0 como solicitud de fabricación (DEV-PRO-06 · DFT42); su uso en Argul está [ABIERTO].',
+    archNote: 'INPUTS — OF activa/completada/a cerrar · notificaciones de producción (declaración parcial o total) · decisión del supervisor de planta. OUTPUTS — Ciclo de vida («Cierre técnico») + «Cantidad no producida» + «Excedente» + vínculo «Extensión de» → filtrables y exportables. DEV — DEV-PLA-05 · DFT06: cierre técnico individual y masivo, excedente sin ampliar la OF y extensión como backorder fiel. REFERENCIAS CRUZADAS — ampliar una OF confirmada y «Copiar OF» con lotes (DFT41, T01864) · Notificación Rápida (DFT10). <strong>[ABIERTO]</strong> T01923: la Notificación Rápida amplía la OF y deja el excedente en 0.',
     steps: [
       { n: '01', label: 'Contexto: backorders', lane: 'sis', variant: 'sis',
         title: 'Problema estructural: fragmentación de la OF en backorders',
-        desc: 'En Odoo, cada notificación parcial genera un backorder que fragmenta la OF original. La orden se convierte en -001, -002, etc. La cantidad total liberada no queda registrada en ningún lugar: hay que sumar todas las órdenes y backorders manualmente. En SAP, la cabecera preserva la cantidad original y las notificaciones son líneas debajo de esa cabecera. Los tres escenarios siguientes dependen de resolver esta pérdida de información.',
-        tags: ['RQ-PLA-27/28/29', 'backorder', 'cantidad original perdida', 'problema estructural']
+        desc: 'En Odoo, cada notificación parcial genera un backorder que fragmenta la OF original (-001, -002, etc.). En SAP, la cabecera preserva la cantidad original y las notificaciones son líneas debajo de esa cabecera. Con DEV-PLA-05 · DFT06 no hace falta una cabecera: la OF conserva lo planificado al cerrar sin backorder, y «Cantidad no producida» y «Excedente» registran el desvío.',
+        tags: ['RQ-PLA-27/28/29', 'backorder', 'DEV-PLA-05 · DFT06']
       },
       { divider: 'ESCENARIO 1 — Cierre técnico de OF (no es cancelación)' },
       { n: '02', label: 'Cierre técnico', lane: 'plan', variant: 'plan',
-        title: 'Cierre técnico de OF: cancelar pendiente con registro',
-        desc: 'Cuando una OF no se completa (cambio de lote, baja de molde, producción fallida), se cierra el pendiente sin que sea una cancelación. Se agrega un botón «Cierre técnico» que ejecuta la misma acción que cancelar (cancela movimientos pendientes) pero: (a) registra en campo filtrable la cantidad pendiente no fabricada y la cantidad original; (b) marca la OF con estado/etiqueta diferenciada; (c) deja nota estructurada en el chatter. Victoria indicó que es dato de uso frecuente para trazabilidad y auditoría, pero que no cambia la operación; la solución debe ser liviana.',
-        tags: ['RQ-PLA-27', 'DEV-PLA-05', 'cierre técnico ≠ cancelación', 'trazabilidad'],
-        pill: { color: 'plan', text: '🔧 DEV-PLA-05 · botón cierre técnico + campo filtrable + estado diferenciado' }
+        title: 'Cierre técnico de OF: cerrar el pendiente con registro',
+        desc: 'Cuando una OF no se completa (cambio de lote, baja de molde, producción fallida), el botón «Cierre técnico» pide un motivo y da por terminado el pendiente con el cierre nativo «sin backorder»: no es una cancelación. La OF queda Hecha con lo planificado y lo producido, también con cero producido, con Ciclo de vida «Cierre técnico», «Cantidad no producida», fecha, usuario y nota en el chatter (T01858).',
+        tags: ['RQ-PLA-27', 'DEV-PLA-05 · DFT06', 'cierre técnico ≠ cancelación', 'trazabilidad'],
+        pill: { color: 'plan', text: '🔧 DEV-PLA-05 · DFT06 implementado · prueba PLA-CFG-20 (T01596) pendiente' }
+      },
+      { n: '03', label: 'Cierre masivo', lane: 'plan', variant: 'plan2',
+        title: 'Cierre técnico masivo',
+        desc: '«Cierre técnico masivo» cierra varias OF por selección o por rango de fecha de inicio, con vista previa y un único motivo (T01914).',
+        tags: ['RQ-PLA-27', 'DEV-PLA-05 · DFT06']
       },
       { divider: 'ESCENARIO 2 — Notificación de excedente sobre cantidad planificada' },
-      { n: '03', label: 'Excedente producción', lane: 'dep', variant: 'dep',
+      { n: '04', label: 'Excedente producción', lane: 'dep', variant: 'dep',
         title: 'Notificación de producción excedente: declarar más de lo planificado',
-        desc: 'En inyección, la máquina no puede parar en el instante exacto: si el operario se demora 10 minutos, se fabrican 2 cajas de más. El sistema debe permitir declarar una cantidad superior a la pendiente sin requerir OF adicional. La OF se extiende automáticamente, registrando que fue excedente (no extensión planificada). La cantidad original liberada vs. la notificada queda registrada. Victoria indicó que es el escenario más crítico: moneda corriente en la planta.',
-        tags: ['RQ-PLA-28', 'DEV-PLA-05', 'inyección · tolerancia', 'cantidad original vs. notificada'],
-        pill: { color: 'dep', text: '⚠ IMPACTO ALTO — operación diaria en planta de inyección · la restricción actual obliga a crear OFs adicionales' }
+        desc: 'En inyección, la máquina no puede parar en el instante exacto: si el operario se demora 10 minutos, se fabrican 2 cajas de más. Se declara más de lo planificado sin bloqueo ni OF adicional y el terminado ingresa por lo declarado. La OF no se amplía: conserva lo planificado y el campo «Excedente» registra producido menos planificado. <strong>[ABIERTO]</strong> T01923: la Notificación Rápida (DFT10) amplía la OF y deja el excedente en 0.',
+        tags: ['RQ-PLA-28', 'DEV-PLA-05 · DFT06', 'inyección · tolerancia', 'DFT10'],
+        pill: { color: 'adm', text: '⚠ ABIERTO · T01923: conservar lo planificado o ampliar la OF' }
       },
-      { n: '04', label: 'Registro desvío', lane: 'sis', variant: 'sis2',
-        title: 'Registro y control del desvío: cantidad original vs. notificada',
-        desc: 'El excedente es un dato de control: Planificación lo usa para detectar errores de notificación (ej.: notificaron 1040 de 1000 pero hay un palet de 50 cajas: ¿hicieron 40 de más o 10 de menos?). También sirve para evaluar con Producción por qué se fabricó más de lo planificado (ej.: cambio de color fallido, extensión de turno, molde que no salió de matricería). El dato debe ser exportable y filtrable.',
-        tags: ['RQ-PLA-28', 'control de desvío', 'auditoría', 'exportable / filtrable']
+      { n: '05', label: 'Registro desvío', lane: 'sis', variant: 'sis2',
+        title: 'Registro y control del desvío: cantidad planificada vs. notificada',
+        desc: 'El excedente es un dato de control: Planificación lo usa para detectar errores de notificación (ej.: notificaron 1040 de 1000 pero hay un palet de 50 cajas: ¿hicieron 40 de más o 10 de menos?). También sirve para evaluar con Producción por qué se fabricó más de lo planificado (ej.: cambio de color fallido, extensión de turno, molde que no salió de matricería). El campo «Excedente» queda con nota en el chatter y filtro «Con excedente», exportable.',
+        tags: ['RQ-PLA-28', 'control de desvío', 'filtro «Con excedente»', 'ref. DFT10 (T01923)']
       },
       { divider: 'ESCENARIO 3 — Extensión de OF completada' },
-      { n: '05', label: 'Extensión OF cerrada', lane: 'plan', variant: 'plan2',
-        title: 'Extensión de OF completada: ampliar cantidad post-finalización',
-        desc: 'Caso típico: el molde que iba a entrar no salió de matricería; se decide seguir fabricando con el molde actual. También ocurre cuando un mismo lote de resina se mantiene durante un mes entero y la OF se extiende múltiples veces. El sistema debe permitir generar un backorder adicional o reabrir la OF preservando la trazabilidad de lotes y componentes. Victoria indicó que es menos frecuente que el excedente pero evita crear OFs nuevas con trazabilidad distinta.',
-        tags: ['RQ-PLA-29', 'DEV-PLA-05', 'menos frecuente · deseable', 'preserva trazabilidad'],
-        pill: { color: 'plan', text: '🔧 DEV-PLA-05 · backorder adicional desde OF «hecho» preservando lote/componentes' }
+      { n: '06', label: 'Extensión OF cerrada', lane: 'plan', variant: 'plan2',
+        title: 'Extensión de OF completada: backorder fiel',
+        desc: 'Caso típico: el molde que iba a entrar no salió de matricería; se decide seguir fabricando con el molde actual. El botón «Extender» en una OF Hecha sin backorder abierto crea un backorder fiel (OF original con sufijo -NNN) con el mismo lote de PT, las mismas máquinas y los lotes de componentes propuestos; la original no se toca. Botón y filtro «Extensiones». El error al producir una extensión (T01913) está corregido. «Copiar OF» con lotes es otra opción (DFT41, T01864).',
+        tags: ['RQ-PLA-29', 'DEV-PLA-05 · DFT06', 'preserva trazabilidad', 'ref. DFT41'],
+        pill: { color: 'plan', text: '🔧 DEV-PLA-05 · DFT06 implementado · prueba PLA-CFG-22 (T01598) pendiente' }
       },
-      { divider: 'LÍNEA DE INVESTIGACIÓN — Entidad padre de OF (solicitud de fabricación)', type: 'loop' },
-      { n: '06', label: 'Entidad padre OF', lane: 'sis', variant: 'sis2',
-        title: 'Investigación: entidad padre que agrupe backorders',
-        desc: 'Una entidad padre (tipo solicitud de fabricación o encabezado de producción) que agrupe todos los backorders de una misma liberación resolvería la pérdida de cantidad original y simplificaría la trazabilidad de lotes (RQ-PLA-13). Análogo al acuerdo de compra (blanket order). El módulo OCA mrp_production_request tiene última rama en 11.0 (no disponible en 17.0). Franco y Victoria coinciden en que es una mejora arquitectónica deseable pero no bloqueante para go-live. Se recomienda investigar la viabilidad como parte del diseño de DEV-PLA-05.',
-        tags: ['DEV-PLA-05 · investigación', 'mrp_production_request (OCA 11.0)', 'no bloqueante go-live', 'mejora arquitectónica'],
-        pill: { color: 'adm', text: '🔶 INVESTIGACIÓN — entidad padre · OCA mrp_production_request última rama 11.0 · no disponible 17.0' }
+      { divider: 'SOLICITUD DE FABRICACIÓN — DEV-PRO-06 · DFT42 (uso en Argul [ABIERTO])', type: 'loop' },
+      { n: '07', label: 'Solicitud de fabricación', lane: 'sis', variant: 'sis2',
+        title: 'Solicitud de fabricación previa a la OF (DEV-PRO-06 · DFT42)',
+        desc: 'La entidad padre no se construyó en DEV-PLA-05: alcanzó con el vínculo «Extensión de» y el grupo de abastecimiento. El OCA mrp_production_request se portó desde la rama 18.0 como solicitud de fabricación (MR) con aprobación, previa a la OF (DEV-PRO-06 · DFT42, MF Producción v5.2). <strong>[ABIERTO]</strong> No se confirmó si Argul la usa; se recomienda no usarla y liberar las OF desde el MRP.',
+        tags: ['RQ-PLA-27/28/29 (ref.)', 'DEV-PRO-06 · DFT42', 'OCA mrp_production_request (18.0)'],
+        pill: { color: 'adm', text: '⚠ ABIERTO · uso de la solicitud de fabricación en Argul' }
       }
     ],
     arrows: [
       { from: 0, to: 1, lane: 'plan', label: 'fragmentación → cierre técnico' },
-      { from: 2, to: 3, lane: 'sis', label: 'excedente → registro' },
-      { from: 3, to: 4, lane: 'plan', label: 'extensión → entidad padre' }
+      { from: 1, to: 2, lane: 'plan', label: 'una → varias' },
+      { from: 3, to: 4, lane: 'sis', label: 'excedente → registro' },
+      { from: 4, to: 5, lane: 'plan', label: 'desvío → extensión' }
     ]
   }
 
@@ -825,7 +881,7 @@ function el(tag, attrs={}, ...children){
 /* ================================================================= */
 /* ROUTE BAR                                                          */
 /* ================================================================= */
-function renderRouteBar(route){const MF_URL='https://docs.google.com/document/d/13_yst3QFXmZi5XlRfB7swZJPDZwlPmjmkScRUHG_MxQ/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'📊 PLANIFICACIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v4.2'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v4.2 · 20-may-2026'));}
+function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1jVrfowyhMJFV-77yjKntDdwCwTafLtP9/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'📊 PLANIFICACIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v4.3'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v4.3 · 15-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -835,12 +891,12 @@ function renderOverview(){
   app.innerHTML = '';
 
   const header = el('header',{class:'page'});
-  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Planificación y Abastecimiento · Argul y Compañía S.A.'));
+  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Planificación y Abastecimiento · Argul y Cía. S.A.'));
   header.appendChild(el('span',{class:'version-badge'},'Procesos de Negocio · 8 procesos'));
   const h1 = el('h1');
   h1.innerHTML = 'Procesos de Negocio de <span>Planificación y Abastecimiento</span>';
   header.appendChild(h1);
-  header.appendChild(el('p',{},'Plataforma de navegación · 8 flujos de procesos · 31 requerimientos · 5 desarrollos custom (DEV-PLA-01/02/03/04/05) · 4 módulos OCA'));
+  header.appendChild(el('p',{},'Plataforma de navegación · 8 flujos de procesos · 31 requerimientos · DEV-PLA-01 a 05 (DFT03 a DFT06) · DFT36 a DFT39 · 9 módulos OCA'));
   app.appendChild(header);
 
   const legend = el('div',{class:'legend'});
@@ -854,12 +910,12 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 8 procesos del área de Planificación y Abastecimiento. El área de <strong>Customer Service</strong> (Victoria Gini, Brian, Gastón) es la principal usuaria del sistema: carga todos los PV, gestiona los pedidos, corre el MRP, administra el Gantt y coordina las entregas. <strong>v4.2</strong> incorpora RQ-PLA-30 (moldes familiares MRP, OCA mrp_byproduct) y RQ-PLA-31 (órdenes de ensayo en Gantt). Hacé click en cualquier tarjeta para ver el flujo detallado.'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 8 procesos del área de Planificación y Abastecimiento. El área de <strong>Customer Service</strong> (Victoria Gini, Brian, Gastón) es la principal usuaria del sistema: carga todos los PV, gestiona los pedidos, corre el MRP, administra el Gantt y coordina las entregas. <strong>v4.3</strong> incorpora lo implementado según los DFT vigentes al 13/11/2026: MRP multinivel de OCA con DFT36 a DFT39, replanificación del Gantt (DEV-PLA-02 · DFT03), abastecimiento al PR (DEV-PLA-03 · DFT04), CS15 (DEV-PLA-04 · DFT05) y ciclo de vida de la OF (DEV-PLA-05 · DFT06). Los puntos abiertos se marcan <strong>[ABIERTO]</strong>. Hacé click en cualquier tarjeta para ver el flujo detallado.'
   }));
 
   app.appendChild(el('div',{
     class:'arch-note',
-    html:'<strong>⬢ DESARROLLOS PENDIENTES DE EVALUACIÓN OCA —</strong> Antes de iniciar cualquier desarrollo custom, Franco Nicolau debe verificar disponibilidad 17.0 de: <strong>sale_order_line_date</strong> (RQ-PLA-03) · <strong>stock_restrict_lot</strong> (RQ-PLA-13) · <strong>product_supplierinfo_for_customer</strong> (RQ-PLA-04). El módulo <strong>rma_sale</strong> (RQ-PLA-21) tiene rama 17.0 activa confirmada. DEV-PLA-04 (CS15): evaluar reporte OCA equivalente antes del custom. <strong>NUEVO v4.0</strong>: módulo OCA <strong>mrp_production_request</strong> investigado para DEV-PLA-05 — última rama: 11.0, NO disponible en 17.0; investigar desarrollo propio.'
+    html:'<strong>⬢ DESARROLLOS Y MÓDULOS OCA —</strong> El fechado se resolvió con <strong>DEV-VTA-01 · DFT02</strong> (libus_fechado; se descartó sale_order_line_date). La tabla código de cliente → SKU usa <strong>product_supplierinfo_for_customer</strong> (DEV-PLA-01 resuelto con OCA y DEV-PRO-01 · DFT09). El MRP es el multinivel de OCA <strong>mrp_multi_level</strong>, con DFT36 a DFT39. <strong>rma_sale</strong> (RQ-PLA-21) tiene rama 17.0 activa. <strong>mrp_production_request</strong> se portó desde 18.0 como DEV-PRO-06 · DFT42: su uso en Argul está <strong>[ABIERTO]</strong>. <strong>stock_restrict_lot</strong> convive con el lote de la OF de DEV-PLA-03 · DFT04 <strong>[ABIERTO]</strong>.'
   }));
 
   const overviewWrap = el('div',{class:'overview-wrap'});
@@ -875,7 +931,7 @@ function renderOverview(){
     return step;
   }
   function macroArrow(){ return el('div',{class:'macro-arrow'},'→'); }
-  ['p1','p2','p3','p4','p5','p6','p7'].forEach((pid,i,arr) => {
+  ['p1','p2','p3','p4','p5','p6','p7','p8'].forEach((pid,i,arr) => {
     macro.appendChild(macroStep(pid));
     if(i < arr.length-1) macro.appendChild(macroArrow());
   });
@@ -883,7 +939,7 @@ function renderOverview(){
 
   overviewWrap.appendChild(el('div',{class:'section-title'},'Procesos · click para navegar al diagrama'));
   const grid = el('div',{class:'pgrid'});
-  ['p1','p2','p3','p4','p5','p6','p7'].forEach(pid => {
+  ['p1','p2','p3','p4','p5','p6','p7','p8'].forEach(pid => {
     const p = PROCESSES[pid];
     const card = el('a',{class:`pcard ${p.pcls}`, href:`#/${pid}`});
 
@@ -957,7 +1013,7 @@ function renderProcess(pid){
   app.innerHTML = '';
 
   const header = el('header',{class:'page'});
-  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Planificación y Abastecimiento · Argul y Compañía S.A.'));
+  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Planificación y Abastecimiento · Argul y Cía. S.A.'));
   header.appendChild(el('span',{class:'version-badge'}, proc.code + ' · ' + proc.type));
   const h1 = el('h1');
   h1.innerHTML = 'Proceso de <span>' + proc.shortName + '</span>';
@@ -1373,7 +1429,7 @@ const FT = { analytics:false, presentation:false, context:false, minimap:false, 
 const FL = { dev:false, oca:false, critical:false, plan:false, dep:false, sis:false };
 let _zoom = 1;
 let _presIdx = 0;
-const PRES_ORDER = ['p1','p2','p3','p4','p5','p6','p7'];
+const PRES_ORDER = ['p1','p2','p3','p4','p5','p6','p7','p8'];
 const HEAT = { p1:5, p2:3, p3:5, p4:5, p5:4, p6:3, p7:4, p8:5 };
 
 function collapseBar(){
