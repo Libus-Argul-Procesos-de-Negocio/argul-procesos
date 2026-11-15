@@ -318,7 +318,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · PRODUCCIÓN · ARGUL Y COMPAÑÍA S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.2 · alineado con MF Producción v5.2</footer>
+<footer>ODOO 17 ENTERPRISE · PRODUCCIÓN · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.3 · alineado con MF Producción v5.3</footer>
 
 <script>
 /* ================================================================= */
@@ -329,7 +329,7 @@ const LANES = {
   cal: { name: 'CALIDAD',          icon: '🔬', subtitle: 'inspectores · Natalia Cascardo',               color: 'cal', short: 'Cal.'  },
   pla: { name: 'PLANIFICACIÓN',    icon: '📊', subtitle: 'Victoria Gini · Customer Service',             color: 'pla', short: 'Plan.' },
   dep: { name: 'DEPÓSITO / WMS',   icon: '📦', subtitle: 'Gustavo · Hangel · operarios',                 color: 'dep', short: 'Dep.'  },
-  sis: { name: 'SISTEMA ODOO',     icon: '⚙',  subtitle: 'automático · MRP · mrp_tool_tracking',         color: 'sis', short: 'Sis.'  },
+  sis: { name: 'SISTEMA ODOO',     icon: '⚙',  subtitle: 'automático · MRP · maestro de moldes',         color: 'sis', short: 'Sis.'  },
   ing: { name: 'ING. / MATRICERÍA',icon: '🔧', subtitle: 'Miguel Caro · equipo técnico · Gustavo Adorno',color: 'ing', short: 'Ing.'  }
 };
 
@@ -347,15 +347,15 @@ const PROCESSES = {
     shortName: 'Estructura Productiva',
     type: 'Configuración',
     pcls: 'ps',
-    rqRange: 'RQ-PRO-01 a 07, RQ-PRO-28',
-    rqCount: 8,
-    description: 'Configuración de la estructura base de producción: rutas de fabricación, BOM, operaciones, centros de trabajo (40 inyectoras + sopladoras) y gestión de moldes como herramientas. La generación de OPs la hace <em>Planificación</em>; Producción ejecuta desde la confirmación.',
-    shortDesc: 'Rutas · BOM · 40 inyectoras · sopladoras · moldes · mrp_tool_tracking',
-    inputs: 'Datos maestros SAP (BOM, rutas, tiempos) · registro físico de moldes · configuración de inyectoras',
-    outputs: 'BOM activas · rutas configuradas · centros de trabajo · maestro de moldes gestionado',
+    rqRange: 'RQ-PRO-01 a 07, RQ-PRO-28, RQ-PRO-36, RQ-PRO-37',
+    rqCount: 10,
+    description: 'Configuración de la estructura base de producción: rutas de fabricación, BOM, operaciones, centros de trabajo (40 inyectoras + sopladoras) y maestro de moldes con versiones. Las inyectoras se agrupan en categorías y el molde indica en cuáles se monta. La generación de OPs la hace <em>Planificación</em>; Producción ejecuta desde la confirmación.',
+    shortDesc: 'Rutas · BOM · 40 inyectoras · sopladoras · moldes con versiones · categorías de inyectoras',
+    inputs: 'Datos maestros SAP (BOM, rutas, tiempos) · maestro de moldes de Matricería · configuración y categorías de inyectoras',
+    outputs: 'BOM activas · rutas configuradas · centros de trabajo con código y posición · moldes con versiones y categorías',
     lanes: ['ing','pro','pla','sis'],
-    intro: 'Ingeniería (Miguel Caro) mantiene el maestro de rutas, BOM y operaciones. Las 40 inyectoras se configuran como centros de trabajo independientes replicando la convención SAP. La sesión 2 incorporó las sopladoras como centros de trabajo adicionales (RQ-PRO-28). Los moldes se modelan como herramientas gestionadas con el módulo <em>mrp_tool_tracking</em> (implementado en Libus). La combinación molde + producto define el ciclo real. Los RQ que condicionan la generación de OPs y la carga del Gantt deben validarse con Planificación (Victoria Gini).',
-    archNote: 'INPUTS — datos SAP: BOM, rutas, tiempos estándar, cavidades, centros de trabajo · registro físico de moldes de Matricería. OUTPUTS — BOM activas con parámetros migrados → alimentan MRP (MF Planificación) · centros de trabajo configurados → Gantt · maestro de moldes gestionado (mrp_tool_tracking). DEV — mrp_tool_tracking (MF Producción/Planificación). REFERENCIAS CRUZADAS — MF Planificación RQ-PLA-05 a 09 · MF Ingeniería RQ-ING-10.',
+    intro: 'Ingeniería (Miguel Caro) mantiene el maestro de rutas, BOM y operaciones. Las 40 inyectoras se configuran como centros de trabajo independientes, con un código fijo y una posición en planta (DFT43). La sesión 2 incorporó las sopladoras (RQ-PRO-28). El molde es un equipo de Mantenimiento con versiones, que gobierna Matricería (DEV-PRO-05 · DFT07); no se usa <em>mrp_tool_tracking</em>. Las inyectoras se agrupan en categorías y el molde indica en cuáles se monta (DFT40). La combinación molde + producto define el ciclo real. Los RQ que condicionan la generación de OPs y el Gantt se validan con Planificación (Victoria Gini).',
+    archNote: 'INPUTS — datos SAP: BOM, rutas, tiempos estándar, cavidades, centros de trabajo · maestro de moldes de Matricería. OUTPUTS — BOM activas → MRP (MF Planificación v4.2) · centros de trabajo con código y posición → Gantt · moldes con versiones, estados y categorías de inyectoras. DEV — DEV-PRO-05 · DFT07 (maestro de moldes) · DFT40 (categorías de inyectoras y molde a usar) · DFT43 (código y posición de las inyectoras). OCA — mrp_workcenter_category. REFERENCIAS CRUZADAS — MF Planificación v4.2 RQ-PLA-05 a 09 · MF Ingeniería v3.2 RQ-ING-10 · MF Matricería v4.2.',
     steps: [
       { n: '01', label: 'Rutas de fab.', lane: 'ing', variant: 'ing',
         title: 'Ruta de fabricación por producto (Ingeniería)',
@@ -369,36 +369,42 @@ const PROCESSES = {
       },
       { n: '03', label: '40 inyectoras', lane: 'sis', variant: 'sis',
         title: '40 inyectoras como centros de trabajo independientes',
-        desc: 'Las 40 inyectoras se configuran en Odoo con código y nombre SAP (8 alfanuméricos + posición en planta). Cada una con horario de trabajo diferenciado. Producción visualiza el Gantt resultante. La carga la genera Planificación.',
-        tags: ['RQ-PRO-03', 'estándar', 'migración con Ingeniería (Miguel Caro)']
+        desc: 'Las 40 inyectoras se configuran como centros de trabajo independientes, replicando la convención SAP, con horario diferenciado. Cada una tiene un código fijo e irrepetible (por ejemplo MIF300/1) y una posición en planta que puede cambiar; los dos quedan en el historial y salen en las OT y en el PDF de la OF (DFT43). La carga del Gantt la genera Planificación.',
+        tags: ['RQ-PRO-03', 'DFT43', 'falta cargar código y posición en Test']
       },
       { n: '04', label: 'Sopladoras', lane: 'sis', variant: 'sis2',
         title: 'Sopladoras como centros de trabajo',
         desc: 'Incorporadas en sesión 2 a pedido de Natalia. Se configuran como centros de trabajo independientes con horarios y operaciones asignadas. Producción se notifica igual que inyectoras.',
         tags: ['RQ-PRO-28', 'gap', 'detalle de configuración a relevar con Natalia']
       },
-      { divider: 'MOLDES COMO RECURSO GESTIONADO — mrp_tool_tracking' },
-      { n: '05', label: 'Ciclo + cavidades', lane: 'sis', variant: 'sis',
-        title: 'Ciclo estándar y cavidades por molde',
-        desc: 'El molde se modela como operación en el maestro de moldes (<em>mrp_tool_tracking</em>): ciclo estándar (segundos), cavidades, unidades/hora calculadas. La combinación molde + producto define el ciclo real. El ciclo es editable (se actualiza periódicamente).',
-        tags: ['RQ-PRO-04', 'DEV mrp_tool_tracking', 'implementado en Libus'],
-        pill: { color: 'pro', text: '🔧 mrp_tool_tracking · implementado en Libus · verificar adaptación para Argul' }
+      { divider: 'MAESTRO DE MOLDES — DEV-PRO-05 · DFT07 y DFT40' },
+      { n: '05', label: 'Molde y versiones', lane: 'sis', variant: 'sis',
+        title: 'Molde con versiones: ciclo y cavidades',
+        desc: 'El molde es un equipo de Mantenimiento de la categoría de moldes, con versiones (/0, /1…) que se eligen en la operación de la LdM. Ciclo y cavidades vienen de la versión y se ajustan en la operación; la combinación molde + producto define el ciclo real. La OT lleva cavidades estándar y activas: bajar las activas reescala la duración. Lo gobierna Matricería en Fabricación > Matricería > Moldes.',
+        tags: ['RQ-PRO-04', 'DEV-PRO-05 · DFT07', 'implementado con cambios: sin mrp_tool_tracking'],
+        pill: { color: 'pro', text: '🔧 DEV-PRO-05 · DFT07 · maestro de moldes con versiones · no usa mrp_tool_tracking' }
       },
-      { n: '06', label: 'Moldes por producto', lane: 'pla', variant: 'pla',
-        title: 'Múltiples moldes posibles por producto',
-        desc: 'Un mismo producto puede fabricarse con distintos moldes. La BOM incluye todos los moldes compatibles como operaciones alternativas. Planificación selecciona el molde al generar la OP. Ya implementado en Libus.',
-        tags: ['RQ-PRO-05', 'estándar', 'validar con MF Planificación RQ-PLA-06']
+      { n: '06', label: 'Molde a usar', lane: 'pla', variant: 'pla',
+        title: 'Varios moldes por producto y «Molde a usar»',
+        desc: 'La LdM incluye todos los moldes posibles como operaciones con molde. Si tiene varios, la OF en borrador muestra «Molde a usar»: al elegirlo quedan solo su operación y sus OT, y el control al confirmar mira solo ese molde. Planificación elige el molde al generar la orden.',
+        tags: ['RQ-PRO-05', 'DFT40', 'falta cargar moldes alternativos en las LdM migradas']
       },
-      { n: '07', label: 'Inyectoras por molde', lane: 'sis', variant: 'sis2',
-        title: 'Restricción de inyectoras compatibles por molde',
-        desc: 'Cada molde tiene definidas las inyectoras compatibles (grupos de tonelaje: 150T, 350T). El sistema sugiere o restringe la asignación. En Libus la operación solo permite una máquina por molde; el MF Planificación identificó el gap de reasignación automática.',
-        tags: ['RQ-PRO-06', 'DEV mrp_tool_tracking', 'gap de reasignación · pendiente de prueba']
+      { n: '07', label: 'Categorías del molde', lane: 'sis', variant: 'sis2',
+        title: 'Categorías de inyectoras del molde',
+        desc: 'Cada inyectora pertenece a una categoría de un árbol de categorías. El molde indica en qué categorías se monta; una categoría abarca sus subcategorías. En la OF, la OT y el Gantt solo se ofrecen las inyectoras de esas categorías. Si el molde requiere robot y la máquina no tiene la etiqueta «Robot», la OF avisa «Falta robot», sin bloquear.',
+        tags: ['RQ-PRO-06', 'RQ-PRO-37', 'DFT40'],
+        pill: { color: 'pro', text: '🔧 DFT40 · categorías de inyectoras · [ABIERTO] categorías por versión de molde' }
       },
-      { n: '08', label: 'Moldes familiares', lane: 'pro', variant: 'pro',
+      { n: '08', label: 'Máquinas alternativas', lane: 'sis', variant: 'sis',
+        title: 'Categorías y máquinas alternativas',
+        desc: 'Operaciones arma el árbol de categorías de inyectoras. Con «Máquinas alternativas entre sí», las máquinas activas de una categoría quedan como centros alternativos y se recalculan solas cuando una máquina cambia de categoría; el planificador elige la que termina antes. Las operaciones de LdM que tenían como preferida una máquina que cambió de categoría pasan a otra de la categoría vieja, con un mensaje en la LdM.',
+        tags: ['RQ-PRO-36', 'DFT40', 'OCA · mrp_workcenter_category']
+      },
+      { n: '09', label: 'Moldes familiares', lane: 'pro', variant: 'pro',
         title: 'Molde familiar con dos salidas de producto (subproductos)',
-        desc: 'Algunos moldes ("moldes familiares") generan dos códigos simultáneamente desde distintas posiciones. La BOM declara ambos productos como salida. El módulo <em>mrp_byproduct</em> (OCA) gestiona estos subproductos. El MRP de Planificación debe considerar que cuando una posición se produce, la otra también se genera (RQ-PLA-30). La App MES debe ver ambos desde la misma orden.',
-        tags: ['RQ-PRO-07', 'OCA · mrp_byproduct', 'coordinar prueba con Gustavo (App MES) · alineado con PLA-30'],
-        pill: { color: 'cal', text: '📦 OCA mrp_byproduct · moldes familiares · impacto en MRP (RQ-PLA-30)' }
+        desc: 'Algunos moldes ("moldes familiares") generan dos códigos simultáneamente desde distintas posiciones. La BOM declara ambos productos como salida. La funcionalidad nativa de subproductos de Odoo 17 (<em>mrp_byproduct</em>) gestiona estos subproductos. El MRP de Planificación debe considerar que cuando una posición se produce, la otra también se genera (RQ-PLA-30). La App MES debe ver ambos desde la misma orden.',
+        tags: ['RQ-PRO-07', 'nativo · mrp_byproduct', 'coordinar prueba con Gustavo (App MES) · alineado con PLA-30'],
+        pill: { color: 'cal', text: '📦 nativo mrp_byproduct · moldes familiares · impacto en MRP (RQ-PLA-30)' }
       }
     ],
     arrows: [
@@ -418,24 +424,24 @@ const PROCESSES = {
     pcls: 'po',
     rqRange: 'RQ-PRO-08 a 10',
     rqCount: 3,
-    description: 'Control de disponibilidad de moldes como recurso de producción. Un molde bloqueado en Matricería no puede asignarse a una nueva orden. La confirmación de la OP (no su creación en borrador) debe impedirse si el molde está bloqueado.',
-    shortDesc: 'Bloqueo molde · liberación · historial reparaciones (Etapa 2)',
-    inputs: 'Estado del molde en Matricería · solicitud de reparación',
-    outputs: 'Molde disponible/bloqueado → impacto en Gantt y confirmación de OP',
+    description: 'Control de disponibilidad de moldes como recurso de producción. Matricería cambia el estado del molde con botones, motivo e historial. La OF con un molde o una versión no usable se puede crear en borrador, pero no se confirma ni se notifica (DEV-PRO-05 · DFT07).',
+    shortDesc: 'Estados del molde · bloqueo al confirmar y al notificar · liberación · historial (Etapa 2)',
+    inputs: 'Estado del molde en el maestro de moldes (Matricería) · reparación o mantenimiento',
+    outputs: 'Molde usable / no usable → confirmación y notificación de la OF · OT rayadas en el Gantt',
     lanes: ['ing','pro','pla','sis'],
-    intro: 'Matricería es el cuello de botella habitual de la planta. El bloqueo en SAP existe, lo ejecuta Matricería, y se usa en casos que lo requieren. El requerimiento para Odoo es el mismo, con el añadido de que el bloqueo impide la CONFIRMACIÓN de la orden (no su creación en borrador). El historial de reparaciones queda en Etapa 2 (integración con Don PC).',
-    archNote: 'INPUTS — estado del molde (disponible/bloqueado) gestionado por Matricería. OUTPUTS — molde disponible → Planificación puede confirmar OP · molde bloqueado → no figura como recurso en Gantt. DEV — mrp_tool_tracking (atributo de disponibilidad). REFERENCIAS — MF Planificación (Gantt). Etapa 2: integración con Don PC (Fabián Olivera).',
+    intro: 'Matricería es el cuello de botella habitual de la planta. En Odoo el molde tiene estados (Disponible, Bloqueado, En mantenimiento, En servicio externo, Fuera de servicio y los de molde nuevo) que Matricería cambia con botones y un motivo. Un molde es usable si está Disponible y sin mantenimiento abierto: si no, la OF no se confirma ni se notifica, y en el Gantt sus OT se ven rayadas. El historial de reparaciones de Don PC queda para la Etapa 2. [ABIERTO] La fabricación del molde (en Don PC o con OF en Odoo) está sin definir: ver el MF, sección 11.1.',
+    archNote: 'INPUTS — estado del molde gestionado por Matricería en el maestro de moldes. OUTPUTS — molde usable → Planificación confirma la OF · molde no usable → no se confirma ni se notifica, OT rayadas en el Gantt (DEV-PLA-02 · DFT03). DEV — DEV-PRO-05 · DFT07 (estados, motivo, historial y contador de golpes). [ABIERTO] — fabricación del molde en Don PC o con OF en Odoo (T01601, T01603, T01609). REFERENCIAS — MF Planificación v4.2 (Gantt) · MF Matricería v4.2. Etapa 2: integración con Don PC (Fabián Olivera).',
     steps: [
-      { n: '01', label: 'Bloqueo molde', lane: 'ing', variant: 'ing',
-        title: 'Matricería bloquea molde enviado a reparación',
-        desc: 'Cuando Matricería bloquea un molde, lo marca como «no disponible» en Odoo. La creación de la OP en borrador está permitida, pero la <em>confirmación</em> debe impedirse. El molde no figura como recurso disponible en el Gantt.',
-        tags: ['RQ-PRO-08', 'DEV mrp_tool_tracking', 'validación de confirmación pendiente con Franco'],
-        pill: { color: 'pro', text: '🔧 mrp_tool_tracking · atributo de disponibilidad · validación de confirmación OP' }
+      { n: '01', label: 'Estado del molde', lane: 'ing', variant: 'ing',
+        title: 'Matricería cambia el estado del molde',
+        desc: 'Matricería bloquea el molde, lo pasa a mantenimiento o a servicio externo con botones y un motivo, que quedan en el historial. La OF en borrador está permitida, pero no se <em>confirma</em> si el molde o la versión de alguna operación no es usable, y no se notifica producción con un molde no usable o armado en otra versión. En el Gantt, las OT con molde no liberado se ven rayadas.',
+        tags: ['RQ-PRO-08', 'DEV-PRO-05 · DFT07', 'corta al confirmar y al notificar'],
+        pill: { color: 'pro', text: '🔧 DEV-PRO-05 · DFT07 · estados con motivo e historial · [ABIERTO] fabricación del molde' }
       },
       { n: '02', label: 'Liberación', lane: 'ing', variant: 'ing2',
-        title: 'Matricería libera molde reparado',
-        desc: 'Matricería marca el molde como «disponible». Planificación puede confirmar OPs con ese molde. El contador de golpes desde el último mantenimiento se reinicia al liberar (ver MF Planificación RQ-PLA-09).',
-        tags: ['RQ-PRO-09', 'DEV mrp_tool_tracking', 'perfil de usuario Matricería a definir']
+        title: 'Matricería libera el molde',
+        desc: 'Matricería vuelve el molde a Disponible con «Desbloquear» o «Volver a disponible», con motivo. Planificación puede confirmar órdenes con ese molde. «Registrar mantenimiento» pone en cero los golpes desde el último mantenimiento y conserva el total (ver MF Planificación v4.2, RQ-PLA-09).',
+        tags: ['RQ-PRO-09', 'DEV-PRO-05 · DFT07', 'perfil «Armar versión y desbloquear» a definir']
       },
       { n: '03', label: 'Historial', lane: 'ing', variant: 'ing2',
         title: 'Historial de reparaciones de molde (Etapa 2)',
@@ -457,15 +463,15 @@ const PROCESSES = {
     shortName: 'Ejecución OFs',
     type: 'Principal',
     pcls: 'pm',
-    rqRange: 'RQ-PRO-11 a 15',
-    rqCount: 5,
-    description: 'Ejecución en planta de las órdenes lanzadas por Planificación: Gantt, ejecución con molde, registro en cajas/unidades y declaración de <em>Producto No Conforme</em>. El scrap de arranque, regulación y barrido NO se declara en Etapa 1. El wizard <em>DEV-PRO-02</em> modela exclusivamente Producto No Conforme.',
-    shortDesc: 'Gantt · cajas/unidades · Producto No Conforme · DEV-PRO-02',
-    inputs: 'OPs confirmadas por Planificación · Gantt de carga por inyectora',
-    outputs: 'Producción en curso · declaración de Producto No Conforme → scrap + etiqueta A4',
+    rqRange: 'RQ-PRO-11 a 15, RQ-PRO-38 a 49',
+    rqCount: 17,
+    description: 'Ejecución en planta de las órdenes lanzadas por Planificación: Gantt, cajas y unidades, lotes y reservas de componentes, lote del terminado, cambios sobre la OF, cierre con controles de calidad, OF impresa con QR para Calidad y declaración de <em>Producto No Conforme</em>. El scrap de arranque, regulación y barrido NO se declara en Etapa 1.',
+    shortDesc: 'Gantt · lotes y reservas · OF impresa con QR · Copiar OF · Producto No Conforme · DFT41 · DFT43 · DEV-PRO-02',
+    inputs: 'OPs confirmadas por Planificación · Gantt de carga por inyectora · lotes de componentes en Stock y en el PR',
+    outputs: 'Producción en curso · OF impresa con QR para Calidad · Producto No Conforme → desecho de componentes + etiqueta A4',
     lanes: ['pro','cal','sis'],
-    intro: 'Aclaraciones clave de la sesión 2: (a) el scrap de arranque, regulación y barrido NO se declara en SAP y se mantiene fuera de alcance en Etapa 1; (b) el Producto No Conforme detectado antes de notificar tiene una lógica particular: no reduce el pendiente de la orden pero sí da de baja los materiales consumidos. Esta lógica difiere del comportamiento nativo de Odoo y es el núcleo del wizard DEV-PRO-02.',
-    archNote: 'INPUTS — mrp.production confirmadas · Gantt por centro de trabajo. OUTPUTS — producción en curso · scrap por equivalencia (DEV-PRO-02) → ubicación virtual de scrap + etiqueta A4 (DEV-CAL-01). DEV — DEV-PRO-02: wizard de Producto No Conforme. REFERENCIAS CRUZADAS — DEV-CAL-01 (etiqueta A4) · DEV-CAL-02 (misma lógica desde Calidad).',
+    intro: 'Aclaraciones clave de la sesión 2: (a) el scrap de arranque, regulación y barrido NO se declara en SAP y se mantiene fuera de alcance en Etapa 1; (b) el Producto No Conforme no reduce el pendiente de la orden pero sí da de baja los componentes: es el núcleo del wizard DEV-PRO-02 · DFT12, que desecha los componentes y no el terminado. La ejecución de la OF suma lotes, reservas, lote del terminado, cambios de cantidad, OT al producir en parte, cierre con controles de calidad y Copiar OF (DFT41), y la OF impresa con QR para la app de Calidad (DFT43). Todo corre sobre libus_mrp, el módulo de fabricación de Libus que Argul reutiliza (Anexo A3).',
+    archNote: 'INPUTS — mrp.production confirmadas · Gantt por centro de trabajo · lotes de componentes. OUTPUTS — producción en curso · OF impresa con QR (DFT43) · Producto No Conforme (DEV-PRO-02 · DFT12) → componentes a CD/SCRAP con valuación + etiqueta A4 (DEV-CAL-01). DEV — DEV-PRO-02 · DFT12 · DFT41 (ejecución de la OF, en libus_mrp, y Copiar OF) · DFT43 (OF impresa). ANEXO A3 — libus_mrp cierra la OF sin el cierre estándar de Odoo (pendiente T01416). REFERENCIAS CRUZADAS — DEV-CAL-01 (etiqueta A4) · DEV-CAL-02 (misma lógica desde Calidad) · DEV-PLA-03 · DFT04 (lote al PR) · MF Calidad v5.2 (planes de control).',
     steps: [
       { n: '01', label: 'Gantt de carga', lane: 'sis', variant: 'sis',
         title: 'Gantt de carga de máquinas (Producción consume)',
@@ -477,15 +483,43 @@ const PROCESSES = {
         desc: 'Las órdenes se lanzan y notifican en cajas (UMA) o unidades con conversión automática. Funcionalidad ya implementada en Libus.',
         tags: ['RQ-PRO-12', 'estándar', 'verificar configuración UMA Libus → Argul']
       },
-      { divider: 'PRODUCTO NO CONFORME — wizard DEV-PRO-02' },
-      { n: '03', label: 'Producto No Conforme', lane: 'pro', variant: 'pro',
+      { divider: 'EJECUCIÓN DE LA OF — DFT41 y DFT43' },
+      { n: '03', label: 'Lotes y reservas', lane: 'sis', variant: 'sis',
+        title: 'Lotes de componentes y reserva por contenedor',
+        desc: 'El asistente de lotes ofrece los lotes de toda la zona Stock y de la ubicación de la OF (las zonas de Calidad no). El lote elegido manda en la reserva: si no llegó, el componente queda sin reservar y no toma otro lote; ese lote es el que se abastece al PR (DEV-PLA-03 · DFT04). La reserva de existencias busca por contenedor sin conocer la ubicación. La lista de OF no muestra «Comprobar disponibilidad»: la reserva la hace la preparación de componentes.',
+        tags: ['RQ-PRO-38', 'RQ-PRO-39', 'RQ-PRO-42', 'DFT41'],
+        pill: { color: 'pro', text: '🔧 DFT41 · ajustes en libus_mrp · compartido con Libus, detrás de ajustes apagados por defecto' }
+      },
+      { n: '04', label: 'Lote del terminado', lane: 'sis', variant: 'sis2',
+        title: 'Lote del terminado al confirmar la OF',
+        desc: 'Con el ajuste «Asignar lote del terminado al confirmar» del tipo de operación (apagado por defecto), al confirmar una OF de producto con lote se genera el lote del terminado; vale también para el MRP y para Copiar OF, y el pedido pendiente lo hereda. La notificación por cámara exige el lote del terminado asignado.',
+        tags: ['RQ-PRO-40', 'DFT41', '[ABIERTO] activar el ajuste en Test']
+      },
+      { n: '05', label: 'OF impresa', lane: 'pro', variant: 'pro2',
+        title: 'Orden de producción impresa con QR para Calidad',
+        desc: 'Botón «Imprimir» con el informe «Orden de producción» (sin «Imprimir etiquetas»). El PDF trae en el encabezado un QR con los datos que lee la app de Calidad de planta (molde, orden, lote, posición de la máquina, cavidades, texto breve y material), las cajas a producir y las unidades por caja, el peso unitario en negrita para la balanza, los lotes asignados sin cantidad y el molde de cada operación.',
+        tags: ['RQ-PRO-47', 'RQ-PRO-48', 'RQ-PRO-49', 'RQ-PRO-42', 'DFT43']
+      },
+      { n: '06', label: 'Cambios en la OF', lane: 'pro', variant: 'pro',
+        title: 'Cambios sobre la OF confirmada y Copiar OF',
+        desc: '«Cambiar cantidad por producir» amplía o reduce el mismo movimiento del terminado y la diferencia recorre los pasos siguientes. Si en un guardado se cambian la cantidad y los consumos, el consumo cargado a mano no vuelve a lo teórico. Al producir en parte, las OT del pendiente quedan con fechas coherentes y las hechas con la duración de lo notificado. «Copiar OF» crea una OF igual, con los lotes de los componentes y las OT en la misma máquina.',
+        tags: ['RQ-PRO-41', 'RQ-PRO-43', 'RQ-PRO-44', 'RQ-PRO-46'],
+        pill: { color: 'pro', text: '🔧 DFT41 · Copiar OF (mrp_production_copy_lots) · [ABIERTO] relación con RQ-PLA-29' }
+      },
+      { n: '07', label: 'Cierre con calidad', lane: 'cal', variant: 'cal',
+        title: 'Cierre de la OF con controles de calidad',
+        desc: 'La OF no se marca como hecha mientras tenga controles de calidad pendientes, y hacer un paso de calidad en una OT sin iniciar no da error. libus_mrp cierra la OF sin el cierre estándar de Odoo: este control se agregó a mano (Anexo A3, pendiente T01416).',
+        tags: ['RQ-PRO-45', 'DFT41', 'Anexo A3']
+      },
+      { divider: 'PRODUCTO NO CONFORME — wizard DEV-PRO-02 · DFT12' },
+      { n: '08', label: 'Producto No Conforme', lane: 'pro', variant: 'pro',
         title: 'Declaración de Producto No Conforme durante la orden',
-        desc: 'El supervisor declara unidades/cajas no conformes con motivo. El sistema: (a) da de baja materiales consumidos en proporción BOM, (b) registra scrap en ubicación virtual, (c) <em>mantiene intacto el pendiente de la orden</em> (si exige 20 cajas buenas y se rechazan 2, el pendiente sigue siendo 20), (d) imprime etiqueta A4 habilitante para molienda.',
-        tags: ['RQ-PRO-14', 'DEV-PRO-02', 'DEV-CAL-01 · etiqueta A4'],
-        pill: { color: 'pro', text: '🔧 DEV-PRO-02 · wizard scrap por equivalencia sin reducir pendiente · compartido con CAL (DEV-CAL-02)' }
+        desc: 'Se declara la cantidad no conforme con un motivo de lista, obligatorio, desde la OF o desde Calidad. El sistema: (a) desecha los componentes reales de la orden en proporción, con sus lotes, a CD/SCRAP, con valuación y asiento; (b) no desecha el terminado ni los componentes «Reutilizable en PNC»; (c) <em>mantiene intacto el pendiente de la orden</em> (si exige 20 cajas buenas y se rechazan 2, el pendiente sigue siendo 20); (d) deja una nota en la OF y descarga la etiqueta A4 habilitante para molienda.',
+        tags: ['RQ-PRO-14', 'DEV-PRO-02 · DFT12', 'DEV-CAL-01 · etiqueta A4'],
+        pill: { color: 'pro', text: '🔧 DEV-PRO-02 · DFT12 · desecho de componentes sin reducir el pendiente · compartido con CAL (DEV-CAL-02) · [ABIERTO] quién declara desde la OF' }
       },
       { divider: 'SCRAP DE ARRANQUE / BARRIDO — Fuera de alcance Etapa 1', type: 'warn' },
-      { n: '04', label: 'Scrap arranque', lane: 'pro', variant: 'pro3',
+      { n: '09', label: 'Scrap arranque', lane: 'pro', variant: 'pro3',
         title: 'Scrap de arranque, regulación y barrido (Etapa 2+)',
         desc: 'Las primeras inyecciones son scrap (proceso en regulación). No se declara en SAP actualmente y no cambia en Etapa 1. En Etapa 2 se analizará junto con molienda y reproceso.',
         tags: ['RQ-PRO-13', 'RQ-PRO-15', 'fuera de alcance Etapa 1']
@@ -505,30 +539,48 @@ const PROCESSES = {
     shortName: 'Rótulos',
     type: 'Operativo',
     pcls: 'po',
-    rqRange: 'RQ-PRO-16, RQ-PRO-17',
-    rqCount: 2,
-    description: 'Impresión del rótulo de caja con QR. Corrección de sesión 2: los rótulos se imprimen TODOS antes de iniciar producción y el rollo va al atril. El operario pega uno por caja. Se permite reimpresión parcial por rango. El código de cliente se recupera automáticamente (<em>DEV-PRO-01</em>).',
-    shortDesc: 'Rótulo QR · rollo completo · código cliente automático · DEV-PRO-01',
-    inputs: 'Orden de producción confirmada · tabla de equivalencias SKU/cliente (DEV-PLA-01)',
-    outputs: 'Rollo de rótulos impreso con QR y código de cliente',
-    lanes: ['pro','sis'],
-    intro: 'El diseño del rótulo ya fue desarrollado para Libus. Para Argul se ajusta el layout e incorpora el campo de código de cliente automático (DEV-PRO-01), que depende de la tabla de equivalencias SKU → código de cliente gestionada por Planificación (DEV-PLA-01, MF Planificación).',
-    archNote: 'INPUTS — mrp.production confirmada · tabla de equivalencias SKU/cliente (DEV-PLA-01). OUTPUTS — rótulos con QR + código de cliente. DEV — DEV-PRO-01: código de cliente automático en rótulo (depende de DEV-PLA-01). REFERENCIAS — MF Planificación DEV-PLA-01 · funcionalidad Libus existente.',
+    rqRange: 'RQ-PRO-16, RQ-PRO-17, RQ-PRO-50',
+    rqCount: 3,
+    description: 'Impresión de la etiqueta de caja de 10 x 15 cm con QR, DataMatrix para la cámara y código de cliente. Corrección de sesión 2: las etiquetas se imprimen TODAS antes de iniciar producción y el rollo va al atril. El operario pega una por caja. Se permite reimpresión parcial por rango. El código de cliente se recupera automáticamente (<em>DEV-PRO-01 · DFT09</em>) y la etiqueta puede salir directo en la Zebra por la red (<em>DFT59</em>).',
+    shortDesc: 'Etiqueta 10 x 15 · QR y DataMatrix · código de cliente · impresión directa · DEV-PRO-01 · DFT59',
+    inputs: 'Orden de producción confirmada · cliente del pedido de venta · tabla de códigos de cliente (OCA product_supplierinfo_for_customer)',
+    outputs: 'Rollo de etiquetas de caja con QR, DataMatrix y código de cliente · rótulo de 150 x 100 mm',
+    lanes: ['pla','pro','sis'],
+    intro: 'El diseño del rótulo ya fue desarrollado para Libus. Para Argul la etiqueta de caja pasa a 10 x 15 cm, con QR, DataMatrix para la cámara (DEV-PRO-03 · DFT10) y el código de cliente automático (DEV-PRO-01 · DFT09). La tabla de códigos es la del OCA <em>product_supplierinfo_for_customer</em>, con el campo Destino: DEV-PLA-01 no se desarrolló. La impresión directa en impresoras de red (DFT59) evita descargar el archivo.',
+    archNote: 'INPUTS — mrp.production confirmada · cliente del pedido de venta · tabla de códigos de cliente con Destino (OCA product_supplierinfo_for_customer). OUTPUTS — etiquetas de caja con QR, DataMatrix y código de cliente · rótulo de 150 x 100 mm. DEV — DEV-PRO-01 · DFT09 (código de cliente) · DEV-PRO-03 · DFT10 (etiqueta con DataMatrix) · DFT59 (impresión directa, módulo transversal report_direct_print). [ABIERTO] — quién mantiene la tabla de códigos · rótulo de 150 x 100 aparte · prueba física con la Zebra y seguridad de los puertos. REFERENCIAS — MF Planificación v4.2 (RQ-PLA-04) · funcionalidad Libus existente.',
     steps: [
-      { n: '01', label: 'Impresión rollo', lane: 'pro', variant: 'pro',
-        title: 'Generación de rótulo de caja con QR (rollo completo)',
-        desc: 'Antes de iniciar producción, se selecciona la orden y la cantidad de rótulos. El sistema imprime el rollo completo con QR y datos de la orden. Se permite <em>reimpresión parcial por rango</em> (ej.: cajas 101-200). Formato similar al de Libus con ajustes para Argul.',
-        tags: ['RQ-PRO-16', 'estándar · Libus existente', 'verificar layout incluyendo campo código cliente']
+      { n: '01', label: 'Tabla de códigos', lane: 'pla', variant: 'pla',
+        title: 'Tabla de códigos de cliente por producto',
+        desc: 'La tabla es la del OCA <em>product_supplierinfo_for_customer</em>, con el campo Destino (Ambos, Mercado local, Exportación) y las marcas «Imprimir en etiqueta de caja» y «Por defecto en la OF». Un código de un cliente apunta a un solo SKU. Reemplaza a DEV-PLA-01, que no se desarrolló.',
+        tags: ['RQ-PRO-17', 'OCA · product_supplierinfo_for_customer', '[ABIERTO] quién la carga y la mantiene'],
+        pill: { color: 'cal', text: '📦 OCA product_supplierinfo_for_customer · campo Destino (DFT09)' }
       },
-      { n: '02', label: 'Código cliente', lane: 'sis', variant: 'sis',
-        title: 'Código de cliente automático en el rótulo',
-        desc: 'El sistema recupera automáticamente el código de cliente a partir del SKU y la orden, imprimiéndolo sin intervención del operario. Lógica: (a) ¿requiere código de cliente? (b) ¿qué código según destino local/exportación? (c) mismo SKU con distintos códigos por cliente.',
-        tags: ['RQ-PRO-17', 'DEV-PRO-01', 'depende de DEV-PLA-01 (MF Planificación)'],
-        pill: { color: 'pro', text: '🔧 DEV-PRO-01 · código de cliente automático · depende de DEV-PLA-01 · definir lógica local/exportación con Planificación' }
+      { n: '02', label: 'Etiqueta 10 x 15', lane: 'pro', variant: 'pro',
+        title: 'Etiqueta de caja de 10 x 15 cm (rollo completo)',
+        desc: 'Asistente «Etiquetas de Cajas» (Fabricación > Operaciones): antes de iniciar producción se selecciona la orden y se imprime el rollo completo o un <em>rango de cajas</em> (ej.: cajas 101-200), en PDF o en la Zebra. La etiqueta tiene dos mitades: datos de la caja con QR, texto orden-caja y «COD. CLIENTE:», y DataMatrix con orden-caja para la cámara.',
+        tags: ['RQ-PRO-16', 'DEV-PRO-03 · DFT10', 'falta la prueba física del DataMatrix con la cámara']
+      },
+      { n: '03', label: 'Código de cliente', lane: 'sis', variant: 'sis',
+        title: 'Código de cliente automático y bloqueo del cliente',
+        desc: 'La OF toma el cliente del pedido de venta (sin venta, el cliente marcado), deduce el destino por el país y busca el código vigente. El código sale en la etiqueta de caja y en el rótulo de 150 x 100 mm (sin código, «N/A»). El cliente de la etiqueta se bloquea al imprimir la primera etiqueta; lo desbloquea un Administrador de Fabricación.',
+        tags: ['RQ-PRO-17', 'DEV-PRO-01 · DFT09', 'PLA-CFG-09 en pruebas de usuario'],
+        pill: { color: 'pro', text: '🔧 DEV-PRO-01 · DFT09 · código de cliente automático · no depende de DEV-PLA-01' }
+      },
+      { n: '04', label: 'Rótulo 150 x 100', lane: 'pro', variant: 'pro2',
+        title: 'Rótulo de 150 x 100 mm con el código de cliente',
+        desc: 'Además de la etiqueta de caja, el rótulo de 150 x 100 mm muestra el código de cliente («N/A» si no hay). Si se mantiene o queda solo la etiqueta de caja, que ya lleva el código, se cierra con el diseño final (T01511).',
+        tags: ['RQ-PRO-17', 'DEV-PRO-01 · DFT09', '[ABIERTO] rótulo aparte o solo la etiqueta']
+      },
+      { n: '05', label: 'Impresión directa', lane: 'sis', variant: 'sis2',
+        title: 'Impresión directa en la Zebra por la red',
+        desc: 'Con una impresora asignada al informe (Ajustes > Técnico: host, puerto y lenguaje ZPL o PDF), el servidor manda la etiqueta por la red, sin IoT Box y sin descargar el archivo, y avisa si la envió o si falló. Cada envío queda registrado. «Enviado» no garantiza «impreso».',
+        tags: ['RQ-PRO-50', 'DFT59', '[ABIERTO] prueba física con la Zebra · puertos'],
+        pill: { color: 'pro', text: '🔧 DFT59 · report_direct_print · módulo transversal' }
       }
     ],
     arrows: [
-      { from: 0, to: 1, lane: 'sis', label: 'SKU → código cliente' }
+      { from: 0, to: 2, lane: 'sis', label: 'tabla → código de cliente' },
+      { from: 1, to: 4, lane: 'sis', label: 'etiqueta → Zebra' }
     ]
   },
 
@@ -543,46 +595,56 @@ const PROCESSES = {
     pcls: 'pm',
     rqRange: 'RQ-PRO-18 a 22',
     rqCount: 5,
-    description: 'Declaración de producción terminada: registro de palets, actualización de stock e impresión de documentos. Natalia impulsa la <em>notificación automática con cámara</em> (DEV-PRO-03) como camino principal para el Go Live. La App MES debe migrar su fuente de datos de SAP a Odoo — riesgo crítico.',
-    shortDesc: 'Manual (fallback) · automática con cámara · DEV-PRO-03 · App MES',
-    inputs: 'Palet terminado · QR de cajas · datos de la orden',
-    outputs: 'Stock actualizado · documentos de contenedor (manila y código) · datos para App MES',
+    description: 'Declaración de producción terminada: registro de palets, actualización de stock e impresión de documentos. La <em>notificación por palet con la cámara</em> (DEV-PRO-03 · DFT10) es el camino principal para el Go Live; la Notificación Rápida desde la computadora queda como alternativa. La App MES lee las órdenes de Odoo con las consultas de la API: falta su integración, riesgo crítico.',
+    shortDesc: 'Cámara por palet · Notificación Rápida con PIN · registro y anulación · DEV-PRO-03 · DFT10 · App MES',
+    inputs: 'Palet terminado · DataMatrix de las cajas · datos de la orden (lote del terminado y lotes de componentes)',
+    outputs: 'Stock actualizado · etiqueta de contenedor y etiqueta de Producción · registro de cada envío · consultas para la App MES',
     lanes: ['pro','ing','sis'],
-    intro: 'Posición acordada en sesión 2: Natalia impulsa ir directamente a la notificación automática con cámara para el Go Live, dado que el equipo de Gustavo ya tiene el sistema avanzado. La notificación manual queda como fallback. Requerimiento crítico adicional: la App MES hoy consume datos desde SAP — al Go Live debe consumirlos desde Odoo. Coordinación urgente con Gustavo.',
-    archNote: 'INPUTS — palet terminado en estríchadora · QR de cajas (DEV-PRO-03). OUTPUTS — stock actualizado · manila y código de contenedor · datos disponibles para App MES. DEV — DEV-PRO-03: endpoint Odoo para cámara. RIESGO — RQ-PRO-21: App MES debe migrar fuente de datos SAP → Odoo antes del Go Live.',
+    intro: 'Posición acordada en sesión 2: ir directamente a la notificación automática con cámara para el Go Live. La cámara de la estrechadora lee el DataMatrix de cada caja y envía un POST por palet a la API de Odoo, que notifica el palet completo o nada (DEV-PRO-03 · DFT10). La Notificación Rápida, con operario y PIN, queda como alternativa. La App MES hoy consume datos desde SAP: al Go Live debe leerlos de Odoo con las consultas de la API, y falta la integración del lado de la App MES (T01500).',
+    archNote: 'INPUTS — palet terminado en la estrechadora · DataMatrix de las cajas (DEV-PRO-03 · DFT10). OUTPUTS — stock actualizado · palet armado · etiqueta de contenedor y etiqueta de Producción impresas por la red (DFT59) · registro de cada envío · consultas para la App MES. DEV — DEV-PRO-03 · DFT10: API de Odoo con token, Notificación Rápida con PIN, registro, reproceso y anulación. [ABIERTO] — T01923: notificar de más amplía la OF (RQ-PLA-28 pide conservar lo planificado). RIESGO — RQ-PRO-21: integración de la App MES con Odoo antes del Go Live.',
     steps: [
-      { n: '01', label: 'Notif. manual', lane: 'pro', variant: 'pro2',
-        title: 'Notificación manual de palet terminado (fallback)',
-        desc: 'El operario selecciona orden y cantidad desde la computadora de salida. El sistema registra producción, actualiza stock y genera documentos de contenedor. Misma lógica que Libus. Se mantiene como fallback.',
-        tags: ['RQ-PRO-18', 'estándar · Libus', 'verificar trazabilidad operario (módulo empleados)']
+      { n: '01', label: 'Notif. Rápida', lane: 'pro', variant: 'pro2',
+        title: 'Notificación Rápida desde la computadora (alternativa)',
+        desc: 'Fabricación > Operaciones > Notificación Rápida de Producción: orden, cantidad y operario con PIN. Controla el consumo de los componentes retrógrados, reparte el consumo entre lotes y no deja notificar dos veces el mismo palet. Si se notifica más que lo pendiente, amplía la OF.',
+        tags: ['RQ-PRO-18', 'DEV-PRO-03 · DFT10', '[ABIERTO] notificar de más (T01923)']
       },
-      { n: '02', label: 'Notif. automática', lane: 'sis', variant: 'sis',
-        title: 'Notificación automática por lectura de QR con cámara',
-        desc: 'El sistema de cámara de Gustavo lee los QR de todas las cajas en la estríchadora y envía datos a Odoo vía endpoint/API. Odoo registra producción, actualiza stock y genera imprimibles sin intervención manual. La cámara verifica duplicados y coherencia de orden.',
-        tags: ['RQ-PRO-19', 'DEV-PRO-03', 'coordinación urgente con Gustavo'],
-        pill: { color: 'pro', text: '🔧 DEV-PRO-03 · endpoint Odoo · Natalia impulsa como camino principal para Go Live' }
+      { n: '02', label: 'Cámara por palet', lane: 'sis', variant: 'sis',
+        title: 'Notificación por palet con la cámara',
+        desc: 'La cámara lee el DataMatrix de cada caja en la estrechadora y envía un POST por palet a la API de Odoo, con token. Odoo controla que la orden esté lista (confirmada, con lote del terminado y lotes de componentes), notifica el palet completo o nada, consume los retrógrados, arma el palet y deja el pendiente. Una caja repetida se rechaza; un palet mayor a lo pendiente entra completo.',
+        tags: ['RQ-PRO-19', 'DEV-PRO-03 · DFT10', 'falta la prueba física con la cámara'],
+        pill: { color: 'pro', text: '🔧 DEV-PRO-03 · DFT10 · API de Odoo · por palet, todo o nada' }
       },
-      { n: '03', label: 'Trazabilidad', lane: 'pro', variant: 'pro2',
-        title: 'Usuario único con trazabilidad de operario',
-        desc: 'Puesto compartido con mecanismo de identificación del operario real (login por empleado, PIN o similar). Funcionalidad desarrollada para Libus.',
-        tags: ['RQ-PRO-20', 'estándar · Libus', 'verificar implementación y adaptar']
+      { n: '03', label: 'Registro y reproceso', lane: 'sis', variant: 'sis2',
+        title: 'Registro de cada envío y reproceso',
+        desc: 'Cada envío de la cámara queda registrado con su resultado. Un envío con error se puede reprocesar a mano desde el registro, una vez corregida la causa.',
+        tags: ['RQ-PRO-19', 'DEV-PRO-03 · DFT10', 'registro de notificaciones']
       },
-      { divider: 'RIESGO CRÍTICO — App MES y migración de fuente de datos', type: 'warn' },
-      { n: '04', label: 'App MES → Odoo', lane: 'ing', variant: 'ing',
-        title: 'Integración App MES — migración SAP → Odoo',
-        desc: 'La App MES (Ángel, Gustavo) consume datos de OPs desde SAP. Al Go Live todos los datos deben estar disponibles en Odoo. Sin desarrollo técnico a cargo de Argul/Odoo, pero se requiere disponibilizar los datos a tiempo.',
-        tags: ['RQ-PRO-21', 'gap · riesgo crítico Go Live', 'Fabián inició coordinación con Gustavo'],
-        pill: { color: 'ing', text: '⚠ RIESGO CRÍTICO · coordinación urgente Fabián / Gustavo / Franco' }
+      { n: '04', label: 'Impresión automática', lane: 'sis', variant: 'sis',
+        title: 'Impresión automática al notificar',
+        desc: 'Al quedar hecha la notificación, Odoo imprime la etiqueta de contenedor y la etiqueta de Producción en las impresoras de red (DFT59), sin intervención del operario.',
+        tags: ['RQ-PRO-19', 'DEV-PRO-03 · DFT10', 'falta la impresora definitiva y la carga de la láser']
       },
-      { n: '05', label: 'Anulación', lane: 'pro', variant: 'pro3',
-        title: 'Anulación de notificación de producción',
-        desc: 'La reversión en Odoo requiere unbuild (MO de desarme). Más complejo que la simple anulación de SAP. Si se implementa DEV-PRO-03, el margen de error baja significativamente.',
-        tags: ['RQ-PRO-22', 'gap', 'documentar procedimiento con supervisores · prioridad baja con DEV-PRO-03']
+      { n: '05', label: 'Operario y PIN', lane: 'pro', variant: 'pro2',
+        title: 'Puesto compartido con operario identificado por PIN',
+        desc: 'El operario se identifica con su PIN en la Notificación Rápida y en la API (ajuste «Notificación Rápida con operario obligatorio»). La OF guarda el operario que notificó y lo pasa a los tiempos de las OT. La trazabilidad se consulta desde Fabricación (OF por operario y Análisis de producción).',
+        tags: ['RQ-PRO-20', 'DEV-PRO-03 · DFT10', 'falta cargar el PIN de los operarios']
+      },
+      { divider: 'RIESGO CRÍTICO — integración de la App MES con Odoo', type: 'warn' },
+      { n: '06', label: 'App MES → Odoo', lane: 'ing', variant: 'ing',
+        title: 'App MES: lectura de órdenes desde Odoo',
+        desc: 'La App MES (equipo de Gustavo Adorno) consume hoy los datos de las órdenes desde SAP. Odoo ya expone dos consultas en la API, una orden por número y lectura en lote (molde, máquina, ciclo, cavidades, cantidades y lote), con el mismo token que la notificación. Falta la integración del lado de la App MES y su validación contra Test.',
+        tags: ['RQ-PRO-21', 'DEV-PRO-03 · DFT10', 'riesgo crítico Go Live · T01500'],
+        pill: { color: 'ing', text: '⚠ RIESGO CRÍTICO · falta la integración de la App MES · Fabián / Gustavo' }
+      },
+      { n: '07', label: 'Anulación', lane: 'pro', variant: 'pro3',
+        title: 'Anulación de la notificación con desmantelado',
+        desc: 'Botón «Anular» en el registro de la notificación (Fabricación / Administrador): abre el desmantelado del palet. Al validarlo, la notificación queda «Anulada» y sus cajas se pueden volver a leer. En un CD de varios pasos libera la reserva del traslado siguiente.',
+        tags: ['RQ-PRO-22', 'DEV-PRO-03 · DFT10', 'capacitar a los supervisores']
       }
     ],
     arrows: [
-      { from: 0, to: 1, lane: 'sis', label: 'manual → automática' },
-      { from: 1, to: 3, lane: 'ing', label: 'datos para App MES' }
+      { from: 0, to: 1, lane: 'sis', label: 'alternativa → cámara' },
+      { from: 1, to: 5, lane: 'ing', label: 'datos para App MES' }
     ]
   },
 
@@ -636,35 +698,34 @@ const PROCESSES = {
     pcls: 'po',
     rqRange: 'RQ-PRO-26, RQ-PRO-35',
     rqCount: 2,
-    description: 'Fabricaciones de moldes nuevos o pruebas de material, muy frecuentes (una o más por día). Hoy no se gestionan en SAP. Generan indisponibilidad real de la inyectora. Deben aparecer en el Gantt y estar planificadas. Los materiales de ensayo se solicitan por separado al depósito (RQ-PRO-35).',
-    shortDesc: 'Orden de ensayo en Gantt · flag ensayo · materiales ensayo · cadena Ing→Pla→Pro',
+    description: 'Fabricaciones de moldes nuevos o pruebas de material, muy frecuentes (una o más por día). Hoy no se gestionan en SAP. Generan indisponibilidad real de la inyectora. En Odoo son órdenes del tipo de operación «Orden de ensayo» (ENS), resueltas por configuración, que el Gantt marca como ensayo. Los materiales comprados entran como componentes; las muestras van en Notas (RQ-PRO-35).',
+    shortDesc: 'Orden de ensayo (ENS) · marca en el Gantt · materiales y muestras · cadena Ing→Pla→Pro',
     inputs: 'Solicitud de ensayo desde Ingeniería (Miguel Caro) · molde de prueba · materiales de ensayo',
-    outputs: 'Orden de ensayo en Gantt · datos registrados (molde, máquina, material, ciclo medido) · consumo de materiales de ensayo',
+    outputs: 'Orden de ensayo en el Gantt · datos del ensayo en Notas y en la OT · consumo de materiales de ensayo',
     lanes: ['ing','pla','pro','sis'],
-    intro: 'Los ensayos se planifican hoy en Don PC y se comunican en papel. La cadena completa es: Ingeniería origina la solicitud (RQ-ING-26), Planificación asigna máquina y tiempo en el Gantt (RQ-PLA-31), Producción ejecuta con la App MES. Las órdenes de ensayo no tienen producto terminado definido ni BOM estándar (son para productos en desarrollo). Los materiales de ensayo se solicitan al depósito de forma independiente (RQ-PRO-35).',
-    archNote: 'INPUTS — solicitud de ensayo de Ingeniería (RQ-ING-26). OUTPUTS — orden en Gantt · bloqueo de capacidad · datos del ensayo registrados · consumo de materiales. CADENA — Ing(ING-26)→Pla(PLA-31)→Pro(PRO-26). RQ-PRO-35 — materiales de ensayo.',
+    intro: 'Los ensayos se planifican hoy en Don PC y se comunican en papel. La cadena completa es: Ingeniería origina la solicitud (RQ-ING-26), Planificación asigna máquina y tiempo en el Gantt (RQ-PLA-31), Producción ejecuta con la App MES. En Odoo se resolvió por configuración (T01516): tipo de operación «Orden de ensayo» con su menú, producto genérico de ensayo y ubicaciones virtuales; el Gantt las marca (DEV-PLA-02 · DFT03). Funciona parcial: falta correr el circuito completo con un usuario. [ABIERTO] Líneas descriptivas y tipo de ensayo como campos propios.',
+    archNote: 'INPUTS — solicitud de ensayo de Ingeniería (RQ-ING-26). OUTPUTS — orden de ensayo en el Gantt · bloqueo de capacidad · datos del ensayo en Notas y en la OT · consumo de materiales. CONFIGURACIÓN — tipo de operación «Orden de ensayo» (ENS), producto genérico, ubicaciones virtuales y etiquetas por tipo de ensayo (T01516). DEV — DEV-PLA-02 · DFT03 (marca en el Gantt). CADENA — Ing(ING-26)→Pla(PLA-31)→Pro(PRO-26). RQ-PRO-35 — materiales como componentes, muestras en Notas.',
     steps: [
       { n: '01', label: 'Solicitud ensayo', lane: 'ing', variant: 'ing',
         title: 'Ingeniería origina solicitud de ensayo (RQ-ING-26)',
         desc: 'Miguel Caro o el equipo de Ingeniería solicita el ensayo de un molde nuevo o prueba de material. La solicitud se origina en Ingeniería (RQ-ING-26) y se gestiona como orden de ensayo en Odoo, reemplazando Don PC para este circuito.',
-        tags: ['RQ-PRO-26', 'gap', 'cadena Ing(ING-26) → Pla(PLA-31) → Pro(PRO-26)']
+        tags: ['RQ-PRO-26', 'funciona parcial', 'cadena Ing(ING-26) → Pla(PLA-31) → Pro(PRO-26)']
       },
       { n: '02', label: 'OF ensayo en Gantt', lane: 'pla', variant: 'pla',
         title: 'Planificación asigna máquina y tiempo en el Gantt (RQ-PLA-31)',
-        desc: 'Planificación recibe la solicitud y genera la orden de ensayo en el Gantt, asignando inyectora y bloque horario. La App MES identifica la orden como ensayo (flag) y no la contabiliza como producción regular. La capacidad de la inyectora queda bloqueada durante el ensayo.',
-        tags: ['RQ-PRO-26', 'gap', 'tipo MO con flag ensayo · alineado con RQ-PLA-31'],
-        pill: { color: 'sis', text: '⚠ GAP · tipo de MO especial con flag ensayo · cadena ING-26→PLA-31→PRO-26' }
+        desc: 'Planificación genera la orden de ensayo con el tipo de operación «Orden de ensayo» (Fabricación > Operaciones > Órdenes de ensayo) y le asigna inyectora y bloque horario en la OT. El Gantt marca las órdenes de ensayo (DEV-PLA-02 · DFT03) y la capacidad de la inyectora queda bloqueada durante el ensayo.',
+        tags: ['RQ-PRO-26', 'configuración T01516', 'DEV-PLA-02 · DFT03 · alineado con RQ-PLA-31'],
+        pill: { color: 'sis', text: '⚙ Configuración nativa · tipo de operación «Orden de ensayo» (ENS) · marca en el Gantt (DFT03)' }
       },
       { n: '03', label: 'Ejecución ensayo', lane: 'pro', variant: 'pro',
         title: 'Producción ejecuta el ensayo con App MES',
-        desc: 'El operario ejecuta el ensayo en la inyectora asignada. La App MES registra datos del ensayo (molde, máquina, material, ciclo medido) vinculados a la OF de ensayo. Reemplaza el registro en Don PC para esta información.',
-        tags: ['RQ-PRO-26', 'gap', 'campos descriptivos sin BOM estándar']
+        desc: 'El operario ejecuta el ensayo en la inyectora asignada. Composición, porcentajes, ciclo y muestras van en Notas; máquina y tiempo estimado, en la OT; el tipo de ensayo, como etiqueta. La App MES registra los datos del ensayo vinculados a la orden.',
+        tags: ['RQ-PRO-26', 'funciona parcial', '[ABIERTO] líneas descriptivas y tipo de ensayo']
       },
       { n: '04', label: 'Materiales ensayo', lane: 'pro', variant: 'pro2',
-        title: 'Solicitud de materiales para ensayo al depósito',
-        desc: 'Los materiales necesarios para el ensayo (materia prima, insertos, etc.) se solicitan al depósito de forma independiente a la solicitud regular de producción. El pedido de materiales de ensayo no impacta el MRP estándar y se gestiona como stock_request específico.',
-        tags: ['RQ-PRO-35', 'gap', 'solicitud independiente · no impacta MRP regular'],
-        pill: { color: 'dep', text: '⚠ GAP · materiales ensayo · solicitud independiente del circuito regular' }
+        title: 'Materiales y muestras del ensayo',
+        desc: 'El material comprado para el ensayo entra como componente de la orden y se consume con ella. Las muestras o regalos van como texto en Notas y no mueven stock ni costo (DFT03). Se valida en la misma prueba del circuito completo (T01516).',
+        tags: ['RQ-PRO-35', 'sin gap · por configuración', 'validar en la prueba de T01516']
       }
     ],
     arrows: [
@@ -684,19 +745,19 @@ const PROCESSES = {
     pcls: 'po',
     rqRange: 'RQ-PRO-27, RQ-PRO-29, RQ-PRO-30',
     rqCount: 3,
-    description: 'Abastecimiento del depósito productivo (PR), espacio entre depósito e inyectoras (24-48 hs capacidad). Los supervisores generan solicitudes al depósito con <em>stock_request</em> (OCA, ya implementado en Libus). El abastecimiento automático por MRP es alcance del MF Planificación.',
-    shortDesc: 'stock_request OCA · especificación de lote · DEV-PLA-03 (MF Planificación)',
+    description: 'Abastecimiento del depósito productivo (PR), espacio entre depósito e inyectoras (24-48 hs capacidad). Los supervisores generan solicitudes al depósito con <em>stock_request</em> (OCA, ya implementado en Libus). El abastecimiento por cálculo de necesidades lo dispara Planificación (DEV-PLA-03 · DFT04, MF Planificación v4.2).',
+    shortDesc: 'stock_request OCA · especificación de lote · DEV-PLA-03 · DFT04 (MF Planificación)',
     inputs: 'Necesidad de materiales en PR · número de lote requerido',
     outputs: 'Solicitud de transferencia depósito central → PR → impacto en App WMS Hangel',
     lanes: ['pro','dep','sis'],
-    intro: 'Este circuito ya está definido en el MF de Inventario/WMS (RQ-INV-13, RQ-INV-29) y usa el módulo OCA stock_request implementado en Libus. La solicitud de Producción impacta en la App WMS Hangel del depósito para que los operarios vean el trabajo pendiente. El abastecimiento automático por reglas Pull/MRP con horizonte acotado es responsabilidad de Planificación (DEV-PLA-03).',
-    archNote: 'INPUTS — necesidad de materiales en PR · lote requerido. OUTPUTS — solicitud de transferencia → picking en Odoo → impacto en App WMS Hangel. MÓDULOS — stock_request (OCA/stock-logistics-warehouse 17.0). DEV — DEV-PLA-03 (MF Planificación) para abastecimiento automático.',
+    intro: 'Este circuito ya está definido en el MF de Inventario/WMS v3.3 (RQ-INV-13, RQ-INV-29) y usa el módulo OCA stock_request implementado en Libus. La solicitud de Producción impacta en la App WMS Hangel del depósito para que los operarios vean el trabajo pendiente. El abastecimiento por cálculo de necesidades con horizonte de horas es responsabilidad de Planificación (DEV-PLA-03 · DFT04): lo dispara Planificación y genera el abastecimiento con el lote de la OF.',
+    archNote: 'INPUTS — necesidad de materiales en PR · lote requerido. OUTPUTS — solicitud de transferencia → picking en Odoo → impacto en App WMS Hangel. MÓDULOS — stock_request (OCA/stock-logistics-warehouse 17.0). DEV — DEV-PLA-03 · DFT04 (MF Planificación v4.2): cálculo de necesidades del PR y «Abastecer PR (fuera de hora)». [ABIERTO] — RQ-PRO-27: stock_request o el asistente del DFT04 para los abastecimientos fuera de hora. FUERA DE ESTE PROCESO — DFT42 (reglas de reordenamiento y solicitudes de compra y de fabricación): no confundir con stock_request; [ABIERTO] dónde se documenta.',
     steps: [
       { n: '01', label: 'Solicitud al PR', lane: 'pro', variant: 'pro',
         title: 'Solicitud de abastecimiento al PR por sistema (incl. fuera de horario)',
-        desc: 'Los supervisores generan solicitudes al depósito con <em>stock_request</em> (OCA). La solicitud dispara el picking en Odoo e impacta en la App WMS Hangel. Todo el movimiento queda registrado. Cubre los sub-escenarios a y b de RQ-INV-13. La aprobación (APR) debe poder realizarse fuera de horario administrativo para no frenar la producción en turnos nocturnos.',
-        tags: ['RQ-PRO-27', 'OCA · stock_request', 'APR fuera horario · ya implementado en Libus'],
-        pill: { color: 'cal', text: '📦 OCA stock_request · APR fuera de horario habilitada · perfiles de acceso a definir' }
+        desc: 'Los supervisores generan solicitudes al depósito con <em>stock_request</em> (OCA). La solicitud dispara el picking en Odoo e impacta en la App WMS Hangel. Todo el movimiento queda registrado. Cubre los sub-escenarios a y b de RQ-INV-13. El abastecimiento al PR fuera de horario (APR) debe poder hacerse fuera del horario administrativo para no frenar los turnos nocturnos. El DFT04 sumó «Abastecer PR (fuera de hora)», con origen, solicitante, motivo y el lote de la OF.',
+        tags: ['RQ-PRO-27', 'OCA · stock_request', '[ABIERTO] stock_request o asistente del DFT04'],
+        pill: { color: 'cal', text: '📦 OCA stock_request · APR fuera de horario · [ABIERTO] relación con «Abastecer PR (fuera de hora)» (DFT04)' }
       },
       { n: '02', label: 'Lote específico', lane: 'pro', variant: 'pro2',
         title: 'Solicitud con especificación de lote',
@@ -704,10 +765,10 @@ const PROCESSES = {
         tags: ['RQ-PRO-29', 'gap', 'verificar si stock_request OCA soporta lote · Franco evalúa'],
         pill: { color: 'dep', text: '⚠ GAP · verificar soporte de lote en stock_request OCA · extensión menor si no' }
       },
-      { n: '03', label: 'MRP acotado → PR', lane: 'sis', variant: 'sis2',
-        title: 'Abastecimiento automático por reglas Pull/MRP (horizonte acotado)',
-        desc: 'Reglas pull con horizonte de 24-48 hs de consumo para que el MRP genere automáticamente las transferencias al PR. Responsabilidad de Planificación (DEV-PLA-03, MF Planificación).',
-        tags: ['RQ-PRO-30', 'DEV-PLA-03 (MF Planificación)', 'ref. MF Planificación sección 7']
+      { n: '03', label: 'Necesidades → PR', lane: 'sis', variant: 'sis2',
+        title: 'Abastecimiento por cálculo de necesidades del PR (horizonte de horas)',
+        desc: 'Planificación dispara el cálculo de necesidades del PR con un horizonte de horas, y Odoo genera el abastecimiento con el lote de cada OF. No son reglas automáticas. Responsabilidad de Planificación (DEV-PLA-03 · DFT04, MF Planificación v4.2).',
+        tags: ['RQ-PRO-30', 'DEV-PLA-03 · DFT04 (MF Planificación)', 'ref. MF Planificación v4.2, sección 6']
       }
     ],
     arrows: [
@@ -726,29 +787,29 @@ const PROCESSES = {
     pcls: 'ps',
     rqRange: 'RQ-PRO-31 a 34',
     rqCount: 4,
-    description: 'Reportes disponibles en Fase 1: producción notificada, Gantt, stock en 901. Los KPIs (OEE, eficiencia, ciclo real vs. estándar) se planificarán en fase posterior. El reporte de ubicación 901 es condicional a DEV-PRO-03.',
-    shortDesc: 'Prod. notificada · Gantt · stock 901 > 48 hs · KPIs fase posterior',
+    description: 'Reportes disponibles en Fase 1: Análisis de producción con operario y cajas, Gantt y stock en transición con antigüedad. Los KPIs (OEE, eficiencia, ciclo real vs. estándar) se planificarán en fase posterior. El reporte de stock en transición ya no es condicional a DEV-PRO-03.',
+    shortDesc: 'Análisis de producción · Gantt · stock en transición > 48 hs · KPIs fase posterior',
     inputs: 'Datos de producción acumulados en Odoo',
-    outputs: 'Reportes de producción · reporte de stock en 901 · KPIs (fase posterior)',
+    outputs: 'Análisis de producción · reporte de stock en transición · KPIs (fase posterior)',
     lanes: ['pro','sis'],
-    intro: 'Los reportes de producción notificada y el Gantt por centro de trabajo son nativos de Odoo. El reporte de stock en ubicación 901 con antigüedad > 48 hs (DEV-PRO-04) detecta notificaciones erróneas, pero puede quedar obsoleto si se implementa DEV-PRO-03 (notificación automática). Los KPIs de producción se planificarán una vez acumulados datos en el sistema.',
-    archNote: 'OUTPUTS — reportes nativos de Odoo · DEV-PRO-04 (stock 901 > 48 hs, condicional). DEV — DEV-PRO-04: reporte condicional a DEV-PRO-03.',
+    intro: 'El Gantt por centro de trabajo es nativo de Odoo. El Análisis de producción suma operario, usuario que notificó y cajas producidas (DFT43). El reporte de stock en transición (DEV-PRO-04 · DFT11) muestra palets y lotes de las ubicaciones monitoreadas que superan el umbral (48 hs por defecto, configurable) y detecta notificaciones erróneas; se mantiene con la cámara porque las ubicaciones de análisis QA también acumulan stock. Los KPIs se planificarán una vez acumulados datos en el sistema.',
+    archNote: 'OUTPUTS — Análisis de producción (DFT43) · Gantt nativo · stock en transición con antigüedad (DEV-PRO-04 · DFT11). DEV — DEV-PRO-04 · DFT11: ya no es condicional a DEV-PRO-03; el mismo reporte está en Calidad (DEV-CAL-03 · DFT11). DFT43 — operario y cajas en el Análisis de producción.',
     steps: [
-      { n: '01', label: 'Prod. notificada', lane: 'sis', variant: 'sis',
-        title: 'Reporte de producción notificada',
-        desc: 'Listado de producción notificada por orden, fecha, operario, cantidad en cajas y unidades. Disponible desde el módulo de Fabricación desde el Go Live.',
-        tags: ['RQ-PRO-31', 'estándar', 'sin gap']
+      { n: '01', label: 'Análisis de prod.', lane: 'sis', variant: 'sis',
+        title: 'Análisis de producción',
+        desc: 'Fabricación > Reportes > Análisis de producción: producción notificada por orden, fecha y hora, operario (el que notificó con PIN o el del último tiempo de las OT), usuario que notificó y cantidad en cajas y unidades, con la medida «Cajas producidas». Se agrupa por orden, operario y usuario.',
+        tags: ['RQ-PRO-31', 'DFT43', 'implementado']
       },
       { n: '02', label: 'Gantt', lane: 'sis', variant: 'sis2',
         title: 'Gantt de órdenes por centro de trabajo',
         desc: 'Vista Gantt con todas las órdenes activas y futuras, fechas de inicio y fin estimadas.',
         tags: ['RQ-PRO-32', 'estándar', 'sin gap']
       },
-      { n: '03', label: 'Stock 901 > 48 hs', lane: 'pro', variant: 'pro',
-        title: 'Reporte stock en ubicación 901 con antigüedad > 48 hs',
-        desc: 'Muestra palets y lotes en ubicación de transición de planta (901) con más de 48 hs. Detecta notificaciones erróneas. Condicional: puede quedar obsoleto si se implementa DEV-PRO-03.',
-        tags: ['RQ-PRO-33', 'DEV-PRO-04', 'condicional a DEV-PRO-03'],
-        pill: { color: 'pro', text: '🔧 DEV-PRO-04 · condicional a DEV-PRO-03 · prioridad media' }
+      { n: '03', label: 'Stock en transición', lane: 'pro', variant: 'pro',
+        title: 'Reporte de stock en transición con antigüedad',
+        desc: 'Reporte en vivo de palets y lotes de las ubicaciones monitoreadas (901, 902, Q901, Q902, Q904, CD/904 y las de análisis QA, con sus hijas) que superan el umbral: 48 hs por defecto, configurable. Muestra la antigüedad en horas y en días y la OF que produjo el palet. Detecta notificaciones erróneas. Menús en Fabricación > Informes y en Calidad.',
+        tags: ['RQ-PRO-33', 'DEV-PRO-04 · DFT11', 'ya no es condicional a DEV-PRO-03'],
+        pill: { color: 'pro', text: '🔧 DEV-PRO-04 · DFT11 · umbral configurable · [ABIERTO] nombre del menú «> 48 hs»' }
       },
       { n: '04', label: 'KPIs (posterior)', lane: 'sis', variant: 'sis2',
         title: 'KPIs de producción — fase posterior',
@@ -794,7 +855,7 @@ function el(tag, attrs={}, ...children){
 /* ================================================================= */
 /* ROUTE BAR                                                          */
 /* ================================================================= */
-function renderRouteBar(route){const MF_URL='https://docs.google.com/document/d/11Yx3JaND6j47rB4ubzLiVjlXeB44qCxnP6d5rwXeuH0/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🏭 PRODUCCIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.2'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.2 · 20-may-2026'));}
+function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1EHBzHHkVaVHfZOXlvi7xGMfv40RaNfj4/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🏭 PRODUCCIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.3'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.3 · 15-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -804,12 +865,12 @@ function renderOverview(){
   app.innerHTML = '';
 
   const header = el('header',{class:'page'});
-  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Producción · Argul y Compañía S.A.'));
+  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Producción · Argul y Cía. S.A.'));
   header.appendChild(el('span',{class:'version-badge'},'Procesos de Negocio · 9 procesos'));
   const h1 = el('h1');
   h1.innerHTML = 'Procesos de Negocio de <span class="pro">Producción</span>';
   header.appendChild(h1);
-  header.appendChild(el('p',{},'Plataforma de navegación · 9 flujos · 35 requerimientos · 4 desarrollos (DEV-PRO-01/02/03/04) · 4 módulos OCA'));
+  header.appendChild(el('p',{},'Plataforma de navegación · 9 flujos · 50 requerimientos · 4 desarrollos DEV-PRO (DFT09 a DFT12) y 4 DFT sin DEV (DFT40, DFT41, DFT43, DFT59) · 4 módulos OCA'));
   app.appendChild(header);
 
   const legend = el('div',{class:'legend'});
@@ -823,12 +884,12 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 9 procesos del área de Producción. <strong>Natalia Cascardo</strong> es la Key User. Producción ejecuta las órdenes lanzadas por Planificación (Victoria Gini). La estructura de moldes se gestiona con el módulo <strong>mrp_tool_tracking</strong> (implementado en Libus). Los procesos de Gestión de Calidad se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 9 procesos del área de Producción. <strong>Natalia Cascardo</strong> es la Key User. Producción ejecuta las órdenes lanzadas por Planificación (Victoria Gini). El molde es un equipo de Mantenimiento con versiones, que gobierna Matricería (<strong>DEV-PRO-05 · DFT07</strong>); no se usa mrp_tool_tracking. Alineado con el MF Producción v5.3 (20261115_Sistemas_Produccion_MF_v5_3). Los procesos de Gestión de Calidad se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
   }));
 
   app.appendChild(el('div',{
     class:'arch-note',
-    html:'<strong>⬢ DESARROLLOS Y MÓDULOS OCA —</strong> Módulos OCA confirmados: <strong>stock_request</strong> (implementado en Libus) · <strong>mrp_byproduct</strong> (OCA, moldes familiares — alineado con RQ-PLA-30). Desarrollos custom: <strong>DEV-PRO-01</strong> (código cliente en rótulo) · <strong>DEV-PRO-02</strong> (wizard Producto No Conforme, compartido con Calidad) · <strong>DEV-PRO-03</strong> (endpoint cámara) · <strong>DEV-PRO-04</strong> (stock 901). Módulos de calidad y desarrollos asociados se documentan en el MF/HTML de Calidad.'
+    html:'<strong>⬢ DESARROLLOS Y MÓDULOS OCA —</strong> Módulos OCA: <strong>stock_request</strong> (implementado en Libus) · <strong>product_supplierinfo_for_customer</strong> (códigos de cliente, DFT09) · <strong>scrap_reason_code</strong> (motivos de PNC, DFT12) · <strong>mrp_workcenter_category</strong> (categorías de inyectoras, DFT40). Nativo: <strong>mrp_byproduct</strong> (moldes familiares, alineado con RQ-PLA-30). Desarrollos: <strong>DEV-PRO-01 · DFT09</strong> (código de cliente en la etiqueta) · <strong>DEV-PRO-02 · DFT12</strong> (wizard Producto No Conforme, compartido con Calidad) · <strong>DEV-PRO-03 · DFT10</strong> (notificación por palet con la cámara) · <strong>DEV-PRO-04 · DFT11</strong> (stock en transición) · <strong>DFT40</strong> (categorías de inyectoras) · <strong>DFT41</strong> (ejecución de la OF y Copiar OF) · <strong>DFT43</strong> (OF impresa con QR) · <strong>DFT59</strong> (impresión directa). De otras áreas: DEV-PRO-05 · DFT07 (maestro de moldes) y DEV-PLA-03 · DFT04 (abastecimiento del PR). Módulos de calidad y desarrollos asociados se documentan en el MF/HTML de Calidad.'
   }));
 
   const overviewWrap = el('div',{class:'overview-wrap'});
@@ -934,7 +995,7 @@ function renderProcess(pid){
   app.innerHTML = '';
 
   const header = el('header',{class:'page'});
-  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Producción · Argul y Compañía S.A.'));
+  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Producción · Argul y Cía. S.A.'));
   header.appendChild(el('span',{class:'version-badge'}, proc.code + ' · ' + proc.type));
   const h1 = el('h1');
   const isCAL = proc.code.startsWith('P-CAL');
