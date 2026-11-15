@@ -400,7 +400,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · VENTAS · ARGUL Y COMPAÑÍA S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v3.2 · alineado con MF Ventas v3.2</footer>
+<footer>ODOO 17 ENTERPRISE · VENTAS · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v3.4 · alineado con MF Ventas v3.4</footer>
 
 <script>
 /* ================================================================= */
@@ -428,13 +428,13 @@ const PROCESSES = {
     name: 'Gestión de Pedidos de Venta y Entregas',
     shortName: 'Pedidos y Entregas',
     type: 'Principal',
-    rqRange: 'RQ-VTA-01 a 03, 05 a 08, 10, 30',
-    rqCount: 9,
-    description: 'Ciclo completo del pedido de venta: recepción de OC, carga del PV por Planificación / Customer Service, tipos de pedido, múltiples fechas de entrega, asignación manual de stock, bloqueos con motivos, cancelación de remanentes, circuito B y forzado de ruta. Devoluciones RMA en P-VTA-5; gestión de precios en P-VTA-6.',
-    shortDesc: 'OC → PV → bloqueos · entregas · circuito B · ruta forzada',
+    rqRange: 'RQ-VTA-01 a 03, 05 a 08, 10, 24, 25, 30 a 39',
+    rqCount: 20,
+    description: 'Ciclo completo del pedido de venta: recepción de OC, carga del PV por Planificación / Customer Service, tipo de pedido, fechado de entregas por línea, bloqueos con motivo, entrega manual con la ruta del pedido, asignación manual de stock, cancelación de remanentes, datos de Argul en remito y factura, circuito B y devoluciones RMA. Gestión de precios en P-VTA-6.',
+    shortDesc: 'OC → PV → fechado · bloqueos · crear entrega · circuito B · RMA',
     lanes: ['cli','plan','ven','adm','dep','sis'],
-    intro: 'Cubre desde la recepción de la OC del cliente hasta la entrega física. La carga del PV en el sistema la realiza el equipo de Planificación / Customer Service (no el equipo comercial); Ventas conserva la decisión sobre tipos de pedido, bloqueos y la gestión del cliente. Incluye los controles de bloqueo por facturación y entrega (ahora con motivo automático "vigencia de precios" activado por DEV-VTA-02, ver P-VTA-6), la cancelación de remanentes con trazabilidad, el circuito B enriquecido (sesión 6) y el forzado de ruta por tipo de pedido. Devoluciones RMA: ver P-VTA-5.',
-    archNote: 'MÓDULOS CLAVE — <strong>sale_order_line_delivery_date</strong> + <strong>sale_delivery_split_date</strong> (OCA/sale-workflow 17.0) para partición de entregas por fecha · Extensión del módulo de bloqueo de Libus (agregar campo de motivo + motivo automático "vigencia de precios" de DEV-VTA-02) · Configuración de tipos de pedido por company · Forzado de ruta por tipo (restricción UI o server-side). <strong>Responsable de carga:</strong> equipo Planificación / Customer Service. <strong>RMA:</strong> ver P-VTA-5.',
+    intro: 'Cubre desde la recepción de la OC del cliente hasta la entrega física. La carga del PV en el sistema la realiza el equipo de Planificación / Customer Service (no el equipo comercial); Ventas conserva la decisión sobre tipos de pedido, bloqueos y la gestión del cliente. Incluye el fechado de las líneas (DEV-VTA-01 · DFT02), los bloqueos manuales de facturación y entrega con motivo (DEV-VTA-02 · DFT01), la entrega manual con «Crear entrega» y la ruta del pedido (DFT32), la cancelación de remanentes con trazabilidad y el circuito B enriquecido (sesión 6). El freno por vigencia de precios está en P-VTA-6. Incluye las devoluciones con RMA contra el PV original (DFT48) y la nota de crédito desde la recepción (DFT60).',
+    archNote: 'MÓDULOS CLAVE — <strong>libus_fechado</strong> (Libus) para el fechado por línea (reemplaza a los OCA de fechas, descartados) · <strong>sale_manual_delivery</strong> (OCA) + libus_sale_custom para «Crear entrega» y la ruta del pedido · <strong>sale_order_block_reason</strong> para los bloqueos con motivo · sale_stock_ux_cancel_remaining · sale_order_type (OCA) · sale_stock_document_customer_info (remito y factura). Hay dos niveles de bloqueo: el del cliente (DEV-DEUD-01 · DFT22, en el contacto) y el del pedido (RQ-VTA-06/07). <strong>Responsable de carga:</strong> equipo Planificación / Customer Service. <strong>RMA:</strong> OCA rma + rma_sale, orden de devolución (DFT48) y NC desde la recepción (DFT60).',
     steps: [
       { n: '01', label: 'OC del cliente', lane: 'cli', variant: 'cli',
         title: 'Cliente envía orden de compra',
@@ -443,31 +443,32 @@ const PROCESSES = {
       },
       { n: '02', label: 'Carga del PV', lane: 'plan', variant: 'plan',
         title: 'Carga del pedido de venta en Odoo',
-        desc: 'El equipo de <em>Planificación / Customer Service</em> (Victoria, Brian, Gastón) recibe la OC y carga el PV manualmente en Odoo. Selecciona el <em>tipo de pedido</em>: local A, local B, exportación, e-commerce, productos propios (Nonspill). Propaga el código del cliente al SKU interno mediante DEV-PLA-01. El tipo condiciona moneda, facturación, documento de entrega y <em>ruta forzada</em> (RQ-VTA-30).',
-        tags: ['RQ-VTA-01', 'RQ-VTA-02', 'tipo de pedido', 'rol Customer Service']
+        desc: 'El equipo de <em>Planificación / Customer Service</em> (Victoria, Brian, Gastón) recibe la OC y carga el PV en Odoo. El <em>tipo de pedido</em> (local A, local B, exportación, e-commerce, productos propios) se calcula desde el cliente con el OCA sale_order_type y condiciona moneda, facturación, documento de entrega y ruta (RQ-VTA-30). La línea muestra el <em>código del cliente</em> y el producto se busca por ese código (tabla OCA que reemplaza a DEV-PLA-01). Con un embalaje y una cantidad de embalaje, la línea recalcula su cantidad (2 × 1.700 = 3.400). La advertencia del cliente se ve fija en la cabecera del pedido, sin bloquear.',
+        tags: ['RQ-VTA-01', 'RQ-VTA-02', 'RQ-VTA-32', 'RQ-VTA-36', 'DFT35', 'DFT33', 'DEV-PLA-01 · DFT09', 'rol Customer Service']
       },
-      { n: '03', label: 'Fechas de entrega', lane: 'plan', variant: 'plan2',
-        title: 'Partición en múltiples entregas con fechas',
-        desc: 'Una línea de PV (ej: 1.000.000 uds) se particiona en sub-entregas con fecha individual (ej: 250.000 × 4 semanas). Genera <em>stock.picking</em> independientes por sub-línea. La operación la realiza Planificación al cargar el PV.',
-        tags: ['RQ-VTA-03', 'DEV-VTA-01', 'sale_delivery_split_date (OCA)'],
-        pill: { color: 'ven', text: '🔧 DEV-VTA-01 · desarrollo más complejo del área' }
+      { n: '03', label: 'Fechado de líneas', lane: 'plan', variant: 'plan2',
+        title: 'Fechado de entregas por línea',
+        desc: 'Cada línea puede tener varias fechas comprometidas (ej.: 1.000.000 uds en 250.000 × 4 semanas), con cantidad, semana ISO, estado y origen del suministro. «Generar / Re-fechar» cruza el pendiente con stock libre, compras y OF y arma un borrador para revisar; «Fechar línea» fecha a mano. Las fechas son planificación: <em>no generan entregas</em> (la entrega se crea con «Crear entrega»). Menú Ventas > Fechado.',
+        tags: ['RQ-VTA-03', 'DEV-VTA-01 · DFT02', 'libus_fechado', 'ref. RQ-PLA-03'],
+        pill: { color: 'ven', text: '🔧 DEV-VTA-01 · DFT02 · reuso de libus_fechado · implementado con cambios' }
+      },
+      { n: '04', label: 'Pantalla del pedido', lane: 'sis', variant: 'sis',
+        title: 'Ajustes de la pantalla y del impreso del pedido',
+        desc: 'Con el ajuste «Ocultar campos SAP en los pedidos» no se ve ningún dato de SAP en pedidos, compras, transferencias y contactos (los datos no se borran). La lista de pedidos trae el filtro removible «Pedidos confirmados» y los filtros «Presupuestos» y «Cancelados». La cotización y el pedido imprimen la cantidad sin ceros sobrantes y la cantidad secundaria con el nombre del embalaje. El descuento global se guarda como porcentaje y se recalcula (sin implementar).',
+        tags: ['RQ-VTA-33', 'RQ-VTA-37', 'RQ-VTA-38', 'RQ-VTA-39', 'DFT33', 'DFT35'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · descuento global sin implementar (RQ-VTA-39)' }
       },
       { divider: 'BLOQUEOS Y CONTROL' },
-      { n: '04', label: 'Bloqueo facturación', lane: 'adm', variant: 'adm',
+      { n: '05', label: 'Bloqueo facturación', lane: 'adm', variant: 'adm',
         title: 'Bloqueo de facturación con motivo',
-        desc: 'Campo de bloqueo con motivo seleccionable: <em>diferencia de precio, AFIP categoría M, decisión gerencial, vigencia de precios</em> (nuevo — activado automáticamente por DEV-VTA-02 desde P-VTA-6), <em>otro</em>. Cuando está activo, el PV no aparece en el pool de facturación.',
-        tags: ['RQ-VTA-06', 'bloqueo con motivo', 'extensión Libus', 'DEV-VTA-02 → motivo automático']
+        desc: 'Botón «Bloquear» del pedido, con motivo, nota, fecha y usuario. Motivos precargados: <em>Diferencia de precio</em> y <em>AFIP categoría M</em> (sólo facturación), <em>Decisión gerencial</em> y <em>Crédito/cobranza</em> (entrega y facturación); se pueden agregar otros. Con la facturación bloqueada no se crea la factura (tampoco anticipos ni la factura desde remitos) ni se publica; las notas de crédito pasan. Sólo con el grupo «Bloquear pedidos de venta». Distinto del bloqueo del cliente (DEV-DEUD-01 · DFT22).',
+        tags: ['RQ-VTA-06', 'DEV-VTA-02 · DFT01', 'sale_order_block_reason', 'motivo obligatorio']
       },
-      { n: '05', label: 'Bloqueo entrega', lane: 'ven', variant: 'ven3',
-        title: 'Bloqueo de entrega con motivos',
-        desc: 'Campo de bloqueo de entrega con motivo: <em>falta confirmación, precio, decisión financiera, vigencia de precios</em> (nuevo — activado automáticamente por DEV-VTA-02 desde P-VTA-6). Extensión del desarrollo existente en Libus (agregar campo de motivo al bloqueo on/off).',
-        tags: ['RQ-VTA-07', 'extensión Libus', 'motivo obligatorio', 'DEV-VTA-02 → motivo automático']
-      },
-      { n: '06', label: 'Ruta forzada', lane: 'sis', variant: 'sis',
-        title: 'Forzado de ruta de entrega por tipo de pedido',
-        desc: 'El sistema fuerza la ruta según tipo de pedido, sin permitir modificación en el wizard de entrega. Crítico para tipo B (guía de traslado, no remito). El tipo defaultea la ruta y la ruta no es editable. Requiere restricción UI o validación server-side.',
-        tags: ['RQ-VTA-30', 'gap', 'ruta forzada por tipo', 'wizard entrega'],
-        pill: { color: 'dep', text: '⚠ GAP · wizard permite cambiar ruta · requiere restricción' }
+      { n: '06', label: 'Bloqueo entrega', lane: 'ven', variant: 'ven3',
+        title: 'Bloqueo de entrega con motivo',
+        desc: 'Mismo asistente y maestro de motivos. Con la entrega bloqueada no se confirma «Crear entrega» ni se validan las salidas del pedido, tampoco desde el Hand Held. Aviso rojo con motivo, nota, fecha y usuario; botones «Desbloquear entrega» y «Desbloquear facturación»; filtros por bloqueo; todo queda en el historial. El freno por vigencia de precios no es un motivo de este bloqueo (ver P-VTA-6).',
+        tags: ['RQ-VTA-07', 'DEV-VTA-02 · DFT01', 'sale_order_block_reason_manual_delivery'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · dos «Entrega bloqueada» en el pedido (interruptor financiero y motivo)' }
       },
       { divider: 'PREPARACIÓN Y ENTREGA', type: 'phys' },
       { n: '07', label: 'Asignación stock', lane: 'plan', variant: 'plan',
@@ -475,22 +476,66 @@ const PROCESSES = {
         desc: 'Operada por <em>Planificación / Customer Service</em>. Para productos propios (Nonspill, tapones) vendidos a +20 clientes, la distribución debe ser equitativa a lo largo del mes. Criterio: fecha comprometida primero, luego prioridad de cliente. Reserva manual sobre stock disponible / proyectado.',
         tags: ['RQ-VTA-08', 'reserva manual', 'distribución equitativa']
       },
-      { n: '08', label: 'Cancelar remanentes', lane: 'plan', variant: 'plan2',
+      { n: '08', label: 'Crear entrega', lane: 'plan', variant: 'plan2',
+        title: 'Entrega manual desde el pedido («Crear entrega»)',
+        desc: 'El pedido confirmado no genera la entrega solo. Customer Service la crea con «Crear entrega»: un asistente con las líneas y las cantidades a entregar, que permite entregar por partes. Lo usa un usuario de Ventas sin permisos de Ajustes. Frenos: líneas con precio a redefinir (RQ-VTA-28), bloqueo de entrega con motivo (RQ-VTA-07) y tipo «FC Anticipada» sin factura cobrada (RQ-VTA-17).',
+        tags: ['RQ-VTA-31', 'DFT32', 'sale_manual_delivery (OCA)', 'libus_sale_custom']
+      },
+      { n: '09', label: 'Ruta del pedido', lane: 'sis', variant: 'sis',
+        title: 'Ruta de entrega validada en «Crear entrega»',
+        desc: 'La entrega sale por la ruta de la línea; si no tiene, la del tipo de pedido; si no, la de entrega del almacén. El asistente sólo ofrece las rutas de las líneas; al confirmar, una ruta distinta o una línea sin ruta frenan la entrega (validación del lado servidor). Crítico para tipo B (guía de traslado, no remito).',
+        tags: ['RQ-VTA-30', 'DFT32', 'validación servidor', 'ruta por línea']
+      },
+      { n: '10', label: 'Cumplimiento fechado', lane: 'plan', variant: 'plan',
+        title: 'Cumplimiento y re-fechado de las fechas comprometidas',
+        desc: '«Recalcular cumplimiento» imputa las entregas a las fechas FIFO, con atraso y cumplimiento. «Control de fechado confirmado» compara la fecha asignada con la sugerida; «Re-fechar» y «Re-fechado masivo» cambian las fechas con historial.',
+        tags: ['RQ-VTA-03', 'DEV-VTA-01 · DFT02', 'cumplimiento FIFO', 'historial de cambios'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · acciones planificadas de cumplimiento y re-fechado inactivas' }
+      },
+      { n: '11', label: 'Remito y factura', lane: 'adm', variant: 'adm2',
+        title: 'Datos de Argul en remito y factura',
+        desc: 'Factura y remito salen con el SKU y la descripción de Argul; del cliente sólo su código de producto («SKU - código del cliente») y su orden de compra. Factura: lote, número de proveedor, alícuota de percepciones y número de remito. Remito: cajas, bultos, peso neto, «Entregado en» y formato «Remito A4». Si el código del cliente está vencido se usa el último y el pedido, el remito y la factura lo avisan. Los remitos de tipos que facturan por entregas quedan «A facturar» (DFT60).',
+        tags: ['RQ-VTA-34', 'RQ-VTA-35', 'DFT34', 'DFT60', 'sale_stock_document_customer_info'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · el DFT34 no identifica un RQ del MF' }
+      },
+      { n: '12', label: 'Cancelar remanentes', lane: 'plan', variant: 'plan2',
         title: 'Cancelación de remanentes con trazabilidad',
-        desc: 'Cerrar líneas pendientes sin eliminar el registro. Debe quedar visible: <em>cantidad original, cantidad entregada, cantidad cancelada</em>. No es cancelar el pedido completo. Operada por Planificación a pedido del equipo comercial.',
-        tags: ['RQ-VTA-05', 'cierre parcial', 'trazabilidad']
+        desc: '«Cancelar remanente» por línea o por pedido. La cantidad pedida no cambia y lo no entregado queda en <em>Cantidad cancelada</em>; precio y descuento no cambian. Cancela los movimientos abiertos de la línea (también los pasos previos del CD) y se descuenta del pendiente de entrega, del fechado y de lo a facturar. Operada por Planificación a pedido del equipo comercial.',
+        tags: ['RQ-VTA-05', 'DFT32', 'sale_stock_ux_cancel_remaining', 'trazabilidad']
       },
       { divider: 'CIRCUITO ESPECIAL — Circuito B (sin factura fiscal — no confundir con Pedido tipo B multicompany de RQ-PLA-02)', type: 'end' },
-      { n: '09', label: 'Circuito B', lane: 'ven', variant: 'ven3',
+      { n: '13', label: 'Circuito B', lane: 'ven', variant: 'ven3',
         title: 'Pedido B: entrega + CMV sin factura (enriquecido sesión 6)',
-        desc: 'Tipo de pedido especial enriquecido en sesión 6: (1) <em>"Totalmente facturado"</em> por defecto → nunca aparece en pool de facturación. (2) <em>Ruta forzada</em> (no editable) con guía de traslado. (3) <em>CMV automático</em> al validar guía. (4) <em>Permisos restringidos</em>. (5) Reporte mensual de salidas B con precio de lista. Multi-company descartado para Etapa 1. <strong>No confundir</strong> con el "Pedido tipo B" del MF Planificación (RQ-PLA-02), que refiere a multicompany.',
-        tags: ['RQ-VTA-10', 'totalmente facturado', 'ruta forzada', 'CMV automático', 'permisos', '≠ multicompany']
+        desc: 'Tipo de pedido especial enriquecido en sesión 6: (1) <em>"Totalmente facturado"</em> por defecto → nunca aparece en pool de facturación. (2) <em>Ruta del pedido</em> validada con guía de traslado. (3) <em>CMV automático</em> al validar guía. (4) <em>Permisos restringidos</em>. (5) Reporte mensual de salidas B con precio de lista. Multi-company descartado para Etapa 1. <strong>No confundir</strong> con el "Pedido tipo B" del MF Planificación (RQ-PLA-02), que refiere a multicompany.',
+        tags: ['RQ-VTA-10', 'totalmente facturado', 'ruta del pedido', 'CMV automático', 'permisos', '≠ multicompany'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · guías del tipo B frente a la facturación desde remitos (DFT60)' }
+      },
+      { divider: 'DEVOLUCIONES Y RMA', type: 'end' },
+      { n: '14', label: 'Solicitud de devolución', lane: 'cli', variant: 'cli',
+        title: 'Cliente solicita la devolución',
+        desc: 'El cliente reporta un problema y pide devolver. Customer Service crea la <em>orden de devolución</em> (RMA > Órdenes de devolución) con el cliente, el producto, el lote y la cantidad a devolver.',
+        tags: ['RQ-VTA-24', 'DFT48', 'orden de devolución']
+      },
+      { n: '15', label: 'Orden de devolución', lane: 'ven', variant: 'ven',
+        title: 'Devolución referenciada al pedido de venta original',
+        desc: 'La orden reparte la cantidad entre las entregas del cliente con saldo, crea una RMA por entrega (OCA rma + rma_sale, contra el PV original) y una sola recepción. El lote se elige sólo entre los entregados al cliente y la cantidad no supera lo entregado menos lo devuelto. Al validar el primer paso de la recepción (cliente → CD/Q904) el pedido baja lo entregado (DFT60). Calidad decide la acción sobre el producto (MF Calidad).',
+        tags: ['RQ-VTA-24', 'DFT48', 'rma_return_allocation', 'OCA rma + rma_sale', 'saldo devolvible'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · la orden ofrece «Reemplazar»: choca con «nunca reposición»' }
+      },
+      { n: '16', label: 'NC desde la recepción', lane: 'adm', variant: 'adm',
+        title: 'Nota de crédito desde la recepción de la devolución',
+        desc: 'Toda devolución aceptada termina en nota de crédito, nunca en reposición. Cuentas a Cobrar crea la NC desde la recepción (Inventario > Operaciones > Recepciones, columna «Acreditación de la devolución», bandeja «A acreditar»): una NC en borrador por factura original, en el mismo diario y con la misma letra, con precio e impuestos de la factura original; la revisa y la confirma. Las RMA acreditadas pasan a «Reembolsada».',
+        tags: ['RQ-VTA-25', 'DFT60', 'NC en borrador', 'una NC por factura original', 'ref. RQ-DEUD-05'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · la NC se habilita antes de la decisión de Calidad (regla Q-01)' }
       }
     ],
     arrows: [
       { from: 0, to: 1, lane: 'plan', label: 'OC recibida' },
-      { from: 1, to: 2, lane: 'plan', label: 'partición fechas' },
-      { from: 4, to: 5, lane: 'plan', label: 'desbloqueado → preparar' }
+      { from: 1, to: 2, lane: 'plan', label: 'PV confirmado → fechado' },
+      { from: 6, to: 7, lane: 'plan', label: 'desbloqueado → crear entrega' },
+      { from: 7, to: 8, lane: 'sis', label: 'ruta del pedido' },
+      { from: 13, to: 14, lane: 'ven', label: 'solicitud → orden' },
+      { from: 14, to: 15, lane: 'adm', label: 'recepción → NC' }
     ]
   },
 
@@ -506,12 +551,13 @@ const PROCESSES = {
     shortDesc: 'PV → MRP · stock resultante',
     lanes: ['ven','plan'],
     intro: 'Los pedidos de venta confirmados son el input principal del MRP multinivel. La carga del PV la realiza el equipo de Planificación / Customer Service en su rol que precede al MRP. Para productos propios (Nonspill, tapones de botellón), la planificación combina pedidos firmes con proyección de demanda y stock de seguridad. La gestión de listas de precios se trasladó al proceso dedicado P-VTA-6.',
-    archNote: 'REFERENCIA CRUZADA — El detalle del MRP está documentado en <strong>MF Planificación v4.2</strong>. <strong>Handshake Ventas → Planificación:</strong> el OUTPUT principal de Ventas (sale.order confirmado) es el INPUT principal de Planificación (RQ-PLA-10). Las sub-líneas de DEV-VTA-01 alimentan el fechado (RQ-PLA-03). La configuración de listas de precios se cubre en <strong>P-VTA-6</strong>.',
+    archNote: 'REFERENCIA CRUZADA — El detalle del MRP está documentado en <strong>MF Planificación v4.2</strong>. <strong>Handshake Ventas → Planificación:</strong> el OUTPUT principal de Ventas (sale.order confirmado) es el INPUT principal de Planificación (RQ-PLA-10). El fechado de DEV-VTA-01 · DFT02 se vincula con RQ-PLA-03; con el ajuste «Fecha de la demanda de ventas en el MRP» = «Fecha de entrega», la demanda entra en las fechas del fechado confirmado (DFT39). La configuración de listas de precios se cubre en <strong>P-VTA-6</strong>.',
     steps: [
       { n: '01', label: 'PV confirmados', lane: 'plan', variant: 'plan',
         title: 'Pedidos de venta como input del MRP',
-        desc: 'Los PV confirmados (cargados por Customer Service) generan demanda en el MRP. Las fechas de entrega por sub-línea (DEV-VTA-01) alimentan la planificación con granularidad semanal. Es el handshake de Ventas con el MRP multinivel.',
-        tags: ['RQ-VTA-11', 'sale.order → MRP', 'ref. RQ-PLA-10']
+        desc: 'Los PV confirmados (cargados por Customer Service) generan demanda en el MRP con el pendiente de cada línea. Con el ajuste «Fecha de la demanda de ventas en el MRP» = «Fecha de entrega», el pendiente se reparte entre las fechas del fechado confirmado (DEV-VTA-01 · DFT02) y lo que queda va a la fecha de entrega del pedido; con «Hoy» (por defecto) entra con la fecha del día. Es el handshake de Ventas con el MRP multinivel.',
+        tags: ['RQ-VTA-11', 'sale.order → MRP', 'DFT39', 'DEV-VTA-01 · DFT02', 'ref. RQ-PLA-10'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · el ajuste viene en «Hoy»: activar «Fecha de entrega» en Argul' }
       },
       { n: '02', label: 'Stock resultante', lane: 'plan', variant: 'plan',
         title: 'Análisis de stock resultante para distribución',
@@ -546,8 +592,8 @@ const PROCESSES = {
       },
       { n: '02', label: 'Servicios moldes', lane: 'ven', variant: 'ven',
         title: 'Venta de servicio de fabricación/reparación',
-        desc: 'Producto tipo servicio en Odoo. Facturación de servicios de fabricación o reparación de moldes. SKU genérico con descripción editable (sesión 6). Anticipos configurados por término de pago. Reemplaza el código de texto libre de SAP.',
-        tags: ['RQ-VTA-15', 'SKU genérico', 'descripción editable', 'anticipos']
+        desc: 'Producto tipo servicio en Odoo. Facturación de servicios de fabricación o reparación de moldes. SKU genérico con descripción editable (sesión 6). Anticipos configurados por término de pago; la factura de anticipo desde el pedido se crea sin error. Reemplaza el código de texto libre de SAP.',
+        tags: ['RQ-VTA-15', 'SKU genérico', 'descripción editable', 'anticipos', 'DFT35']
       },
       { n: '03', label: 'Venta activos', lane: 'adm', variant: 'adm2',
         title: 'Venta de activos fijos con baja contable',
@@ -556,8 +602,9 @@ const PROCESSES = {
       },
       { n: '04', label: 'Factura anticipada', lane: 'adm', variant: 'adm',
         title: 'Facturación anticipada (clientes nuevos / prepagados)',
-        desc: 'Clientes sin crédito: proforma → factura → cobro → entrega. PV con política <em>facturar cantidad pedida</em>. Término de pago inmediato. Flujo invertido. <strong>Sesión 6:</strong> la planificación/producción solo se activa tras confirmación del pago. Pedidos prepagados excluidos del bloqueo automático por vigencia de precios (DEV-VTA-02).',
-        tags: ['RQ-VTA-17', 'down payment', 'flujo invertido', 'producción tras pago']
+        desc: 'Clientes sin crédito: proforma → factura → cobro → entrega. PV con política <em>facturar cantidad pedida</em>. Término de pago inmediato. Flujo invertido. Tipo «FC Anticipada»: «Crear entrega» se frena mientras la factura no esté cobrada. Facturados por adelantado, quedan fuera del freno por vigencia de precios: la exclusión es por cantidad facturada. No entran en la facturación desde remitos. <strong>Sesión 6:</strong> la planificación/producción solo se activa tras confirmación del pago.',
+        tags: ['RQ-VTA-17', 'down payment', 'flujo invertido', 'DFT32', 'DEV-VTA-02 · DFT01', 'DFT60'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · producción tras el pago: ningún DFT la trata' }
       },
       { divider: 'MOVIMIENTOS SIN FACTURACIÓN — muestras, préstamos, traslados', type: 'phys' },
       { n: '05', label: 'Remito sin cargo', lane: 'dep', variant: 'dep',
@@ -599,8 +646,8 @@ const PROCESSES = {
       },
       { n: '02', label: 'Maestro clientes', lane: 'adm', variant: 'adm',
         title: 'Base de datos de clientes (filtros y limpieza)',
-        desc: 'Filtro en formulario de ventas: solo partners marcados como <em>cliente</em> (empresa padre). Desarrollo existente en Libus (<em>partner_domain</em>). Migración de datos con limpieza de base SAP.',
-        tags: ['RQ-VTA-21', 'partner_domain (Libus)', 'migración datos']
+        desc: 'Filtro en formulario de ventas: solo partners marcados como <em>cliente</em> (empresa padre). Desarrollo existente en Libus (<em>partner_domain</em>). Migración de datos con limpieza de base SAP. La advertencia de venta se carga en el contacto y se ve fija en el pedido (RQ-VTA-36).',
+        tags: ['RQ-VTA-21', 'partner_domain (Libus)', 'migración datos', 'DFT35']
       },
       { n: '03', label: 'Ciclo vida producto', lane: 'ven', variant: 'ven2',
         title: 'Ciclo de vida del producto (Activo / Inactivo)',
@@ -621,45 +668,6 @@ const PROCESSES = {
     ]
   },
 
-  /* ================= P-VTA-5 ================= */
-  p5: {
-    code: 'P-VTA-5',
-    name: 'Devoluciones y RMA',
-    shortName: 'RMA',
-    type: 'Operativo',
-    pcls: 'po',
-    rqRange: 'RQ-VTA-24, RQ-VTA-25',
-    rqCount: 2,
-    description: 'Circuito de devoluciones de clientes gestionado con el módulo OCA/rma (17.0). La devolución se vincula al PV original (RQ-VTA-24) y siempre genera una nota de crédito (RQ-VTA-25). La decisión sobre la acción (reposición, reparación, scrap) la toma Calidad.',
-    shortDesc: 'OCA/rma · RMA contra PV · siempre NC',
-    lanes: ['cli','ven','sis'],
-    intro: 'Las devoluciones se gestionan con OCA/rma vinculando la solicitud al pedido de venta original. Calidad evalúa el producto devuelto y decide la acción (ver MF Calidad). En todos los casos la devolución genera una nota de crédito (no existe devolución sin NC). El circuito cruza con Calidad (decisión RMA) e Inv/WMS (recepción del producto devuelto).',
-    archNote: 'MÓDULOS — OCA/rma (17.0, verificar estabilidad). CROSS-REFS — MF Calidad (decisión RMA) · MF Inv/WMS (recepción devolución). RQ-VTA-24: RMA vinculado al PV original. RQ-VTA-25: devolución siempre genera NC.',
-    steps: [
-      { n: '01', label: 'Solicitud RMA', lane: 'cli', variant: 'cli',
-        title: 'Cliente solicita devolución',
-        desc: 'El cliente reporta un problema de calidad y solicita la devolución. El equipo de Ventas o Customer Service inicia el proceso de RMA en Odoo vinculándolo al PV original.',
-        tags: ['RQ-VTA-24', 'OCA/rma', 'vinculado al PV original']
-      },
-      { n: '02', label: 'RMA contra PV', lane: 'ven', variant: 'ven',
-        title: 'RMA vinculado al pedido de venta original',
-        desc: 'El RMA se crea contra el PV original, heredando datos de producto, cantidad, precio y condiciones. Esto permite trazabilidad completa de la devolución. El módulo OCA/rma gestiona el circuito.',
-        tags: ['RQ-VTA-24', 'OCA/rma 17.0', 'trazabilidad contra PV'],
-        pill: { color: 'cli', text: '📦 OCA/rma · RMA vinculado a PV original · verificar estabilidad 17.0' }
-      },
-      { n: '03', label: 'Siempre NC', lane: 'sis', variant: 'sis',
-        title: 'Devolución genera siempre nota de crédito',
-        desc: 'Toda devolución genera una nota de crédito automáticamente, sin excepción. No existe el escenario de devolución a inventario sin impacto contable. La NC se vincula al PV y a la factura original.',
-        tags: ['RQ-VTA-25', 'OCA/rma', 'NC obligatoria en toda devolución'],
-        pill: { color: 'ven', text: '📦 OCA · NC siempre · no hay devolución sin impacto contable' }
-      }
-    ],
-    arrows: [
-      { from: 0, to: 1, lane: 'ven', label: 'solicitud → RMA' },
-      { from: 1, to: 2, lane: 'sis', label: 'RMA → NC automática' }
-    ]
-  },
-
   /* ================= P-VTA-6 ================= */
   p6: {
     code: 'P-VTA-6',
@@ -668,63 +676,66 @@ const PROCESSES = {
     type: 'Operativo',
     rqRange: 'RQ-VTA-04, 12, 26, 27, 28, 29',
     rqCount: 6,
-    description: 'Configuración, vigencia, actualización y control de listas de precios y su impacto sobre pedidos de venta existentes. Las variaciones de resinas provocan hasta 4 cambios de precio por mes. Contiene 2 desarrollos custom (DEV-VTA-02 alertas+bloqueo, DEV-VTA-03 split de línea).',
-    shortDesc: 'Listas · vigencia · alertas · bloqueo · split línea',
+    description: 'Configuración, vigencia, actualización y control de listas de precios y su impacto sobre pedidos de venta existentes. Las variaciones de resinas provocan hasta 4 cambios de precio por mes. Contiene 2 desarrollos (DEV-VTA-02 alerta por línea y frenos, DEV-VTA-03 repreciar pendiente; DFT01) y el precio por millar (DFT33).',
+    shortDesc: 'Listas · vigencia · alerta por línea · frenos · repreciar',
     lanes: ['adm','ven','sis','plan'],
-    intro: 'La gestión de precios en Argul es un circuito de alta complejidad: las variaciones de resinas provocan hasta 4 cambios de precio por mes, existen múltiples grupos de precios por cliente y por familia de producto, y las listas tienen vigencia temporal cuyo vencimiento debe reflejarse automáticamente en los pedidos pendientes. Este proceso cubre el ciclo completo: configuración de listas → asignación de vigencia → detección de cambio/vencimiento → alerta sobre PV afectados → bloqueo automático de entregas y facturación → resolución (split de línea o nuevo PV) → desbloqueo → facturación al precio correcto. Los bloqueos se materializan como motivo "vigencia de precios" en RQ-VTA-06 y RQ-VTA-07 de P-VTA-1.',
-    archNote: 'MÓDULOS — Evaluar OCA para listas con vigencia temporal. <strong>DEV-VTA-02</strong> (alertas + bloqueo automático por vigencia): cron periódico o trigger al modificar lista; excluye prepagados y totalmente facturados. <strong>DEV-VTA-03</strong> (split de línea por precio): acción/botón en línea de PV; complejidad media-alta. Grupos de precios confirmados (sesión 6): por cliente (distribuidores vs. finales) y por familia de producto (ej. tapones con niveles por volumen).',
+    intro: 'La gestión de precios en Argul es un circuito de alta complejidad: las variaciones de resinas provocan hasta 4 cambios de precio por mes, existen múltiples grupos de precios por cliente y por familia de producto, y las reglas de las listas tienen vigencia temporal cuyo cambio o vencimiento debe reflejarse en los pedidos pendientes. Este proceso cubre el ciclo completo: configuración de listas → cambio o vencimiento de una regla → alerta por línea del pedido → freno de «Crear entrega» de las líneas con precio a redefinir y de la facturación del pedido → resolución (repreciar el pendiente, cancelar remanente + nuevo PV, o «Marcar como resuelta») → facturación al precio del PV. Los frenos por vigencia no son un motivo de los bloqueos manuales de RQ-VTA-06 y RQ-VTA-07 (P-VTA-1).',
+    archNote: 'MÓDULOS — <strong>sale_price_validity</strong> + sale_price_validity_manual_delivery + sale_price_validity_libus_fechado (<strong>DEV-VTA-02</strong> y <strong>DEV-VTA-03</strong> · DFT01): revisión al guardar una regla o cambiar precio o costo, acción diaria de respaldo, actividad por línea; la facturación se frena con las reglas 7 y 8 de base_method_block (DFT22), por configuración. <strong>sale_price_per_thousand</strong> (DFT33) para el precio por millar. Grupos de precios confirmados (sesión 6): por cliente (distribuidores vs. finales) y por familia de producto. Control de márgenes del Anexo A6 (libus_sale_margin, de Libus): instalado en Test, ABIERTO su uso en Argul.',
     steps: [
       { n: '01', label: 'Listas de precios', lane: 'adm', variant: 'adm',
         title: 'Configuración de listas de precios',
-        desc: 'Listas por cliente individual (producto propietario), genéricas (Nonspill), con escalas por cantidad. Precio por millar como UdM del producto (puede ser millar o unidad). Listas Argul distintas de Libus. Grupos de precios confirmados (sesión 6): por cliente (distribuidores vs. finales) y por familia de producto (ej. tapones con niveles por volumen). Configurar con dos decimales como máximo.',
-        tags: ['RQ-VTA-12', 'precio por millar', 'grupos por cliente y familia', 'max 2 decimales']
+        desc: 'Listas por cliente individual (producto propietario), genéricas (Nonspill), con escalas por cantidad. <em>Precio por millar</em>: casilla en el producto; en las reglas de precio fijo, el pedido y la factura se carga el precio por millar con 2 decimales y el unitario queda de sólo lectura; la UdM sigue en unidades. La precisión «Product Price» pasa a 5 decimales en toda la base. Listas Argul distintas de Libus. Grupos de precios confirmados (sesión 6): por cliente y por familia de producto.',
+        tags: ['RQ-VTA-12', 'DFT33', 'sale_price_per_thousand', 'grupos por cliente y familia'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · precio por millar sólo en reglas de precio fijo' }
       },
-      { n: '02', label: 'Vigencia temporal', lane: 'sis', variant: 'sis',
-        title: 'Vigencia temporal de listas de precios',
-        desc: 'Las listas tienen fecha de inicio y fin de vigencia. El vencimiento debe reflejarse automáticamente en los pedidos pendientes vinculados. La vigencia es el disparador principal de los controles automáticos.',
-        tags: ['RQ-VTA-12', 'vigencia', 'disparador DEV-VTA-02']
+      { n: '02', label: 'Vigencia de reglas', lane: 'sis', variant: 'sis',
+        title: 'Vigencia de las reglas de las listas',
+        desc: 'Las reglas de las listas tienen fecha de inicio y fin. Guardar una regla, o cambiar el precio de venta o el costo de un producto, dispara la revisión de los pedidos pendientes; una acción diaria queda como red de seguridad.',
+        tags: ['RQ-VTA-12', 'RQ-VTA-27', 'DEV-VTA-02 · DFT01', 'disparador']
       },
-      { n: '03', label: 'Actualizar precios', lane: 'adm', variant: 'adm',
-        title: 'Actualización de precios en líneas pendientes',
-        desc: 'Ante cambios de precio (frecuentes por variación de resinas, hasta 4/mes), se re-pricean las líneas no facturadas contra la nueva lista. Control administrativo al cargar PV: verificar coincidencia de precios OC vs. lista vigente; si no coinciden, notificar al comercial sin cargar.',
-        tags: ['RQ-VTA-04', 'variación resinas', 'verificación al cargar']
+      { n: '03', label: 'Control al cargar', lane: 'adm', variant: 'adm',
+        title: 'Control de precios OC vs. lista al cargar el PV',
+        desc: 'Control administrativo al cargar el PV: verificar coincidencia de precios OC vs. lista vigente; si no coinciden, notificar al comercial sin cargar. El DFT01 no lo trata.',
+        tags: ['RQ-VTA-04', 'verificación al cargar'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · control al cargar el PV: sin diseño' }
       },
-      { divider: 'DETECCIÓN Y CONTROL AUTOMÁTICO — DEV-VTA-02' },
-      { n: '04', label: 'Alertas automáticas', lane: 'sis', variant: 'sis',
-        title: 'Alertas por modificación/vencimiento de listas',
-        desc: 'Cuando una lista se modifica o vence y existen PV pendientes vinculados, el sistema genera <em>actividades automáticas</em> sobre cada PV afectado. La alerta indica: lista modificada/vencida, PV afectados, SKUs y cantidades pendientes. Ejecución: cron periódico o trigger al modificar lista.',
-        tags: ['RQ-VTA-27', 'DEV-VTA-02', 'actividades automáticas', 'cron o trigger'],
-        pill: { color: 'ven', text: '🔧 DEV-VTA-02 · alertas + bloqueo automático por vigencia' }
+      { divider: 'DETECCIÓN Y CONTROL — DEV-VTA-02 · DFT01' },
+      { n: '04', label: 'Alerta por línea', lane: 'sis', variant: 'sis',
+        title: 'Precio desactualizado en la línea del pedido',
+        desc: 'Cada línea guarda el precio que dio la lista al tomar el pedido y se marca «Precio desactualizado» cuando la lista de hoy da otro, o «vigencia vencida» si la regla venció sin otra. Crea una actividad «Revisión de precio» por línea y por cambio para el vendedor; el pedido muestra un cartel con «Repreciar pendiente del pedido» y «Marcar como resuelta»; filtro «Con precios desactualizados». No alerta lo que no tiene pendiente repreciable.',
+        tags: ['RQ-VTA-27', 'DEV-VTA-02 · DFT01', 'sale_price_validity', 'actividad por línea'],
+        pill: { color: 'ven', text: '🔧 DEV-VTA-02 · DFT01 · alerta por línea y frenos · implementado con cambios' }
       },
-      { n: '05', label: 'Bloqueo automático', lane: 'sis', variant: 'sis',
-        title: 'Bloqueo automático por vigencia de precios',
-        desc: 'Bloqueo automático de entregas Y facturación de PV vinculados a listas modificadas o vencidas. Motivo: <em>"vigencia de precios"</em> (se refleja en RQ-VTA-06 y RQ-VTA-07 de P-VTA-1). Desbloqueo manual. <strong>Excepción:</strong> pedidos totalmente facturados o prepagados quedan excluidos.',
-        tags: ['RQ-VTA-28', 'DEV-VTA-02', 'bloqueo entregas + facturación', 'excluye prepagados'],
+      { n: '05', label: 'Freno entrega y fact.', lane: 'sis', variant: 'sis',
+        title: 'Freno de entrega y de facturación por vigencia',
+        desc: '«Crear entrega» se frena sólo para las líneas con «Precio a redefinir»; el grupo «Excepción vigencia de precios en entregas» saltea el freno. La facturación del pedido con la alerta activa la frenan las reglas 7 y 8 del motor de bloqueos (configuración). Quedan fuera los pedidos sin pendiente repreciable: totalmente facturados o prepagados, por cantidad facturada. No es un motivo de los bloqueos manuales de P-VTA-1.',
+        tags: ['RQ-VTA-28', 'DEV-VTA-02 · DFT01', 'sale_price_validity_manual_delivery', 'base_method_block', 'excluye prepagados'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · quién lleva el grupo de excepción' },
         cite: '"que bloquee todo, nosotros decidimos qué hacer con cada cliente" — Lisandro Argul'
       },
       { divider: 'RESOLUCIÓN' },
       { n: '06', label: 'Revisión comercial', lane: 'ven', variant: 'ven',
-        title: 'Revisión comercial del PV bloqueado',
-        desc: 'El equipo comercial revisa cada PV bloqueado y decide la acción: (a) cancelar remanentes + nuevo PV (si cliente requiere nueva OC), o (b) split de línea con precio actualizado (si acepta pedido abierto). La política varía por cliente.',
-        tags: ['RQ-VTA-04', 'decisión comercial', 'caso por caso']
+        title: 'Revisión comercial del PV con precios desactualizados',
+        desc: 'El equipo comercial revisa cada PV y decide: (a) repreciar el pendiente por línea o por pedido; (b) cancelar remanentes + nuevo PV (si el cliente requiere nueva OC); (c) «Marcar como resuelta», que apaga la alerta y libera la facturación al precio del PV, pero no la entrega. La política varía por cliente.',
+        tags: ['RQ-VTA-04', 'RQ-VTA-28', 'decisión comercial', 'caso por caso']
       },
-      { n: '07', label: 'Split línea precios', lane: 'plan', variant: 'plan',
-        title: 'Split de línea para actualización de precios',
-        desc: 'Acción sobre línea de PV con entregas parciales: (1) cancela remanente al precio anterior, (2) crea línea nueva en el mismo PV al precio vigente. Trazabilidad: cantidad original, entregada (precio viejo), pendiente (precio nuevo). Para clientes con pedidos abiertos sin nueva OC.',
-        tags: ['RQ-VTA-29', 'DEV-VTA-03', 'split línea', 'consistencia totales'],
-        pill: { color: 'ven', text: '🔧 DEV-VTA-03 · split de línea · complejidad media-alta' }
+      { n: '07', label: 'Repreciar pendiente', lane: 'plan', variant: 'plan',
+        title: 'Repreciar el pendiente de la línea o del pedido',
+        desc: '«Repreciar pendiente» propone el precio de lista de hoy, editable. Sin nada entregado ni facturado reprecia la línea entera; con algo cerrado deja la línea original con lo entregado o facturado al precio viejo y crea una línea nueva con el pendiente al precio nuevo (referencia, motivo y cantidad original). Los fechados del pendiente pasan a la línea nueva.',
+        tags: ['RQ-VTA-29', 'RQ-VTA-04', 'DEV-VTA-03 · DFT01', 'sale_price_validity_libus_fechado'],
+        pill: { color: 'ven', text: '🔧 DEV-VTA-03 · DFT01 · repreciar pendiente · implementado con cambios' }
       },
-      { n: '08', label: 'Precio vigente → fact.', lane: 'sis', variant: 'sis',
-        title: 'Facturación a precio de lista vigente',
-        desc: 'La facturación toma el precio vigente al momento de emitir la factura. En situaciones especiales: se bloquea la facturación (DEV-VTA-02); resuelta la situación, se factura con la lista vigente. Se complementa con DEV-VTA-02 (bloqueo) y DEV-VTA-03 (split).',
-        tags: ['RQ-VTA-26', 'gap', 'precio vigente al facturar'],
-        pill: { color: 'dep', text: '⚠ GAP · Odoo nativo factura al precio del PV · requiere mecanismo' }
+      { n: '08', label: 'Facturación al precio PV', lane: 'sis', variant: 'sis',
+        title: 'Facturación al precio del pedido',
+        desc: 'La factura usa el precio del PV. Cuando la lista cambió con pendiente, la factura queda frenada hasta repreciar el pendiente o «Marcar como resuelta». No hay un mecanismo que facture a la lista vigente sin cambiar el PV.',
+        tags: ['RQ-VTA-26', 'DEV-VTA-02 · DFT01', 'DEV-VTA-03 · DFT01', 'reglas 7 y 8'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · las reglas 7 y 8 miran el pedido entero: fallan con entrega parcial' }
       }
     ],
     arrows: [
       { from: 0, to: 1, lane: 'sis', label: 'listas → vigencia' },
-      { from: 3, to: 4, lane: 'sis', label: 'alerta → bloqueo' },
-      { from: 5, to: 6, lane: 'plan', label: 'decisión → split/nuevo PV' }
+      { from: 3, to: 4, lane: 'sis', label: 'alerta → freno' },
+      { from: 5, to: 6, lane: 'plan', label: 'decisión → repreciar / nuevo PV' }
     ]
   }
 };
@@ -753,7 +764,7 @@ function el(tag, attrs={}, ...children){
 /* ROUTE BAR                                                          */
 /* ================================================================= */
 
-function renderRouteBar(route){const MF_URL='https://docs.google.com/document/d/1f-dvJ0kxkfgdWFHc8gzqUm-X5IdWj3kgFDym9t1Phto/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🛒 VENTAS'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v3.3'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v3.3 · 02-jun-2026'));}
+function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1RMVrvISyxTWA2bduHWU6je5e4iTY5bki/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🛒 VENTAS'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v3.4'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v3.4 · 15-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -764,12 +775,12 @@ function renderOverview(){
   app.innerHTML = '';
 
   const header = el('header',{class:'page'});
-  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Ventas · Argul y Compañía S.A.'));
-  header.appendChild(el('span',{class:'version-badge'},'Procesos de Negocio · 6 procesos'));
+  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Ventas · Argul y Cía. S.A.'));
+  header.appendChild(el('span',{class:'version-badge'},'Procesos de Negocio · 5 procesos'));
   const h1 = el('h1');
   h1.innerHTML = 'Procesos de Negocio de <span>Ventas</span>';
   header.appendChild(h1);
-  header.appendChild(el('p',{},'Plataforma de navegación · 6 flujos de procesos · 29 requerimientos · 3 desarrollos (DEV-VTA-01/02/03) · 2 módulos OCA'));
+  header.appendChild(el('p',{},'Plataforma de navegación · 5 flujos de procesos · 38 requerimientos · 3 desarrollos (DEV-VTA-01/02/03) · DFT32 a DFT35'));
   app.appendChild(header);
 
   const legend = el('div',{class:'legend'});
@@ -783,12 +794,12 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma muestra los 6 procesos del área de Ventas. El proceso principal (<strong>P-VTA-1</strong>) cubre el ciclo completo del pedido incluyendo RMA; la gestión de precios (<strong>P-VTA-6</strong>) controla vigencia, alertas y bloqueos automáticos; el proceso de interfaz (<strong>P-VTA-2</strong>) conecta con Planificación/MRP; las ventas especiales (<strong>P-VTA-3</strong>) cubren circuitos atípicos; la gestión comercial (<strong>P-VTA-4</strong>) abarca maestros y equipo de ventas; y las devoluciones (<strong>P-VTA-5</strong>) detallan el flujo RMA con OCA/rma. Hacé click en cualquier tarjeta para ver el flujo detallado.'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma muestra los 5 procesos del área de Ventas, según el MF Ventas v3.4 (20261115_Sistemas_Ventas_MF_v3_4). El proceso principal (<strong>P-VTA-1</strong>) cubre el ciclo completo del pedido, con el fechado, los bloqueos con motivo y «Crear entrega», incluyendo devoluciones y RMA; la gestión de precios (<strong>P-VTA-6</strong>) controla vigencia, alerta por línea, frenos y repreciado; el proceso de interfaz (<strong>P-VTA-2</strong>) conecta con Planificación/MRP; las ventas especiales (<strong>P-VTA-3</strong>) cubren circuitos atípicos; y la gestión comercial (<strong>P-VTA-4</strong>) abarca maestros y equipo de ventas. Hacé click en cualquier tarjeta para ver el flujo detallado.'
   }));
 
   app.appendChild(el('div',{
     class:'arch-note',
-    html:'<strong>⬢ HANDSHAKE CON PLANIFICACIÓN —</strong> La carga del Pedido de Venta en el sistema la realiza el equipo de <strong>Planificación / Customer Service</strong> (Victoria Gini, Brian, Gastón), no el equipo comercial. El equipo de Ventas (Ernesto, Mariana, Marcelo, Lisandro) gestiona la relación con el cliente: negociación, pricing, seguimiento. Esta separación está alineada con MF Ventas v3.0 y MF Planificación v1.1 (RQ-PLA-01).'
+    html:'<strong>⬢ HANDSHAKE CON PLANIFICACIÓN —</strong> La carga del Pedido de Venta en el sistema la realiza el equipo de <strong>Planificación / Customer Service</strong> (Victoria Gini, Brian, Gastón), no el equipo comercial. El equipo de Ventas (Ernesto, Mariana, Marcelo, Lisandro) gestiona la relación con el cliente: negociación, pricing, seguimiento. Esta separación está alineada con el MF Ventas v3.4 (20261115_Sistemas_Ventas_MF_v3_4) y el MF Planificación v4.2 (RQ-PLA-01).'
   }));
 
   const overviewWrap = el('div',{class:'overview-wrap'});
@@ -817,15 +828,13 @@ function renderOverview(){
   macro.appendChild(macroStep('p3'));
   macro.appendChild(macroArrow());
   macro.appendChild(macroStep('p4'));
-  macro.appendChild(macroArrow());
-  macro.appendChild(macroStep('p5'));
   overviewWrap.appendChild(macro);
 
   overviewWrap.appendChild(el('div',{class:'section-title'},'Procesos · click para navegar al diagrama'));
 
   const grid = el('div',{class:'pgrid'});
 
-  ['p1','p6','p2','p3','p4','p5'].forEach(pid => {
+  ['p1','p6','p2','p3','p4'].forEach(pid => {
     const p = PROCESSES[pid];
     const card = el('a',{class:`pcard ${pid}`, href:`#/${pid}`});
 
@@ -884,7 +893,7 @@ function renderProcess(pid){
   app.innerHTML = '';
 
   const header = el('header',{class:'page'});
-  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Ventas · Argul y Compañía S.A.'));
+  header.appendChild(el('div',{class:'badge'},'Odoo 17 Enterprise · Ventas · Argul y Cía. S.A.'));
   header.appendChild(el('span',{class:'version-badge'}, proc.code + ' · ' + proc.type));
   const h1 = el('h1');
   h1.innerHTML = 'Proceso de <span>' + proc.shortName + '</span>';
@@ -1335,8 +1344,8 @@ const FT = { analytics:false, presentation:false, context:false, minimap:false, 
 const FL = { dev:false, oca:false, critical:false, ven:false, adm:false, dep:false };
 let _zoom = 1;
 let _presIdx = 0;
-const PRES_ORDER = ['p1','p6','p2','p3','p4','p5'];
-const HEAT = { p1:5, p2:2, p3:3, p4:1, p5:3 };
+const PRES_ORDER = ['p1','p6','p2','p3','p4'];
+const HEAT = { p1:5, p2:2, p3:3, p4:1 };
 
 function collapseBar(){
   const bar = document.getElementById('featuresBar');
