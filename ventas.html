@@ -551,7 +551,7 @@ const PROCESSES = {
     shortDesc: 'PV → MRP · stock resultante',
     lanes: ['ven','plan'],
     intro: 'Los pedidos de venta confirmados son el input principal del MRP multinivel. La carga del PV la realiza el equipo de Planificación / Customer Service en su rol que precede al MRP. Para productos propios (Nonspill, tapones de botellón), la planificación combina pedidos firmes con proyección de demanda y stock de seguridad. La gestión de listas de precios se trasladó al proceso dedicado P-VTA-6.',
-    archNote: 'REFERENCIA CRUZADA — El detalle del MRP está documentado en <strong>MF Planificación v4.2</strong>. <strong>Handshake Ventas → Planificación:</strong> el OUTPUT principal de Ventas (sale.order confirmado) es el INPUT principal de Planificación (RQ-PLA-10). El fechado de DEV-VTA-01 · DFT02 se vincula con RQ-PLA-03; con el ajuste «Fecha de la demanda de ventas en el MRP» = «Fecha de entrega», la demanda entra en las fechas del fechado confirmado (DFT39). La configuración de listas de precios se cubre en <strong>P-VTA-6</strong>.',
+    archNote: 'REFERENCIA CRUZADA — El detalle del MRP está documentado en <strong>MF Planificación v4.3</strong>. <strong>Handshake Ventas → Planificación:</strong> el OUTPUT principal de Ventas (sale.order confirmado) es el INPUT principal de Planificación (RQ-PLA-10). El fechado de DEV-VTA-01 · DFT02 se vincula con RQ-PLA-03; con el ajuste «Fecha de la demanda de ventas en el MRP» = «Fecha de entrega», la demanda entra en las fechas del fechado confirmado (DFT39). La configuración de listas de precios se cubre en <strong>P-VTA-6</strong>.',
     steps: [
       { n: '01', label: 'PV confirmados', lane: 'plan', variant: 'plan',
         title: 'Pedidos de venta como input del MRP',
@@ -799,7 +799,7 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'arch-note',
-    html:'<strong>⬢ HANDSHAKE CON PLANIFICACIÓN —</strong> La carga del Pedido de Venta en el sistema la realiza el equipo de <strong>Planificación / Customer Service</strong> (Victoria Gini, Brian, Gastón), no el equipo comercial. El equipo de Ventas (Ernesto, Mariana, Marcelo, Lisandro) gestiona la relación con el cliente: negociación, pricing, seguimiento. Esta separación está alineada con el MF Ventas v3.4 (20261115_Sistemas_Ventas_MF_v3_4) y el MF Planificación v4.2 (RQ-PLA-01).'
+    html:'<strong>⬢ HANDSHAKE CON PLANIFICACIÓN —</strong> La carga del Pedido de Venta en el sistema la realiza el equipo de <strong>Planificación / Customer Service</strong> (Victoria Gini, Brian, Gastón), no el equipo comercial. El equipo de Ventas (Ernesto, Mariana, Marcelo, Lisandro) gestiona la relación con el cliente: negociación, pricing, seguimiento. Esta separación está alineada con el MF Ventas v3.4 (20261115_Sistemas_Ventas_MF_v3_4) y el MF Planificación v4.3 (RQ-PLA-01).'
   }));
 
   const overviewWrap = el('div',{class:'overview-wrap'});

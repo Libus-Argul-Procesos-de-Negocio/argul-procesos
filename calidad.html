@@ -373,7 +373,7 @@ const PROCESSES = {
     outputs: 'Lote liberado · rechazo en CD/905 con alerta · desecho valuado · orden de devolución a proveedor · RMA clientes',
     lanes: ['cal','com','dep','sis'],
     intro: 'Cambios clave de las sesiones y lo implementado (DFT44 a DFT47): (a) el control es por palet o por lote del proveedor, configurable; Q902 por lote, como se acordó en la sesión 2; (b) [ABIERTO] la v5.2 dice que la disponibilidad es independiente de la ubicación física, y lo implementado deja el material en la ubicación de calidad hasta que se libera; (c) devoluciones de clientes con circuito RMA y orden de devolución (DFT48); (d) decisión C-10: el pago al proveedor se habilita al ingreso físico, independientemente del QC; si hay rechazo, Compras decide devolver o desechar y Calidad lo ejecuta (DFT47); (e) equipos de calidad y operario identificado con PIN (RQ-CAL-25 y RQ-CAL-26, DFT46).',
-    archNote: 'INPUTS — lote recibido · planes de inspección y de muestreo · decisión de Compras (P-COM-7, MF Compras v3.2). OUTPUTS — lote liberado · rechazo en CD/905 con alerta · desecho a CD/SCRAP con valuación · orden de devolución a proveedor · NC de cliente ([ABIERTO] Q-01, MF Contabilidad, Adm. y Finanzas v5.3). MÓDULOS — quality_control · libus_calidad · quality_alert_disposition · quality_operator_pin · OCA rma, rma_sale y rma_lot. REFERENCIAS — DFT48 y DFT51 (MF Inventario/WMS v3.3) · DFT60 (MF Contabilidad) · MF Ventas v3.3 (RMA clientes).',
+    archNote: 'INPUTS — lote recibido · planes de inspección y de muestreo · decisión de Compras (P-COM-7, MF Compras v3.3). OUTPUTS — lote liberado · rechazo en CD/905 con alerta · desecho a CD/SCRAP con valuación · orden de devolución a proveedor · NC de cliente ([ABIERTO] Q-01, MF Contabilidad, Adm. y Finanzas v5.4). MÓDULOS — quality_control · libus_calidad · quality_alert_disposition · quality_operator_pin · OCA rma, rma_sale y rma_lot. REFERENCIAS — DFT48 y DFT51 (MF Inventario/WMS v3.4) · DFT60 (MF Contabilidad) · MF Ventas v3.4 (RMA clientes).',
     steps: [
       { n: '01', label: 'Equipos y operario', lane: 'cal', variant: 'cal2',
         title: 'Equipos de calidad y operario identificado',
@@ -435,8 +435,8 @@ const PROCESSES = {
       },
       { n: '11', label: 'Decisión de Compras', lane: 'com', variant: 'com',
         title: 'Compras decide devolver o desechar',
-        desc: 'En <em>Compra > Rechazos de calidad</em>, Compras decide cuánto se devuelve al proveedor y cuánto se desecha. La disposición pasa a <em>A ejecutar por Calidad</em>. La reposición o la nota de crédito del proveedor siguen el proceso P-COM-7 Devoluciones a Proveedores (MF Compras v3.2).',
-        tags: ['RQ-CAL-06', 'DFT47', 'P-COM-7 · MF Compras v3.2'],
+        desc: 'En <em>Compra > Rechazos de calidad</em>, Compras decide cuánto se devuelve al proveedor y cuánto se desecha. La disposición pasa a <em>A ejecutar por Calidad</em>. La reposición o la nota de crédito del proveedor siguen el proceso P-COM-7 Devoluciones a Proveedores (MF Compras v3.3).',
+        tags: ['RQ-CAL-06', 'DFT47', 'P-COM-7 · MF Compras v3.3'],
         pill: { color: 'dep', text: '⚠ ABIERTO · reposición o NC al proveedor y aviso a Pago a Proveedores (T01690)' }
       },
       { n: '12', label: 'Ejecución de Calidad', lane: 'cal', variant: 'cal2',
@@ -546,7 +546,7 @@ const PROCESSES = {
     outputs: 'Desecho a CD/SCRAP con valuación · etiqueta A4 para molienda · comprobante de desecho · alerta con proveedor (IPP)',
     lanes: ['cal','pro','sis'],
     intro: 'Aclaración de la sesión 2: el RQ-CAL-18 original (scrap de producción durante la orden) se eliminó de Calidad y se reasignó a Producción como RQ-PRO-14. Calidad solo interviene en el scrap posterior a la detección de Producto No Conforme. Todo desecho va a CD/SCRAP, la única ubicación de desecho, con uso «Pérdida de inventario» (DFT47). La etiqueta PNC A4 (DEV-CAL-01 · DFT12) es el componente compartido entre Producción y Calidad para habilitar molienda. [ABIERTO] Hay tres impresos de scrap: la etiqueta PNC (DFT12), la etiqueta A4 de scrap del rechazo parcial (DFT44) y el comprobante de desecho (DFT47). El IPP (Informe de Problemas con Proveedor, RQ-CAL-21) se apoya en la alerta de calidad, que ya lleva el proveedor y la disposición (DFT46, DFT47).',
-    archNote: 'INPUTS — producto rechazado o bloqueado. OUTPUTS — desecho a CD/SCRAP con valuación (MF Contabilidad, Adm. y Finanzas v5.3) + etiqueta A4 + comprobante de desecho. DEV — DEV-CAL-01 · DFT12 (etiqueta PNC compartida) · DEV-CAL-02 · DFT12 (ref. cruzada DEV-PRO-02). DFT — DFT44 (etiqueta A4 de scrap) · DFT47 (desecho desde la alerta y comprobante). GAP — RQ-CAL-21 (IPP): esperar política ABC de proveedores.',
+    archNote: 'INPUTS — producto rechazado o bloqueado. OUTPUTS — desecho a CD/SCRAP con valuación (MF Contabilidad, Adm. y Finanzas v5.4) + etiqueta A4 + comprobante de desecho. DEV — DEV-CAL-01 · DFT12 (etiqueta PNC compartida) · DEV-CAL-02 · DFT12 (ref. cruzada DEV-PRO-02). DFT — DFT44 (etiqueta A4 de scrap) · DFT47 (desecho desde la alerta y comprobante). GAP — RQ-CAL-21 (IPP): esperar política ABC de proveedores.',
     steps: [
       { n: '01', label: 'Envío a scrap', lane: 'cal', variant: 'cal',
         title: 'Desecho a CD/SCRAP con motivo y valuación',

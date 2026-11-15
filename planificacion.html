@@ -402,7 +402,7 @@ const PROCESSES = {
       },
       { n: '04', label: 'Fechado entregas', lane: 'plan', variant: 'plan2',
         title: 'Fechado: varias fechas comprometidas por línea de PV',
-        desc: 'Una línea de PV (ej.: 3.000.000 u.) admite varias fechas comprometidas, cada una con su cantidad (ej.: 500.000 × 6 semanas), sin duplicar líneas (libus_fechado, DEV-VTA-01 · DFT02, MF Ventas v3.3). Las fechas son planificación: no generan un remito por fecha. El MRP las toma si la compañía elige «Fecha de entrega» en «Fecha de la demanda de ventas en el MRP» (DFT39). <strong>[ABIERTO]</strong> Granularidad semanal en el MRP.',
+        desc: 'Una línea de PV (ej.: 3.000.000 u.) admite varias fechas comprometidas, cada una con su cantidad (ej.: 500.000 × 6 semanas), sin duplicar líneas (libus_fechado, DEV-VTA-01 · DFT02, MF Ventas v3.4). Las fechas son planificación: no generan un remito por fecha. El MRP las toma si la compañía elige «Fecha de entrega» en «Fecha de la demanda de ventas en el MRP» (DFT39). <strong>[ABIERTO]</strong> Granularidad semanal en el MRP.',
         tags: ['RQ-PLA-03', 'DEV-VTA-01 · DFT02', 'DFT39', 'prerrequisito go-live'],
         pill: { color: 'plan', text: '🔧 DEV-VTA-01 · DFT02 implementado · se descartó sale_order_line_date' }
       },
@@ -450,8 +450,8 @@ const PROCESSES = {
     inputs: 'Datos maestros SAP (BOM, rutas, tiempos, centros de trabajo) · registro físico de moldes',
     outputs: 'BOM activas en Odoo · hojas de ruta configuradas · maestro de moldes gestionado',
     lanes: ['plan','dep','sis'],
-    intro: 'La sesión 2 confirmó que el requerimiento mínimo para go-live es el maestro de moldes como entidad gestionada: el molde M0246 debe ser el mismo registro para todas las BOM que lo usen, y el selector en la BOM / OF debe ser un dropdown controlado (no texto libre). Los tipos de operación (molde / periférico / ensamble) quedan diferidos a Phase 2; el contador de golpes quedó implementado. El molde es un equipo de Mantenimiento gestionado por Matricería (DEV-PRO-05 · DFT07, MF Producción v5.2); se descartó <em>mrp_tool_tracking</em>. Las inyectoras se agrupan en categorías y el molde se elige por categoría (DFT40). La migración correcta de parámetros de planificación desde SAP es crítica para que el MRP funcione bien desde el día 1.',
-    archNote: 'INPUTS — datos SAP: BOM multinivel, hojas de ruta, tiempos estándar, cavidades, lead times, lotes mínimos, centros de trabajo · registro de moldes de Matricería. OUTPUTS — BOM activas con parámetros migrados → alimentan MRP (P-PLA-3) · maestro de moldes gestionado → selector controlado en OF → contador de golpes por notificación. DEV — DEV-PRO-05 · DFT07 (MF Producción v5.2) y DFT40 (categorías de inyectoras). ALTA AUTOMÁTICA — parámetros de área MRP al crear el producto y la LdM (DFT36). <strong>[ABIERTO]</strong> Fabricación del molde en Odoo o en Don PC (T01930, T01931).',
+    intro: 'La sesión 2 confirmó que el requerimiento mínimo para go-live es el maestro de moldes como entidad gestionada: el molde M0246 debe ser el mismo registro para todas las BOM que lo usen, y el selector en la BOM / OF debe ser un dropdown controlado (no texto libre). Los tipos de operación (molde / periférico / ensamble) quedan diferidos a Phase 2; el contador de golpes quedó implementado. El molde es un equipo de Mantenimiento gestionado por Matricería (DEV-PRO-05 · DFT07, MF Producción v5.3); se descartó <em>mrp_tool_tracking</em>. Las inyectoras se agrupan en categorías y el molde se elige por categoría (DFT40). La migración correcta de parámetros de planificación desde SAP es crítica para que el MRP funcione bien desde el día 1.',
+    archNote: 'INPUTS — datos SAP: BOM multinivel, hojas de ruta, tiempos estándar, cavidades, lead times, lotes mínimos, centros de trabajo · registro de moldes de Matricería. OUTPUTS — BOM activas con parámetros migrados → alimentan MRP (P-PLA-3) · maestro de moldes gestionado → selector controlado en OF → contador de golpes por notificación. DEV — DEV-PRO-05 · DFT07 (MF Producción v5.3) y DFT40 (categorías de inyectoras). ALTA AUTOMÁTICA — parámetros de área MRP al crear el producto y la LdM (DFT36). <strong>[ABIERTO]</strong> Fabricación del molde en Odoo o en Don PC (T01930, T01931).',
     steps: [
       { n: '01', label: 'BOM y rutas', lane: 'sis', variant: 'sis',
         title: 'BOM multinivel, hojas de ruta y parámetros de planificación',
@@ -461,7 +461,7 @@ const PROCESSES = {
       { n: '02', label: 'Maestro moldes', lane: 'dep', variant: 'dep',
         title: 'Maestro de moldes: equipo de Mantenimiento gestionado por Matricería',
         desc: 'El molde es un equipo de Mantenimiento de la categoría de moldes, con código único, estados con flujo controlado, versiones y bloqueo. No es texto libre en la operación de ruta: M0246 es el mismo registro para todas las LdM que lo usen. Matricería crea y mantiene el maestro; Planificación lo usa al configurar LdM y OF. Se descartó mrp_tool_tracking. <strong>[ABIERTO]</strong> Fabricación del molde: Don PC u OF en Odoo (T01930, T01931).',
-        tags: ['RQ-PLA-06', 'DEV-PRO-05 · DFT07', 'ref. MF Producción v5.2'],
+        tags: ['RQ-PLA-06', 'DEV-PRO-05 · DFT07', 'ref. MF Producción v5.3'],
         pill: { color: 'adm', text: '⚠ ABIERTO · fabricación del molde en Odoo o en Don PC · pruebas T01503 y T01504 pendientes' }
       },
       { n: '03', label: 'Selector en LdM/OF', lane: 'sis', variant: 'sis2',
@@ -614,7 +614,7 @@ const PROCESSES = {
       },
       { n: '05', label: 'Ensayos en Gantt', lane: 'plan', variant: 'plan',
         title: 'Órdenes de ensayo en el Gantt de producción',
-        desc: 'Las órdenes de ensayo originadas por Ingeniería (RQ-ING-26) son OF de un tipo de operación con la marca «Órdenes de ensayo» (prefijo ENS). Planificación les asigna máquina y tiempo en la OT. En el Gantt se ven con borde violeta y filtros Ensayos / Sin ensayos; en borrador no reservan la máquina (DEV-PLA-02 · DFT03, T01516). Sin PLM. Falta correr el circuito completo con un usuario (RQ-PRO-26 y RQ-PRO-35, MF Producción v5.2).',
+        desc: 'Las órdenes de ensayo originadas por Ingeniería (RQ-ING-26) son OF de un tipo de operación con la marca «Órdenes de ensayo» (prefijo ENS). Planificación les asigna máquina y tiempo en la OT. En el Gantt se ven con borde violeta y filtros Ensayos / Sin ensayos; en borrador no reservan la máquina (DEV-PLA-02 · DFT03, T01516). Sin PLM. Falta correr el circuito completo con un usuario (RQ-PRO-26 y RQ-PRO-35, MF Producción v5.3).',
         tags: ['RQ-PLA-31', 'DEV-PLA-02 · DFT03', 'cadena ING-26 → PLA-31 → PRO-26'],
         pill: { color: 'plan', text: '🔧 Resuelto con configuración y DEV-PLA-02 · DFT03 · funciona parcial' }
       },
@@ -673,7 +673,7 @@ const PROCESSES = {
       },
       { n: '05', label: 'Fuera de hora', lane: 'plan', variant: 'plan2',
         title: 'Abastecer PR (fuera de hora)',
-        desc: 'Para un pedido fuera del ciclo diario, el asistente «Abastecer PR (fuera de hora)» crea un abastecimiento en borrador con origen, solicitante y motivo; si ninguna OF abierta tiene lote, propone el lote FIFO. <strong>[ABIERTO]</strong> Convivencia con stock_request y movimiento manual (MF Inventario/WMS v3.3 y MF Producción v5.2).',
+        desc: 'Para un pedido fuera del ciclo diario, el asistente «Abastecer PR (fuera de hora)» crea un abastecimiento en borrador con origen, solicitante y motivo; si ninguna OF abierta tiene lote, propone el lote FIFO. <strong>[ABIERTO]</strong> Convivencia con stock_request y movimiento manual (MF Inventario/WMS v3.4 y MF Producción v5.3).',
         tags: ['RQ-PLA-18', 'DEV-PLA-03 · DFT04', 'fuera de hora'],
         pill: { color: 'adm', text: '⚠ ABIERTO · asistente del DFT04 o stock_request para el PR' }
       }
@@ -701,7 +701,7 @@ const PROCESSES = {
     inputs: 'Entregas pendientes · fechas comprometidas (← RQ-PLA-03) · solicitud de devolución del cliente',
     outputs: 'Alertas de incumplimiento · RMA referenciado al PV · nota de crédito o reposición',
     lanes: ['cli','plan','sis'],
-    intro: 'Las alertas de incumplimiento de fechas comprometidas están directamente vinculadas al módulo de fechado (RQ-PLA-03): su utilidad real depende del fechado, que ya está implementado (DEV-VTA-01 · DFT02, MF Ventas v3.3). Sin fechado, las alertas no pueden calcularse con la precisión requerida y el control sigue siendo 100% manual. Las devoluciones de Sides representan el caso más complejo: 300.000 u. de un producto entregado en decenas de camiones a lo largo de meses no puede referenciarse a una entrega individual. El módulo OCA rma_sale (rama 17.0 activa) cubre este caso.',
+    intro: 'Las alertas de incumplimiento de fechas comprometidas están directamente vinculadas al módulo de fechado (RQ-PLA-03): su utilidad real depende del fechado, que ya está implementado (DEV-VTA-01 · DFT02, MF Ventas v3.4). Sin fechado, las alertas no pueden calcularse con la precisión requerida y el control sigue siendo 100% manual. Las devoluciones de Sides representan el caso más complejo: 300.000 u. de un producto entregado en decenas de camiones a lo largo de meses no puede referenciarse a una entrega individual. El módulo OCA rma_sale (rama 17.0 activa) cubre este caso.',
     archNote: 'INPUTS — stock.picking entregados · fechas comprometidas por sub-línea (condicionado a RQ-PLA-03) · solicitud de RMA del cliente (producto, cantidad, motivo). OUTPUTS — alertas de incumplimiento en tablero de órdenes abiertas · RMA (rma.rma referenciado a sale.order) → nota de crédito o stock.picking de reposición. OCA — rma + rma_sale (OCA/rma, rama 17.0 activa) · Evaluar y probar en entorno de test.',
     steps: [
       { n: '01', label: 'Alertas fechas', lane: 'sis', variant: 'sis',
@@ -718,7 +718,7 @@ const PROCESSES = {
       { divider: 'DEVOLUCIONES DE CLIENTES — referenciadas al PV (no a la entrega individual)', type: 'phys' },
       { n: '03', label: 'RMA contra PV', lane: 'cli', variant: 'cli',
         title: 'Devolución de cliente referenciada al pedido de venta',
-        desc: 'Sides puede devolver 300.000 unidades entregadas en decenas de camiones a lo largo de meses. La devolución se referencia al PV, no a cada entrega individual. Módulo OCA <em>rma + rma_sale</em> (OCA/rma, rama 17.0 activa) cubre este caso. La devolución puede implicar nota de crédito o reposición según la política del cliente. La nota de crédito se hace desde la recepción de la devolución, una por factura original (DFT60, MF Ventas v3.3).',
+        desc: 'Sides puede devolver 300.000 unidades entregadas en decenas de camiones a lo largo de meses. La devolución se referencia al PV, no a cada entrega individual. Módulo OCA <em>rma + rma_sale</em> (OCA/rma, rama 17.0 activa) cubre este caso. La devolución puede implicar nota de crédito o reposición según la política del cliente. La nota de crédito se hace desde la recepción de la devolución, una por factura original (DFT60, MF Ventas v3.4).',
         tags: ['RQ-PLA-21', 'OCA rma_sale', 'OCA/rma — rama 17.0 activa', 'ref. DFT60'],
         pill: { color: 'cli', text: '🔵 OCA rma_sale — rama 17.0 activa · evaluar y probar en entorno de test' }
       }
@@ -761,7 +761,7 @@ const PROCESSES = {
       { n: '03', label: 'Filtro masivo SKUs', lane: 'plan', variant: 'plan2',
         title: 'Filtrado masivo por lista de SKUs (equiv. tabla SAP)',
         desc: 'En SAP se puede pegar un listado de códigos de material en cualquier transacción para filtrar resultados al conjunto exacto. En Odoo se pega la lista de códigos en la búsqueda y se filtra por todos juntos, sin editor de dominio (product_sku_multi_search, DFT08). Afecta todas las áreas.',
-        tags: ['RQ-PLA-23', 'DFT08', 'transversal', 'ref. MF Compras v3.2']
+        tags: ['RQ-PLA-23', 'DFT08', 'transversal', 'ref. MF Compras v3.3']
       },
       { n: '04', label: 'Variantes producto', lane: 'plan', variant: 'plan2',
         title: 'Criterio de uso de variantes de producto',
@@ -844,7 +844,7 @@ const PROCESSES = {
       { divider: 'SOLICITUD DE FABRICACIÓN — DEV-PRO-06 · DFT42 (uso en Argul [ABIERTO])', type: 'loop' },
       { n: '07', label: 'Solicitud de fabricación', lane: 'sis', variant: 'sis2',
         title: 'Solicitud de fabricación previa a la OF (DEV-PRO-06 · DFT42)',
-        desc: 'La entidad padre no se construyó en DEV-PLA-05: alcanzó con el vínculo «Extensión de» y el grupo de abastecimiento. El OCA mrp_production_request se portó desde la rama 18.0 como solicitud de fabricación (MR) con aprobación, previa a la OF (DEV-PRO-06 · DFT42, MF Producción v5.2). <strong>[ABIERTO]</strong> No se confirmó si Argul la usa; se recomienda no usarla y liberar las OF desde el MRP.',
+        desc: 'La entidad padre no se construyó en DEV-PLA-05: alcanzó con el vínculo «Extensión de» y el grupo de abastecimiento. El OCA mrp_production_request se portó desde la rama 18.0 como solicitud de fabricación (MR) con aprobación, previa a la OF (DEV-PRO-06 · DFT42, MF Producción v5.3). <strong>[ABIERTO]</strong> No se confirmó si Argul la usa; se recomienda no usarla y liberar las OF desde el MRP.',
         tags: ['RQ-PLA-27/28/29 (ref.)', 'DEV-PRO-06 · DFT42', 'OCA mrp_production_request (18.0)'],
         pill: { color: 'adm', text: '⚠ ABIERTO · uso de la solicitud de fabricación en Argul' }
       }

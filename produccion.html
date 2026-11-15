@@ -355,7 +355,7 @@ const PROCESSES = {
     outputs: 'BOM activas · rutas configuradas · centros de trabajo con código y posición · moldes con versiones y categorías',
     lanes: ['ing','pro','pla','sis'],
     intro: 'Ingeniería (Miguel Caro) mantiene el maestro de rutas, BOM y operaciones. Las 40 inyectoras se configuran como centros de trabajo independientes, con un código fijo y una posición en planta (DFT43). La sesión 2 incorporó las sopladoras (RQ-PRO-28). El molde es un equipo de Mantenimiento con versiones, que gobierna Matricería (DEV-PRO-05 · DFT07); no se usa <em>mrp_tool_tracking</em>. Las inyectoras se agrupan en categorías y el molde indica en cuáles se monta (DFT40). La combinación molde + producto define el ciclo real. Los RQ que condicionan la generación de OPs y el Gantt se validan con Planificación (Victoria Gini).',
-    archNote: 'INPUTS — datos SAP: BOM, rutas, tiempos estándar, cavidades, centros de trabajo · maestro de moldes de Matricería. OUTPUTS — BOM activas → MRP (MF Planificación v4.2) · centros de trabajo con código y posición → Gantt · moldes con versiones, estados y categorías de inyectoras. DEV — DEV-PRO-05 · DFT07 (maestro de moldes) · DFT40 (categorías de inyectoras y molde a usar) · DFT43 (código y posición de las inyectoras). OCA — mrp_workcenter_category. REFERENCIAS CRUZADAS — MF Planificación v4.2 RQ-PLA-05 a 09 · MF Ingeniería v3.2 RQ-ING-10 · MF Matricería v4.2.',
+    archNote: 'INPUTS — datos SAP: BOM, rutas, tiempos estándar, cavidades, centros de trabajo · maestro de moldes de Matricería. OUTPUTS — BOM activas → MRP (MF Planificación v4.3) · centros de trabajo con código y posición → Gantt · moldes con versiones, estados y categorías de inyectoras. DEV — DEV-PRO-05 · DFT07 (maestro de moldes) · DFT40 (categorías de inyectoras y molde a usar) · DFT43 (código y posición de las inyectoras). OCA — mrp_workcenter_category. REFERENCIAS CRUZADAS — MF Planificación v4.3 RQ-PLA-05 a 09 · MF Ingeniería v3.3 RQ-ING-10 · MF Matricería v4.3.',
     steps: [
       { n: '01', label: 'Rutas de fab.', lane: 'ing', variant: 'ing',
         title: 'Ruta de fabricación por producto (Ingeniería)',
@@ -430,7 +430,7 @@ const PROCESSES = {
     outputs: 'Molde usable / no usable → confirmación y notificación de la OF · OT rayadas en el Gantt',
     lanes: ['ing','pro','pla','sis'],
     intro: 'Matricería es el cuello de botella habitual de la planta. En Odoo el molde tiene estados (Disponible, Bloqueado, En mantenimiento, En servicio externo, Fuera de servicio y los de molde nuevo) que Matricería cambia con botones y un motivo. Un molde es usable si está Disponible y sin mantenimiento abierto: si no, la OF no se confirma ni se notifica, y en el Gantt sus OT se ven rayadas. El historial de reparaciones de Don PC queda para la Etapa 2. [ABIERTO] La fabricación del molde (en Don PC o con OF en Odoo) está sin definir: ver el MF, sección 11.1.',
-    archNote: 'INPUTS — estado del molde gestionado por Matricería en el maestro de moldes. OUTPUTS — molde usable → Planificación confirma la OF · molde no usable → no se confirma ni se notifica, OT rayadas en el Gantt (DEV-PLA-02 · DFT03). DEV — DEV-PRO-05 · DFT07 (estados, motivo, historial y contador de golpes). [ABIERTO] — fabricación del molde en Don PC o con OF en Odoo (T01601, T01603, T01609). REFERENCIAS — MF Planificación v4.2 (Gantt) · MF Matricería v4.2. Etapa 2: integración con Don PC (Fabián Olivera).',
+    archNote: 'INPUTS — estado del molde gestionado por Matricería en el maestro de moldes. OUTPUTS — molde usable → Planificación confirma la OF · molde no usable → no se confirma ni se notifica, OT rayadas en el Gantt (DEV-PLA-02 · DFT03). DEV — DEV-PRO-05 · DFT07 (estados, motivo, historial y contador de golpes). [ABIERTO] — fabricación del molde en Don PC o con OF en Odoo (T01601, T01603, T01609). REFERENCIAS — MF Planificación v4.3 (Gantt) · MF Matricería v4.3. Etapa 2: integración con Don PC (Fabián Olivera).',
     steps: [
       { n: '01', label: 'Estado del molde', lane: 'ing', variant: 'ing',
         title: 'Matricería cambia el estado del molde',
@@ -440,7 +440,7 @@ const PROCESSES = {
       },
       { n: '02', label: 'Liberación', lane: 'ing', variant: 'ing2',
         title: 'Matricería libera el molde',
-        desc: 'Matricería vuelve el molde a Disponible con «Desbloquear» o «Volver a disponible», con motivo. Planificación puede confirmar órdenes con ese molde. «Registrar mantenimiento» pone en cero los golpes desde el último mantenimiento y conserva el total (ver MF Planificación v4.2, RQ-PLA-09).',
+        desc: 'Matricería vuelve el molde a Disponible con «Desbloquear» o «Volver a disponible», con motivo. Planificación puede confirmar órdenes con ese molde. «Registrar mantenimiento» pone en cero los golpes desde el último mantenimiento y conserva el total (ver MF Planificación v4.3, RQ-PLA-09).',
         tags: ['RQ-PRO-09', 'DEV-PRO-05 · DFT07', 'perfil «Armar versión y desbloquear» a definir']
       },
       { n: '03', label: 'Historial', lane: 'ing', variant: 'ing2',
@@ -471,7 +471,7 @@ const PROCESSES = {
     outputs: 'Producción en curso · OF impresa con QR para Calidad · Producto No Conforme → desecho de componentes + etiqueta A4',
     lanes: ['pro','cal','sis'],
     intro: 'Aclaraciones clave de la sesión 2: (a) el scrap de arranque, regulación y barrido NO se declara en SAP y se mantiene fuera de alcance en Etapa 1; (b) el Producto No Conforme no reduce el pendiente de la orden pero sí da de baja los componentes: es el núcleo del wizard DEV-PRO-02 · DFT12, que desecha los componentes y no el terminado. La ejecución de la OF suma lotes, reservas, lote del terminado, cambios de cantidad, OT al producir en parte, cierre con controles de calidad y Copiar OF (DFT41), y la OF impresa con QR para la app de Calidad (DFT43). Todo corre sobre libus_mrp, el módulo de fabricación de Libus que Argul reutiliza (Anexo A3).',
-    archNote: 'INPUTS — mrp.production confirmadas · Gantt por centro de trabajo · lotes de componentes. OUTPUTS — producción en curso · OF impresa con QR (DFT43) · Producto No Conforme (DEV-PRO-02 · DFT12) → componentes a CD/SCRAP con valuación + etiqueta A4 (DEV-CAL-01). DEV — DEV-PRO-02 · DFT12 · DFT41 (ejecución de la OF, en libus_mrp, y Copiar OF) · DFT43 (OF impresa). ANEXO A3 — libus_mrp cierra la OF sin el cierre estándar de Odoo (pendiente T01416). REFERENCIAS CRUZADAS — DEV-CAL-01 (etiqueta A4) · DEV-CAL-02 (misma lógica desde Calidad) · DEV-PLA-03 · DFT04 (lote al PR) · MF Calidad v5.2 (planes de control).',
+    archNote: 'INPUTS — mrp.production confirmadas · Gantt por centro de trabajo · lotes de componentes. OUTPUTS — producción en curso · OF impresa con QR (DFT43) · Producto No Conforme (DEV-PRO-02 · DFT12) → componentes a CD/SCRAP con valuación + etiqueta A4 (DEV-CAL-01). DEV — DEV-PRO-02 · DFT12 · DFT41 (ejecución de la OF, en libus_mrp, y Copiar OF) · DFT43 (OF impresa). ANEXO A3 — libus_mrp cierra la OF sin el cierre estándar de Odoo (pendiente T01416). REFERENCIAS CRUZADAS — DEV-CAL-01 (etiqueta A4) · DEV-CAL-02 (misma lógica desde Calidad) · DEV-PLA-03 · DFT04 (lote al PR) · MF Calidad v5.3 (planes de control).',
     steps: [
       { n: '01', label: 'Gantt de carga', lane: 'sis', variant: 'sis',
         title: 'Gantt de carga de máquinas (Producción consume)',
@@ -547,7 +547,7 @@ const PROCESSES = {
     outputs: 'Rollo de etiquetas de caja con QR, DataMatrix y código de cliente · rótulo de 150 x 100 mm',
     lanes: ['pla','pro','sis'],
     intro: 'El diseño del rótulo ya fue desarrollado para Libus. Para Argul la etiqueta de caja pasa a 10 x 15 cm, con QR, DataMatrix para la cámara (DEV-PRO-03 · DFT10) y el código de cliente automático (DEV-PRO-01 · DFT09). La tabla de códigos es la del OCA <em>product_supplierinfo_for_customer</em>, con el campo Destino: DEV-PLA-01 no se desarrolló. La impresión directa en impresoras de red (DFT59) evita descargar el archivo.',
-    archNote: 'INPUTS — mrp.production confirmada · cliente del pedido de venta · tabla de códigos de cliente con Destino (OCA product_supplierinfo_for_customer). OUTPUTS — etiquetas de caja con QR, DataMatrix y código de cliente · rótulo de 150 x 100 mm. DEV — DEV-PRO-01 · DFT09 (código de cliente) · DEV-PRO-03 · DFT10 (etiqueta con DataMatrix) · DFT59 (impresión directa, módulo transversal report_direct_print). [ABIERTO] — quién mantiene la tabla de códigos · rótulo de 150 x 100 aparte · prueba física con la Zebra y seguridad de los puertos. REFERENCIAS — MF Planificación v4.2 (RQ-PLA-04) · funcionalidad Libus existente.',
+    archNote: 'INPUTS — mrp.production confirmada · cliente del pedido de venta · tabla de códigos de cliente con Destino (OCA product_supplierinfo_for_customer). OUTPUTS — etiquetas de caja con QR, DataMatrix y código de cliente · rótulo de 150 x 100 mm. DEV — DEV-PRO-01 · DFT09 (código de cliente) · DEV-PRO-03 · DFT10 (etiqueta con DataMatrix) · DFT59 (impresión directa, módulo transversal report_direct_print). [ABIERTO] — quién mantiene la tabla de códigos · rótulo de 150 x 100 aparte · prueba física con la Zebra y seguridad de los puertos. REFERENCIAS — MF Planificación v4.3 (RQ-PLA-04) · funcionalidad Libus existente.',
     steps: [
       { n: '01', label: 'Tabla de códigos', lane: 'pla', variant: 'pla',
         title: 'Tabla de códigos de cliente por producto',
@@ -745,13 +745,13 @@ const PROCESSES = {
     pcls: 'po',
     rqRange: 'RQ-PRO-27, RQ-PRO-29, RQ-PRO-30',
     rqCount: 3,
-    description: 'Abastecimiento del depósito productivo (PR), espacio entre depósito e inyectoras (24-48 hs capacidad). Los supervisores generan solicitudes al depósito con <em>stock_request</em> (OCA, ya implementado en Libus). El abastecimiento por cálculo de necesidades lo dispara Planificación (DEV-PLA-03 · DFT04, MF Planificación v4.2).',
+    description: 'Abastecimiento del depósito productivo (PR), espacio entre depósito e inyectoras (24-48 hs capacidad). Los supervisores generan solicitudes al depósito con <em>stock_request</em> (OCA, ya implementado en Libus). El abastecimiento por cálculo de necesidades lo dispara Planificación (DEV-PLA-03 · DFT04, MF Planificación v4.3).',
     shortDesc: 'stock_request OCA · especificación de lote · DEV-PLA-03 · DFT04 (MF Planificación)',
     inputs: 'Necesidad de materiales en PR · número de lote requerido',
     outputs: 'Solicitud de transferencia depósito central → PR → impacto en App WMS Hangel',
     lanes: ['pro','dep','sis'],
-    intro: 'Este circuito ya está definido en el MF de Inventario/WMS v3.3 (RQ-INV-13, RQ-INV-29) y usa el módulo OCA stock_request implementado en Libus. La solicitud de Producción impacta en la App WMS Hangel del depósito para que los operarios vean el trabajo pendiente. El abastecimiento por cálculo de necesidades con horizonte de horas es responsabilidad de Planificación (DEV-PLA-03 · DFT04): lo dispara Planificación y genera el abastecimiento con el lote de la OF.',
-    archNote: 'INPUTS — necesidad de materiales en PR · lote requerido. OUTPUTS — solicitud de transferencia → picking en Odoo → impacto en App WMS Hangel. MÓDULOS — stock_request (OCA/stock-logistics-warehouse 17.0). DEV — DEV-PLA-03 · DFT04 (MF Planificación v4.2): cálculo de necesidades del PR y «Abastecer PR (fuera de hora)». [ABIERTO] — RQ-PRO-27: stock_request o el asistente del DFT04 para los abastecimientos fuera de hora. FUERA DE ESTE PROCESO — DFT42 (reglas de reordenamiento y solicitudes de compra y de fabricación): no confundir con stock_request; [ABIERTO] dónde se documenta.',
+    intro: 'Este circuito ya está definido en el MF de Inventario/WMS v3.4 (RQ-INV-13, RQ-INV-29) y usa el módulo OCA stock_request implementado en Libus. La solicitud de Producción impacta en la App WMS Hangel del depósito para que los operarios vean el trabajo pendiente. El abastecimiento por cálculo de necesidades con horizonte de horas es responsabilidad de Planificación (DEV-PLA-03 · DFT04): lo dispara Planificación y genera el abastecimiento con el lote de la OF.',
+    archNote: 'INPUTS — necesidad de materiales en PR · lote requerido. OUTPUTS — solicitud de transferencia → picking en Odoo → impacto en App WMS Hangel. MÓDULOS — stock_request (OCA/stock-logistics-warehouse 17.0). DEV — DEV-PLA-03 · DFT04 (MF Planificación v4.3): cálculo de necesidades del PR y «Abastecer PR (fuera de hora)». [ABIERTO] — RQ-PRO-27: stock_request o el asistente del DFT04 para los abastecimientos fuera de hora. FUERA DE ESTE PROCESO — DFT42 (reglas de reordenamiento y solicitudes de compra y de fabricación): no confundir con stock_request; [ABIERTO] dónde se documenta.',
     steps: [
       { n: '01', label: 'Solicitud al PR', lane: 'pro', variant: 'pro',
         title: 'Solicitud de abastecimiento al PR por sistema (incl. fuera de horario)',
@@ -767,8 +767,8 @@ const PROCESSES = {
       },
       { n: '03', label: 'Necesidades → PR', lane: 'sis', variant: 'sis2',
         title: 'Abastecimiento por cálculo de necesidades del PR (horizonte de horas)',
-        desc: 'Planificación dispara el cálculo de necesidades del PR con un horizonte de horas, y Odoo genera el abastecimiento con el lote de cada OF. No son reglas automáticas. Responsabilidad de Planificación (DEV-PLA-03 · DFT04, MF Planificación v4.2).',
-        tags: ['RQ-PRO-30', 'DEV-PLA-03 · DFT04 (MF Planificación)', 'ref. MF Planificación v4.2, sección 6']
+        desc: 'Planificación dispara el cálculo de necesidades del PR con un horizonte de horas, y Odoo genera el abastecimiento con el lote de cada OF. No son reglas automáticas. Responsabilidad de Planificación (DEV-PLA-03 · DFT04, MF Planificación v4.3).',
+        tags: ['RQ-PRO-30', 'DEV-PLA-03 · DFT04 (MF Planificación)', 'ref. MF Planificación v4.3, sección 6']
       }
     ],
     arrows: [

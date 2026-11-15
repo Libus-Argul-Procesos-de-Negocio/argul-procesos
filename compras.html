@@ -290,7 +290,7 @@ p3:{code:'P-COM-3',name:'Compras de Matricería',shortName:'Matricería',type:'P
 description:'Compras de aceros, materiales y componentes para moldes. Matricería planifica y explota los materiales del molde y genera las solicitudes; Compras gestiona la OC. Vista de Compras de P-MAT-2 (Explosión y Abastecimiento).',
 shortDesc:'BOM molde → Explosión en Matricería → Solicitud → OC',lanes:['mat','com','inv'],
 intro:'El circuito se dispara cuando Matricería completa la lista de materiales del molde (P-MAT-1). Matricería (Ignacio Argul / Fernando Abal) planifica y explota los materiales y genera las solicitudes de compra; Planificación (Victoria Gini) no interviene (C-02). Compras recibe las solicitudes y gestiona la OC. La visibilidad anticipada de la demanda de aceros pasó al MF Matricería (C-03).',
-archNote:'CRUCE CON MATRICERÍA —</strong> Este circuito es la vista de Compras de P-MAT-2 (Explosión y Abastecimiento, MF Matricería v4.2). Las solicitudes de matricería tienen su propia cadena de aprobación en Matricería.',
+archNote:'CRUCE CON MATRICERÍA —</strong> Este circuito es la vista de Compras de P-MAT-2 (Explosión y Abastecimiento, MF Matricería v4.3). Las solicitudes de matricería tienen su propia cadena de aprobación en Matricería.',
 steps:[
 {n:'01',label:'BOM completa',lane:'mat',variant:'mat',title:'Lista de materiales del molde lista',desc:'Matricería completa la lista de materiales multinivel del molde (P-MAT-1): aceros en bruto, materiales estándar y servicios subcontratados.',tags:['ref. P-MAT-1','lista de materiales multinivel']},
 {n:'02',label:'Explosión Matricería',lane:'mat',variant:'mat',title:'Matricería explota y genera las solicitudes',desc:'Matricería planifica y explota los materiales del molde y genera las solicitudes de compra. Planificación no interviene en este circuito.',tags:['RQ-COM-36','C-02','ref. P-MAT-2']},
@@ -298,7 +298,7 @@ steps:[
 {divider:'GESTIÓN DE COMPRAS'},
 {n:'04',label:'OC materiales',lane:'com',variant:'com',title:'OC de materiales de matricería',desc:'Compras genera las OC de aceros, materiales estándar y servicios subcontratados (tratamiento térmico, rectificado), con el mismo flujo de aprobación que compras productivas. Los bloqueos de proveedor frenan la confirmación de toda OC (DEV-FACT-02 · DFT22).',tags:['RQ-COM-36','OC matricería','ref. RQ-COM-11','DEV-FACT-02 · DFT22']},
 {n:'05',label:'Recepción',lane:'inv',variant:'inv',title:'Recepción de materiales',desc:'El depósito recibe los materiales contra la OC. Quedan disponibles para las órdenes de fabricación de las posiciones del molde.',tags:['recepción','ref. P-MAT-4']},
-{n:'06',label:'Visibilidad aceros',lane:'mat',variant:'mat2',title:'Visibilidad anticipada de la demanda de aceros',desc:'Requerimiento reasignado al MF Matricería: Matricería planifica los materiales del molde y anticipa la demanda de aceros a Compras para negociar con los proveedores.',tags:['RQ-COM-37','C-03','ref. MF Matricería v4.2']}
+{n:'06',label:'Visibilidad aceros',lane:'mat',variant:'mat2',title:'Visibilidad anticipada de la demanda de aceros',desc:'Requerimiento reasignado al MF Matricería: Matricería planifica los materiales del molde y anticipa la demanda de aceros a Compras para negociar con los proveedores.',tags:['RQ-COM-37','C-03','ref. MF Matricería v4.3']}
 ],arrows:[{from:0,to:1,lane:'mat',label:'BOM → explosión'},{from:2,to:3,lane:'com',label:'solicitud → OC'},{from:3,to:4,lane:'inv',label:'OC → recepción'}]},
 
 /* ================= P-COM-4 ================= */
