@@ -345,7 +345,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · PLANIFICACIÓN Y ABASTECIMIENTO · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v4.3 · alineado con MF Planificación v4.3</footer>
+<footer>ODOO 17 ENTERPRISE · PLANIFICACIÓN Y ABASTECIMIENTO · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v4.4 · alineado con MF Planificación v4.4</footer>
 
 <script>
 /* ================================================================= */
@@ -396,13 +396,13 @@ const PROCESSES = {
       },
       { n: '03', label: 'Código cliente → SKU', lane: 'sis', variant: 'sis',
         title: 'Resolución código de cliente → SKU interno',
-        desc: 'En la línea del PV, Odoo busca el producto por el código del cliente y muestra ese código (OCA product_supplierinfo_for_customer_sale, T02051). La tabla de equivalencias es la del OCA product_supplierinfo_for_customer, con campo Destino (Ambos / Mercado local / Exportación); un código de un cliente apunta a un solo SKU y no exige precio, cantidad mínima ni validez (DEV-PRO-01 · DFT09). Factura y remito imprimen «SKU - código del cliente»; si el código venció, el más reciente con aviso (DFT34). <strong>[ABIERTO]</strong> DFT34 no identifica RQ.',
-        tags: ['RQ-PLA-04', 'DEV-PLA-01', 'DEV-PRO-01 · DFT09', 'DFT34', 'OCA product_supplierinfo_for_customer'],
+        desc: 'En la línea del PV, Odoo busca el producto por el código del cliente y muestra ese código (OCA product_supplierinfo_for_customer_sale, T02051). La tabla de equivalencias es la del OCA product_supplierinfo_for_customer, con campo Destino (Ambos / Mercado local / Exportación); un código de un cliente apunta a un solo SKU y no exige precio, cantidad mínima ni validez (DEV-PRO-01 · DFT09). Factura y remito imprimen «SKU - código del cliente»; si el código venció, el más reciente con aviso (DFT34). <strong>[DECISIÓN 15/11/2026]</strong> El DFT34 se cubre con RQ-VTA-34 y RQ-VTA-35 del MF Ventas v3.5.',
+        tags: ['RQ-PLA-04', 'DEV-PLA-01', 'DEV-PRO-01 · DFT09', 'DFT34', 'ref. RQ-VTA-34 y RQ-VTA-35', 'OCA product_supplierinfo_for_customer'],
         pill: { color: 'plan', text: '🔧 DEV-PLA-01 resuelto con OCA (DFT09) · falta la carga real de la tabla (T01591)' }
       },
       { n: '04', label: 'Fechado entregas', lane: 'plan', variant: 'plan2',
         title: 'Fechado: varias fechas comprometidas por línea de PV',
-        desc: 'Una línea de PV (ej.: 3.000.000 u.) admite varias fechas comprometidas, cada una con su cantidad (ej.: 500.000 × 6 semanas), sin duplicar líneas (libus_fechado, DEV-VTA-01 · DFT02, MF Ventas v3.4). Las fechas son planificación: no generan un remito por fecha. El MRP las toma si la compañía elige «Fecha de entrega» en «Fecha de la demanda de ventas en el MRP» (DFT39). <strong>[ABIERTO]</strong> Granularidad semanal en el MRP.',
+        desc: 'Una línea de PV (ej.: 3.000.000 u.) admite varias fechas comprometidas, cada una con su cantidad (ej.: 500.000 × 6 semanas), sin duplicar líneas (libus_fechado, DEV-VTA-01 · DFT02, MF Ventas v3.5). Las fechas son planificación: no generan un remito por fecha. El MRP las toma si la compañía elige «Fecha de entrega» en «Fecha de la demanda de ventas en el MRP» (DFT39). <strong>[ABIERTO]</strong> Granularidad semanal en el MRP.',
         tags: ['RQ-PLA-03', 'DEV-VTA-01 · DFT02', 'DFT39', 'prerrequisito go-live'],
         pill: { color: 'plan', text: '🔧 DEV-VTA-01 · DFT02 implementado · se descartó sale_order_line_date' }
       },
@@ -673,7 +673,7 @@ const PROCESSES = {
       },
       { n: '05', label: 'Fuera de hora', lane: 'plan', variant: 'plan2',
         title: 'Abastecer PR (fuera de hora)',
-        desc: 'Para un pedido fuera del ciclo diario, el asistente «Abastecer PR (fuera de hora)» crea un abastecimiento en borrador con origen, solicitante y motivo; si ninguna OF abierta tiene lote, propone el lote FIFO. <strong>[ABIERTO]</strong> Convivencia con stock_request y movimiento manual (MF Inventario/WMS v3.4 y MF Producción v5.3).',
+        desc: 'Para un pedido fuera del ciclo diario, el asistente «Abastecer PR (fuera de hora)» crea un abastecimiento en borrador con origen, solicitante y motivo; si ninguna OF abierta tiene lote, propone el lote FIFO. <strong>[ABIERTO]</strong> Convivencia con stock_request y movimiento manual (MF Inventario/WMS v3.5 y MF Producción v5.3).',
         tags: ['RQ-PLA-18', 'DEV-PLA-03 · DFT04', 'fuera de hora'],
         pill: { color: 'adm', text: '⚠ ABIERTO · asistente del DFT04 o stock_request para el PR' }
       }
@@ -701,7 +701,7 @@ const PROCESSES = {
     inputs: 'Entregas pendientes · fechas comprometidas (← RQ-PLA-03) · solicitud de devolución del cliente',
     outputs: 'Alertas de incumplimiento · RMA referenciado al PV · nota de crédito o reposición',
     lanes: ['cli','plan','sis'],
-    intro: 'Las alertas de incumplimiento de fechas comprometidas están directamente vinculadas al módulo de fechado (RQ-PLA-03): su utilidad real depende del fechado, que ya está implementado (DEV-VTA-01 · DFT02, MF Ventas v3.4). Sin fechado, las alertas no pueden calcularse con la precisión requerida y el control sigue siendo 100% manual. Las devoluciones de Sides representan el caso más complejo: 300.000 u. de un producto entregado en decenas de camiones a lo largo de meses no puede referenciarse a una entrega individual. El módulo OCA rma_sale (rama 17.0 activa) cubre este caso.',
+    intro: 'Las alertas de incumplimiento de fechas comprometidas están directamente vinculadas al módulo de fechado (RQ-PLA-03): su utilidad real depende del fechado, que ya está implementado (DEV-VTA-01 · DFT02, MF Ventas v3.5). Sin fechado, las alertas no pueden calcularse con la precisión requerida y el control sigue siendo 100% manual. Las devoluciones de Sides representan el caso más complejo: 300.000 u. de un producto entregado en decenas de camiones a lo largo de meses no puede referenciarse a una entrega individual. El módulo OCA rma_sale (rama 17.0 activa) cubre este caso.',
     archNote: 'INPUTS — stock.picking entregados · fechas comprometidas por sub-línea (condicionado a RQ-PLA-03) · solicitud de RMA del cliente (producto, cantidad, motivo). OUTPUTS — alertas de incumplimiento en tablero de órdenes abiertas · RMA (rma.rma referenciado a sale.order) → nota de crédito o stock.picking de reposición. OCA — rma + rma_sale (OCA/rma, rama 17.0 activa) · Evaluar y probar en entorno de test.',
     steps: [
       { n: '01', label: 'Alertas fechas', lane: 'sis', variant: 'sis',
@@ -718,7 +718,7 @@ const PROCESSES = {
       { divider: 'DEVOLUCIONES DE CLIENTES — referenciadas al PV (no a la entrega individual)', type: 'phys' },
       { n: '03', label: 'RMA contra PV', lane: 'cli', variant: 'cli',
         title: 'Devolución de cliente referenciada al pedido de venta',
-        desc: 'Sides puede devolver 300.000 unidades entregadas en decenas de camiones a lo largo de meses. La devolución se referencia al PV, no a cada entrega individual. Módulo OCA <em>rma + rma_sale</em> (OCA/rma, rama 17.0 activa) cubre este caso. La devolución puede implicar nota de crédito o reposición según la política del cliente. La nota de crédito se hace desde la recepción de la devolución, una por factura original (DFT60, MF Ventas v3.4).',
+        desc: 'Sides puede devolver 300.000 unidades entregadas en decenas de camiones a lo largo de meses. La devolución se referencia al PV, no a cada entrega individual. Módulo OCA <em>rma + rma_sale</em> (OCA/rma, rama 17.0 activa) cubre este caso. La devolución puede implicar nota de crédito o reposición según la política del cliente. La nota de crédito se hace desde la recepción de la devolución, una por factura original (DFT60, MF Ventas v3.5).',
         tags: ['RQ-PLA-21', 'OCA rma_sale', 'OCA/rma — rama 17.0 activa', 'ref. DFT60'],
         pill: { color: 'cli', text: '🔵 OCA rma_sale — rama 17.0 activa · evaluar y probar en entorno de test' }
       }
@@ -881,7 +881,7 @@ function el(tag, attrs={}, ...children){
 /* ================================================================= */
 /* ROUTE BAR                                                          */
 /* ================================================================= */
-function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1jVrfowyhMJFV-77yjKntDdwCwTafLtP9/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'📊 PLANIFICACIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v4.3'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v4.3 · 15-nov-2026'));}
+function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/10AofRa6NYW2W5C981JFbUKEoviFqv7yD/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'📊 PLANIFICACIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v4.4'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v4.4 · 15-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -910,7 +910,7 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 8 procesos del área de Planificación y Abastecimiento. El área de <strong>Customer Service</strong> (Victoria Gini, Brian, Gastón) es la principal usuaria del sistema: carga todos los PV, gestiona los pedidos, corre el MRP, administra el Gantt y coordina las entregas. <strong>v4.3</strong> incorpora lo implementado según los DFT vigentes al 13/11/2026: MRP multinivel de OCA con DFT36 a DFT39, replanificación del Gantt (DEV-PLA-02 · DFT03), abastecimiento al PR (DEV-PLA-03 · DFT04), CS15 (DEV-PLA-04 · DFT05) y ciclo de vida de la OF (DEV-PLA-05 · DFT06). Los puntos abiertos se marcan <strong>[ABIERTO]</strong>. Hacé click en cualquier tarjeta para ver el flujo detallado.'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 8 procesos del área de Planificación y Abastecimiento. El área de <strong>Customer Service</strong> (Victoria Gini, Brian, Gastón) es la principal usuaria del sistema: carga todos los PV, gestiona los pedidos, corre el MRP, administra el Gantt y coordina las entregas. <strong>v4.3</strong> incorpora lo implementado según los DFT vigentes al 13/11/2026: MRP multinivel de OCA con DFT36 a DFT39, replanificación del Gantt (DEV-PLA-02 · DFT03), abastecimiento al PR (DEV-PLA-03 · DFT04), CS15 (DEV-PLA-04 · DFT05) y ciclo de vida de la OF (DEV-PLA-05 · DFT06). <strong>v4.4</strong> suma las decisiones del 15/11/2026: el DFT34 se cubre con RQ-VTA-34 y RQ-VTA-35 del MF Ventas y la regla Q-01 se reescribe. Los puntos abiertos se marcan <strong>[ABIERTO]</strong>. Hacé click en cualquier tarjeta para ver el flujo detallado.'
   }));
 
   app.appendChild(el('div',{
