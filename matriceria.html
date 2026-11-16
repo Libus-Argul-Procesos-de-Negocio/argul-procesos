@@ -459,7 +459,7 @@ p1: {
   steps: [
     { n: '01', label: 'Decisión de inicio', lane: 'mat', variant: 'mat',
       title: 'Confirmación de proyecto de molde',
-      desc: 'Llega pedido de cliente (MF Ventas v3.4) o necesidad interna. Ignacio y Fernando evalúan factibilidad y se aprueba el inicio del proyecto de molde. Se asigna código <em>P###</em>.',
+      desc: 'Llega pedido de cliente (MF Ventas v3.5) o necesidad interna. Ignacio y Fernando evalúan factibilidad y se aprueba el inicio del proyecto de molde. Se asigna código <em>P###</em>.',
       tags: ['RQ-MAT-05', 'inicio proyecto']
     },
     { n: '02', label: 'Alta del molde', lane: 'mat', variant: 'mat',
@@ -588,8 +588,8 @@ p2: {
     },
     { n: '08', label: 'Recepción física', lane: 'inv', variant: 'inv',
       title: 'Ingreso de materiales al depósito',
-      desc: 'Inventario (MF Inv/WMS v3.4) valida la recepción contra la PO. La recepción actualiza automáticamente estado de la OC. Ruta de recepción definida para que materiales de Matricería vayan directamente a ubicación Matricería.',
-      tags: ['RQ-MAT-27', 'RQ-MAT-28', 'MF Inv/WMS v3.4'],
+      desc: 'Inventario (MF Inv/WMS v3.5) valida la recepción contra la PO. La recepción actualiza automáticamente estado de la OC. Ruta de recepción definida para que materiales de Matricería vayan directamente a ubicación Matricería.',
+      tags: ['RQ-MAT-27', 'RQ-MAT-28', 'MF Inv/WMS v3.5'],
       cite: '"Empezamos a recepcionar los materiales en bruto" — Fernando'
     },
     { n: '09', label: 'Stock request', lane: 'inv', variant: 'inv2',
@@ -715,8 +715,8 @@ p3: {
     },
     { n: '13b', label: '', lane: 'cont', variant: 'cont2',
       title: 'Registro contable y pago',
-      desc: 'Contabilidad (MF Contabilidad v5.4) registra asiento de compra, IVA crédito fiscal, retenciones. Todo trazable a la cta. analítica del molde.',
-      tags: ['l10n_ar', 'IVA CF', 'retenciones', 'MF Contabilidad v5.4'],
+      desc: 'Contabilidad (MF Contabilidad v5.5) registra asiento de compra, IVA crédito fiscal, retenciones. Todo trazable a la cta. analítica del molde.',
+      tags: ['l10n_ar', 'IVA CF', 'retenciones', 'MF Contabilidad v5.5'],
       groupWith: '13'
     },
     { divider: 'CIERRE — Costo del servicio capturado en la cta. analítica del molde', type: 'end' },
@@ -934,7 +934,7 @@ p6: {
     },
     { n: '04', label: 'Importe en USD', lane: 'cont', variant: 'cont2',
       title: 'Línea analítica con importe en USD',
-      desc: 'Cada línea analítica tiene «Importe USD» al tipo de cambio de su fecha, o el último anterior, como toda conversión de moneda (DFT58, MF Contabilidad v5.4).',
+      desc: 'Cada línea analítica tiene «Importe USD» al tipo de cambio de su fecha, o el último anterior, como toda conversión de moneda (DFT58, MF Contabilidad v5.5).',
       tags: ['RQ-MAT-54', 'DFT58', 'DEV-PRO-05 · DFT07']
     },
     { divider: 'CIERRE DE LA OF DEL MOLDE — costo estándar y desvío' },
@@ -952,7 +952,7 @@ p6: {
     },
     { n: '07', label: 'Tratamiento contable', lane: 'cont', variant: 'cont2',
       title: 'Activo fijo o costo',
-      desc: 'Contabilidad define con Ezequiel Molina si el molde es activo fijo (<em>account_asset</em>) o costo (MF Contabilidad v5.4).',
+      desc: 'Contabilidad define con Ezequiel Molina si el molde es activo fijo (<em>account_asset</em>) o costo (MF Contabilidad v5.5).',
       tags: ['RQ-MAT-53', 'Gap', 'account_asset'],
       pill: { color: 'sub', text: '[ABIERTO] RQ-MAT-53: tratamiento contable del molde' }
     }
