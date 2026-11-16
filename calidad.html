@@ -326,7 +326,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · GESTIÓN DE CALIDAD · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.3 · alineado con MF Calidad v5.3</footer>
+<footer>ODOO 17 ENTERPRISE · GESTIÓN DE CALIDAD · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.4 · alineado con MF Calidad v5.4</footer>
 
 <script>
 /* ================================================================= */
@@ -373,7 +373,7 @@ const PROCESSES = {
     outputs: 'Lote liberado · rechazo en CD/905 con alerta · desecho valuado · orden de devolución a proveedor · RMA clientes',
     lanes: ['cal','com','dep','sis'],
     intro: 'Cambios clave de las sesiones y lo implementado (DFT44 a DFT47): (a) el control es por palet o por lote del proveedor, configurable; Q902 por lote, como se acordó en la sesión 2; (b) [ABIERTO] la v5.2 dice que la disponibilidad es independiente de la ubicación física, y lo implementado deja el material en la ubicación de calidad hasta que se libera; (c) devoluciones de clientes con circuito RMA y orden de devolución (DFT48); (d) decisión C-10: el pago al proveedor se habilita al ingreso físico, independientemente del QC; si hay rechazo, Compras decide devolver o desechar y Calidad lo ejecuta (DFT47); (e) equipos de calidad y operario identificado con PIN (RQ-CAL-25 y RQ-CAL-26, DFT46).',
-    archNote: 'INPUTS — lote recibido · planes de inspección y de muestreo · decisión de Compras (P-COM-7, MF Compras v3.3). OUTPUTS — lote liberado · rechazo en CD/905 con alerta · desecho a CD/SCRAP con valuación · orden de devolución a proveedor · NC de cliente ([ABIERTO] Q-01, MF Contabilidad, Adm. y Finanzas v5.4). MÓDULOS — quality_control · libus_calidad · quality_alert_disposition · quality_operator_pin · OCA rma, rma_sale y rma_lot. REFERENCIAS — DFT48 y DFT51 (MF Inventario/WMS v3.4) · DFT60 (MF Contabilidad) · MF Ventas v3.4 (RMA clientes).',
+    archNote: 'INPUTS — lote recibido · planes de inspección y de muestreo · decisión de Compras (P-COM-7, MF Compras v3.3). OUTPUTS — lote liberado · rechazo en CD/905 con alerta · desecho a CD/SCRAP con valuación · orden de devolución a proveedor · NC de cliente (<strong>[DECISIÓN 15/11/2026]</strong> Q-01: el sistema no la restringe antes de la aprobación de Calidad y el control es por procedimiento; MF Contabilidad, Adm. y Finanzas v5.5). MÓDULOS — quality_control · libus_calidad · quality_alert_disposition · quality_operator_pin · OCA rma, rma_sale y rma_lot. REFERENCIAS — DFT48 y DFT51 (MF Inventario/WMS v3.5) · DFT60 (MF Contabilidad) · MF Ventas v3.5 (RMA clientes).',
     steps: [
       { n: '01', label: 'Equipos y operario', lane: 'cal', variant: 'cal2',
         title: 'Equipos de calidad y operario identificado',
@@ -447,9 +447,9 @@ const PROCESSES = {
       { divider: 'CIRCUITO RMA — Devoluciones de clientes', type: 'loop' },
       { n: '13', label: 'RMA clientes', lane: 'cal', variant: 'cal',
         title: 'Circuito RMA para devoluciones de clientes',
-        desc: 'Circuito: (1) el cliente contacta directamente a Calidad; (2) Calidad decide si acepta <em>antes</em> del ingreso físico; (3) la orden de devolución reparte lo devuelto entre las entregas del cliente y solo ofrece los lotes entregados (DFT48); (4) primer control Q904 y análisis QA904; (5) la NC se emite cuando Depósito recibió y Calidad aprobó.',
+        desc: 'Circuito: (1) el cliente contacta directamente a Calidad; (2) Calidad decide si acepta <em>antes</em> del ingreso físico; (3) la orden de devolución reparte lo devuelto entre las entregas del cliente y solo ofrece los lotes entregados (DFT48); (4) primer control Q904 y análisis QA904; (5) la NC se habilita con el primer paso de la recepción (DFT60). <strong>[DECISIÓN 15/11/2026]</strong> El sistema no restringe la NC antes de la aprobación de Calidad y el control es por procedimiento (regla Q-01 reescrita). La operación «Reemplazar» de la orden de devolución queda como está implementada; no reponer al cliente se maneja por procedimiento.',
         tags: ['RQ-CAL-08', 'OCA · rma · rma_sale · rma_lot', 'DFT48', 'DFT60'],
-        pill: { color: 'dep', text: '⚠ ABIERTO · con el DFT60 la NC se habilita con el primer paso de la recepción (Q-01) · operación «Reemplazar» de la orden de devolución' }
+        pill: { color: 'dep', text: '✔ DECISIÓN 15/11/2026 · la NC no espera a Calidad en el sistema: control por procedimiento (Q-01) · «Reemplazar» queda como está' }
       },
       { divider: 'MIGRACIÓN — Planes de control desde SAP', type: 'phys' },
       { n: '14', label: 'Migración planes', lane: 'cal', variant: 'cal2',
@@ -546,7 +546,7 @@ const PROCESSES = {
     outputs: 'Desecho a CD/SCRAP con valuación · etiqueta A4 para molienda · comprobante de desecho · alerta con proveedor (IPP)',
     lanes: ['cal','pro','sis'],
     intro: 'Aclaración de la sesión 2: el RQ-CAL-18 original (scrap de producción durante la orden) se eliminó de Calidad y se reasignó a Producción como RQ-PRO-14. Calidad solo interviene en el scrap posterior a la detección de Producto No Conforme. Todo desecho va a CD/SCRAP, la única ubicación de desecho, con uso «Pérdida de inventario» (DFT47). La etiqueta PNC A4 (DEV-CAL-01 · DFT12) es el componente compartido entre Producción y Calidad para habilitar molienda. [ABIERTO] Hay tres impresos de scrap: la etiqueta PNC (DFT12), la etiqueta A4 de scrap del rechazo parcial (DFT44) y el comprobante de desecho (DFT47). El IPP (Informe de Problemas con Proveedor, RQ-CAL-21) se apoya en la alerta de calidad, que ya lleva el proveedor y la disposición (DFT46, DFT47).',
-    archNote: 'INPUTS — producto rechazado o bloqueado. OUTPUTS — desecho a CD/SCRAP con valuación (MF Contabilidad, Adm. y Finanzas v5.4) + etiqueta A4 + comprobante de desecho. DEV — DEV-CAL-01 · DFT12 (etiqueta PNC compartida) · DEV-CAL-02 · DFT12 (ref. cruzada DEV-PRO-02). DFT — DFT44 (etiqueta A4 de scrap) · DFT47 (desecho desde la alerta y comprobante). GAP — RQ-CAL-21 (IPP): esperar política ABC de proveedores.',
+    archNote: 'INPUTS — producto rechazado o bloqueado. OUTPUTS — desecho a CD/SCRAP con valuación (MF Contabilidad, Adm. y Finanzas v5.5) + etiqueta A4 + comprobante de desecho. DEV — DEV-CAL-01 · DFT12 (etiqueta PNC compartida) · DEV-CAL-02 · DFT12 (ref. cruzada DEV-PRO-02). DFT — DFT44 (etiqueta A4 de scrap) · DFT47 (desecho desde la alerta y comprobante). GAP — RQ-CAL-21 (IPP): esperar política ABC de proveedores.',
     steps: [
       { n: '01', label: 'Envío a scrap', lane: 'cal', variant: 'cal',
         title: 'Desecho a CD/SCRAP con motivo y valuación',
@@ -659,7 +659,7 @@ function el(tag, attrs={}, ...children){
 /* ================================================================= */
 /* ROUTE BAR                                                          */
 /* ================================================================= */
-function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1ga1EJX-9r-4wNUN6o-nNGK9Dur_n4ZRC/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🔬 GESTIÓN DE CALIDAD'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.3'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.3 · 15-nov-2026'));}
+function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1kcxuIvFaRofo_tdewfBB2C5PVBdHpDz3/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🔬 GESTIÓN DE CALIDAD'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.4'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.4 · 15-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -688,7 +688,7 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 4 procesos del área de Gestión de Calidad. <strong>Natalia Cascardo</strong> es la Key User. Calidad es un área cross de soporte a todas las demás áreas. Controla recepción y producción con los módulos de calidad de Odoo 17 Enterprise y desarrollos propios (<strong>libus_calidad</strong>, <strong>quality_alert_disposition</strong>, <strong>quality_operator_pin</strong>), en dos instancias: primer control y análisis. El circuito RMA se gestiona con <strong>OCA/rma</strong> (17.0) y la orden de devolución del DFT48. Alineado con el MF Calidad v5.3 (20261115_Sistemas_Calidad_MF_v5_3). Los procesos de Producción se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 4 procesos del área de Gestión de Calidad. <strong>Natalia Cascardo</strong> es la Key User. Calidad es un área cross de soporte a todas las demás áreas. Controla recepción y producción con los módulos de calidad de Odoo 17 Enterprise y desarrollos propios (<strong>libus_calidad</strong>, <strong>quality_alert_disposition</strong>, <strong>quality_operator_pin</strong>), en dos instancias: primer control y análisis. El circuito RMA se gestiona con <strong>OCA/rma</strong> (17.0) y la orden de devolución del DFT48. Alineado con el MF Calidad v5.4 (20261115_Sistemas_Calidad_MF_v5_4). Los procesos de Producción se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
   }));
 
   app.appendChild(el('div',{
