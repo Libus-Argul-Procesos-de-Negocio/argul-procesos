@@ -400,7 +400,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · VENTAS · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v3.4 · alineado con MF Ventas v3.4</footer>
+<footer>ODOO 17 ENTERPRISE · VENTAS · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v3.5 · alineado con MF Ventas v3.5</footer>
 
 <script>
 /* ================================================================= */
@@ -496,7 +496,7 @@ const PROCESSES = {
         title: 'Datos de Argul en remito y factura',
         desc: 'Factura y remito salen con el SKU y la descripción de Argul; del cliente sólo su código de producto («SKU - código del cliente») y su orden de compra. Factura: lote, número de proveedor, alícuota de percepciones y número de remito. Remito: cajas, bultos, peso neto, «Entregado en» y formato «Remito A4». Si el código del cliente está vencido se usa el último y el pedido, el remito y la factura lo avisan. Los remitos de tipos que facturan por entregas quedan «A facturar» (DFT60).',
         tags: ['RQ-VTA-34', 'RQ-VTA-35', 'DFT34', 'DFT60', 'sale_stock_document_customer_info'],
-        pill: { color: 'dep', text: '⚠ ABIERTO · el DFT34 no identifica un RQ del MF' }
+        pill: { color: 'dep', text: '✔ DECISIÓN 15/11/2026 · el DFT34 se cubre con RQ-VTA-34 y RQ-VTA-35' }
       },
       { n: '12', label: 'Cancelar remanentes', lane: 'plan', variant: 'plan2',
         title: 'Cancelación de remanentes con trazabilidad',
@@ -520,13 +520,13 @@ const PROCESSES = {
         title: 'Devolución referenciada al pedido de venta original',
         desc: 'La orden reparte la cantidad entre las entregas del cliente con saldo, crea una RMA por entrega (OCA rma + rma_sale, contra el PV original) y una sola recepción. El lote se elige sólo entre los entregados al cliente y la cantidad no supera lo entregado menos lo devuelto. Al validar el primer paso de la recepción (cliente → CD/Q904) el pedido baja lo entregado (DFT60). Calidad decide la acción sobre el producto (MF Calidad).',
         tags: ['RQ-VTA-24', 'DFT48', 'rma_return_allocation', 'OCA rma + rma_sale', 'saldo devolvible'],
-        pill: { color: 'dep', text: '⚠ ABIERTO · la orden ofrece «Reemplazar»: choca con «nunca reposición»' }
+        pill: { color: 'dep', text: '✔ DECISIÓN 15/11/2026 · «Reemplazar» queda como está: no reponer al cliente es por procedimiento' }
       },
       { n: '16', label: 'NC desde la recepción', lane: 'adm', variant: 'adm',
         title: 'Nota de crédito desde la recepción de la devolución',
         desc: 'Toda devolución aceptada termina en nota de crédito, nunca en reposición. Cuentas a Cobrar crea la NC desde la recepción (Inventario > Operaciones > Recepciones, columna «Acreditación de la devolución», bandeja «A acreditar»): una NC en borrador por factura original, en el mismo diario y con la misma letra, con precio e impuestos de la factura original; la revisa y la confirma. Las RMA acreditadas pasan a «Reembolsada».',
         tags: ['RQ-VTA-25', 'DFT60', 'NC en borrador', 'una NC por factura original', 'ref. RQ-DEUD-05'],
-        pill: { color: 'dep', text: '⚠ ABIERTO · la NC se habilita antes de la decisión de Calidad (regla Q-01)' }
+        pill: { color: 'dep', text: '✔ DECISIÓN 15/11/2026 · la NC no espera a Calidad en el sistema: el control es por procedimiento (Q-01)' }
       }
     ],
     arrows: [
@@ -551,7 +551,7 @@ const PROCESSES = {
     shortDesc: 'PV → MRP · stock resultante',
     lanes: ['ven','plan'],
     intro: 'Los pedidos de venta confirmados son el input principal del MRP multinivel. La carga del PV la realiza el equipo de Planificación / Customer Service en su rol que precede al MRP. Para productos propios (Nonspill, tapones de botellón), la planificación combina pedidos firmes con proyección de demanda y stock de seguridad. La gestión de listas de precios se trasladó al proceso dedicado P-VTA-6.',
-    archNote: 'REFERENCIA CRUZADA — El detalle del MRP está documentado en <strong>MF Planificación v4.3</strong>. <strong>Handshake Ventas → Planificación:</strong> el OUTPUT principal de Ventas (sale.order confirmado) es el INPUT principal de Planificación (RQ-PLA-10). El fechado de DEV-VTA-01 · DFT02 se vincula con RQ-PLA-03; con el ajuste «Fecha de la demanda de ventas en el MRP» = «Fecha de entrega», la demanda entra en las fechas del fechado confirmado (DFT39). La configuración de listas de precios se cubre en <strong>P-VTA-6</strong>.',
+    archNote: 'REFERENCIA CRUZADA — El detalle del MRP está documentado en <strong>MF Planificación v4.4</strong>. <strong>Handshake Ventas → Planificación:</strong> el OUTPUT principal de Ventas (sale.order confirmado) es el INPUT principal de Planificación (RQ-PLA-10). El fechado de DEV-VTA-01 · DFT02 se vincula con RQ-PLA-03; con el ajuste «Fecha de la demanda de ventas en el MRP» = «Fecha de entrega», la demanda entra en las fechas del fechado confirmado (DFT39). La configuración de listas de precios se cubre en <strong>P-VTA-6</strong>.',
     steps: [
       { n: '01', label: 'PV confirmados', lane: 'plan', variant: 'plan',
         title: 'Pedidos de venta como input del MRP',
@@ -764,7 +764,7 @@ function el(tag, attrs={}, ...children){
 /* ROUTE BAR                                                          */
 /* ================================================================= */
 
-function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1RMVrvISyxTWA2bduHWU6je5e4iTY5bki/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🛒 VENTAS'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v3.4'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v3.4 · 15-nov-2026'));}
+function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1_dLScKPD5vjRH4cnDFqXnNmF1uOgRzaq/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🛒 VENTAS'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v3.5'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v3.5 · 15-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -794,12 +794,12 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma muestra los 5 procesos del área de Ventas, según el MF Ventas v3.4 (20261115_Sistemas_Ventas_MF_v3_4). El proceso principal (<strong>P-VTA-1</strong>) cubre el ciclo completo del pedido, con el fechado, los bloqueos con motivo y «Crear entrega», incluyendo devoluciones y RMA; la gestión de precios (<strong>P-VTA-6</strong>) controla vigencia, alerta por línea, frenos y repreciado; el proceso de interfaz (<strong>P-VTA-2</strong>) conecta con Planificación/MRP; las ventas especiales (<strong>P-VTA-3</strong>) cubren circuitos atípicos; y la gestión comercial (<strong>P-VTA-4</strong>) abarca maestros y equipo de ventas. Hacé click en cualquier tarjeta para ver el flujo detallado.'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma muestra los 5 procesos del área de Ventas, según el MF Ventas v3.5 (20261115_Sistemas_Ventas_MF_v3_5). El proceso principal (<strong>P-VTA-1</strong>) cubre el ciclo completo del pedido, con el fechado, los bloqueos con motivo y «Crear entrega», incluyendo devoluciones y RMA; la gestión de precios (<strong>P-VTA-6</strong>) controla vigencia, alerta por línea, frenos y repreciado; el proceso de interfaz (<strong>P-VTA-2</strong>) conecta con Planificación/MRP; las ventas especiales (<strong>P-VTA-3</strong>) cubren circuitos atípicos; y la gestión comercial (<strong>P-VTA-4</strong>) abarca maestros y equipo de ventas. Hacé click en cualquier tarjeta para ver el flujo detallado.'
   }));
 
   app.appendChild(el('div',{
     class:'arch-note',
-    html:'<strong>⬢ HANDSHAKE CON PLANIFICACIÓN —</strong> La carga del Pedido de Venta en el sistema la realiza el equipo de <strong>Planificación / Customer Service</strong> (Victoria Gini, Brian, Gastón), no el equipo comercial. El equipo de Ventas (Ernesto, Mariana, Marcelo, Lisandro) gestiona la relación con el cliente: negociación, pricing, seguimiento. Esta separación está alineada con el MF Ventas v3.4 (20261115_Sistemas_Ventas_MF_v3_4) y el MF Planificación v4.3 (RQ-PLA-01).'
+    html:'<strong>⬢ HANDSHAKE CON PLANIFICACIÓN —</strong> La carga del Pedido de Venta en el sistema la realiza el equipo de <strong>Planificación / Customer Service</strong> (Victoria Gini, Brian, Gastón), no el equipo comercial. El equipo de Ventas (Ernesto, Mariana, Marcelo, Lisandro) gestiona la relación con el cliente: negociación, pricing, seguimiento. Esta separación está alineada con el MF Ventas v3.5 (20261115_Sistemas_Ventas_MF_v3_5) y el MF Planificación v4.4 (RQ-PLA-01).'
   }));
 
   const overviewWrap = el('div',{class:'overview-wrap'});
