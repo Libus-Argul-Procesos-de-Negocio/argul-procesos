@@ -326,7 +326,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · GESTIÓN DE CALIDAD · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.4 · alineado con MF Calidad v5.4</footer>
+<footer>ODOO 17 ENTERPRISE · GESTIÓN DE CALIDAD · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.5 · alineado con MF Calidad v5.5</footer>
 
 <script>
 /* ================================================================= */
@@ -388,20 +388,20 @@ const PROCESSES = {
       },
       { n: '03', label: 'Instrucciones', lane: 'cal', variant: 'cal',
         title: 'Instrucciones por punto de control y evaluación de la muestra',
-        desc: 'Cada punto muestra descripción, criterio OK/NOK o medición con rango de tolerancia (evaluación automática). Con un plan de muestreo, el control dice cuánto revisar y con cuántas fallas se acepta (ej.: «Lote 3.200 u → revisar 125 u; se acepta con hasta 3 fallas»); el inspector carga las unidades defectuosas y pulsa <em>Evaluar muestra</em>.',
-        tags: ['RQ-CAL-02', 'DFT45', 'verificar imágenes de referencia']
+        desc: 'Cada punto muestra descripción, criterio OK/NOK o medición con rango de tolerancia (evaluación automática). Con un plan de muestreo, el control dice en cajas cuánto revisar y con cuántas cajas defectuosas se acepta (ej.: «Lote 20 cajas (500 u, 25 u/caja) → revisar 4 cajas; se acepta sin cajas defectuosas (se rechaza con 1)»); el inspector carga las <em>Cajas defectuosas</em> (una caja es defectuosa si tiene al menos una pieza mala) y pulsa <em>Evaluar muestra</em>. Si el plan es por unidades o el producto no tiene empaque, va en unidades.',
+        tags: ['RQ-CAL-02', 'DFT45', 'T02825', 'verificar imágenes de referencia']
       },
       { n: '04', label: 'Control por palet o lote', lane: 'cal', variant: 'cal',
         title: 'Control por palet o por lote del proveedor',
-        desc: 'El modo se configura con herencia producto > categoría > tipo de operación (por defecto, Palet). En el modo <em>Lote</em>, un traslado de calidad junta todos los palets del lote con un solo control por punto: aprobar libera todos y rechazar manda el lote entero. Configuración de referencia: Q902 por lote (sesión 2). «Rechazo por» define si se rechaza el lote completo o solo el contenedor.',
-        tags: ['RQ-CAL-03', 'DFT44', 'corte por lote en sds_wms · DFT51'],
+        desc: 'El modo se configura con herencia producto > categoría > tipo de operación (por defecto, Palet). En el modo <em>Lote</em>, un traslado de calidad junta todos los palets del lote con un solo control por punto: aprobar libera todos y rechazar manda el lote entero. Configuración de referencia: Q902 por lote (sesión 2). «Rechazo por» define si se rechaza el lote completo o solo el contenedor. Con el muestreo por cajas y Ac 0 / Re 1, una caja defectuosa rechaza el palet o, en el modo Lote, el lote entero.',
+        tags: ['RQ-CAL-03', 'DFT44', 'corte por lote en sds_wms · DFT51', 'Ac 0 en cajas · T02825'],
         pill: { color: 'dep', text: '⚠ ABIERTO · los palets de un mismo lote del proveedor se reciben con el mismo lote' }
       },
       { n: '05', label: 'Muestreo por norma', lane: 'sis', variant: 'sis2',
-        title: 'Planes de muestreo por norma o por porcentaje',
-        desc: 'Planes por tabla de rangos de lote (letra, muestra, Ac, Re, 100 %) o por porcentaje del lote. Viene precargada la ANSI/ASQ Z1.4 (equivalente a ISO 2859-1 / IRAM 15), nivel II, AQL 0,65 a 6,5. Hasta Ac aprueba y desde Re rechaza, lo que dispara la liberación o el rechazo automático. Los administra Calidad / Administrador.',
-        tags: ['RQ-CAL-04', 'DFT45', 'rige también en producción'],
-        pill: { color: 'dep', text: '⚠ ABIERTO · norma, nivel y AQL definitivos · tablas de muestreo de SAP' }
+        title: 'Planes de muestreo por norma o por porcentaje, en cajas',
+        desc: 'Planes por tabla de rangos de lote (letra, muestra, Ac, Re, 100 %) o por porcentaje del lote. Viene precargada la ANSI/ASQ Z1.4 (equivalente a ISO 2859-1 / IRAM 15), nivel II, AQL 0,65 a 6,5. Cada plan tiene una <em>Unidad de muestreo</em>: <em>Cajas</em> (por defecto; los planes existentes quedaron en Cajas) o <em>Unidades</em>. Por cajas, el lote es la cantidad de cajas (unidades ÷ unidades por caja del empaque, redondeado hacia arriba) y la tabla se lee en cajas; sin empaque, el control va en unidades y avisa. Hasta Ac aprueba y desde Re rechaza, lo que dispara la liberación o el rechazo automático. Los administra Calidad / Administrador.',
+        tags: ['RQ-CAL-04', 'DFT45', 'T02825', 'rige también en producción'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · norma, nivel y AQL definitivos · tablas de muestreo de SAP · caja defectuosa con una pieza mala · planes que quedan en «Unidades»' }
       },
       { divider: 'DECISIÓN DE CALIDAD — Primer control, análisis y liberación' },
       { n: '06', label: 'Primer control y análisis', lane: 'cal', variant: 'cal',
@@ -543,15 +543,15 @@ const PROCESSES = {
     description: 'Calidad interviene cuando detecta <em>Producto No Conforme</em>. Calidad NO interviene en scrap de arranque, regulación ni barrido (Producción). Todo desecho va a <em>CD/SCRAP</em> con valuación (DFT47). La etiqueta PNC A4 (<em>DEV-CAL-01 · DFT12</em>) habilita a molienda. El wizard DEV-PRO-02 se comparte como <em>DEV-CAL-02 · DFT12</em>.',
     shortDesc: 'Scrap por QC · CD/SCRAP valuado · DEV-CAL-01 y 02 · DFT12 · DFT47 · IPP proveedor',
     inputs: 'Producto rechazado o bloqueado por decisión de Calidad · decisión de Compras (rechazo de recepción)',
-    outputs: 'Desecho a CD/SCRAP con valuación · etiqueta A4 para molienda · comprobante de desecho · alerta con proveedor (IPP)',
+    outputs: 'Desecho a CD/SCRAP con valuación · declaración de PNC (reversible) · etiqueta A4 para molienda · comprobante de desecho · alerta con proveedor (IPP)',
     lanes: ['cal','pro','sis'],
     intro: 'Aclaración de la sesión 2: el RQ-CAL-18 original (scrap de producción durante la orden) se eliminó de Calidad y se reasignó a Producción como RQ-PRO-14. Calidad solo interviene en el scrap posterior a la detección de Producto No Conforme. Todo desecho va a CD/SCRAP, la única ubicación de desecho, con uso «Pérdida de inventario» (DFT47). La etiqueta PNC A4 (DEV-CAL-01 · DFT12) es el componente compartido entre Producción y Calidad para habilitar molienda. [ABIERTO] Hay tres impresos de scrap: la etiqueta PNC (DFT12), la etiqueta A4 de scrap del rechazo parcial (DFT44) y el comprobante de desecho (DFT47). El IPP (Informe de Problemas con Proveedor, RQ-CAL-21) se apoya en la alerta de calidad, que ya lleva el proveedor y la disposición (DFT46, DFT47).',
-    archNote: 'INPUTS — producto rechazado o bloqueado. OUTPUTS — desecho a CD/SCRAP con valuación (MF Contabilidad, Adm. y Finanzas v5.5) + etiqueta A4 + comprobante de desecho. DEV — DEV-CAL-01 · DFT12 (etiqueta PNC compartida) · DEV-CAL-02 · DFT12 (ref. cruzada DEV-PRO-02). DFT — DFT44 (etiqueta A4 de scrap) · DFT47 (desecho desde la alerta y comprobante). GAP — RQ-CAL-21 (IPP): esperar política ABC de proveedores.',
+    archNote: 'INPUTS — producto rechazado o bloqueado. OUTPUTS — desecho a CD/SCRAP con valuación (MF Contabilidad, Adm. y Finanzas v5.5) + etiqueta A4 + comprobante de desecho. DEV — DEV-CAL-01 · DFT12 (etiqueta PNC compartida) · DEV-CAL-02 · DFT12 (ref. cruzada DEV-PRO-02; declaración de PNC y su reversión, T02826). DFT — DFT44 (etiqueta A4 de scrap) · DFT47 (desecho desde la alerta y comprobante). GAP — RQ-CAL-21 (IPP): esperar política ABC de proveedores.',
     steps: [
       { n: '01', label: 'Envío a scrap', lane: 'cal', variant: 'cal',
         title: 'Desecho a CD/SCRAP con motivo y valuación',
-        desc: 'Todo desecho va a <em>CD/SCRAP</em>, con uso «Pérdida de inventario»: genera valuación y asiento. Calidad desecha desde la alerta (<em>Desechar rechazo</em>: cantidad, palet, motivo y observaciones), con Rechazar Parcial a scrap en el análisis o con el asistente de PNC, que desecha los componentes de la OF (DEV-CAL-02 · DFT12). Movimiento con fecha, responsable, cantidad, motivo y documento de origen.',
-        tags: ['RQ-CAL-16', 'DFT47', 'DFT44', 'valuación T02043']
+        desc: 'Todo desecho va a <em>CD/SCRAP</em>, con uso «Pérdida de inventario»: genera valuación y asiento. Calidad desecha desde la alerta (<em>Desechar rechazo</em>: cantidad, palet, motivo y observaciones), con Rechazar Parcial a scrap en el análisis o con el asistente de PNC, que desecha los componentes de la OF salvo los tildados como <em>Reutilizable</em> en cada línea y agrupa los desechos en una declaración de PNC (DEV-CAL-02 · DFT12). Movimiento con fecha, responsable, cantidad, motivo y documento de origen.',
+        tags: ['RQ-CAL-16', 'DFT47', 'DFT44', 'valuación T02043', 'reutilizable por línea · T02826']
       },
       { n: '02', label: 'Etiqueta PNC A4', lane: 'sis', variant: 'sis',
         title: 'Etiqueta de producto no conforme (formato A4)',
@@ -570,14 +570,20 @@ const PROCESSES = {
         desc: 'Al validar un desecho desde la computadora baja el <em>Comprobante de desecho</em> y queda adjunto. Sale solo si está instalado quality_alert_disposition.',
         tags: ['RQ-CAL-16', 'DFT47', 'T01905']
       },
+      { n: '05', label: 'Revertir PNC', lane: 'cal', variant: 'cal2',
+        title: 'Revertir declaración de PNC',
+        desc: 'Cada PNC queda en una declaración (PNC/xxxxx) con sus desechos, en la solapa <em>Producto no conforme</em> de la OF y en <em>Calidad > Declaraciones de PNC</em>. Calidad / Administrador puede <em>Revertir PNC</em> una sola vez: lo dado de baja en esa declaración vuelve de CD/SCRAP a la ubicación de origen con el mismo lote y cantidad, con una capa de entrada al costo del desecho. Los desechos quedan como historia y la OF lleva una nota. Si lo desechado ya no está en CD/SCRAP, avisa y no mueve nada.',
+        tags: ['RQ-CAL-16', 'DEV-CAL-02 · DFT12', 'T02826', 'Calidad / Administrador'],
+        pill: { color: 'dep', text: '⚠ ABIERTO · cuenta de CD/SCRAP para que la reversión espeje el desecho (Contabilidad) · en CD/PR vuelve suelto, no al palet (Calidad y Depósito)' }
+      },
       { divider: 'IPP — Informe de Problemas con Proveedor', type: 'loop' },
-      { n: '05', label: 'IPP proveedor', lane: 'cal', variant: 'cal',
+      { n: '06', label: 'IPP proveedor', lane: 'cal', variant: 'cal',
         title: 'IPP — Informe de Problemas con Proveedor',
         desc: 'La alerta de calidad es el documento del rechazo: toma el proveedor de la recepción de origen y registra la disposición (devolver o desechar). Controles y alertas se filtran y agrupan por proveedor. El IPP (envío al proveedor, respuesta y acciones correctivas) se apoya en esa alerta. Esperar política escrita de evaluación de proveedores (ABC) antes de configurar.',
         tags: ['RQ-CAL-21', 'DFT46', 'DFT47', 'gap'],
         pill: { color: 'dep', text: '⚠ GAP · esperar política de evaluación de proveedores (ABC) antes de configurar el IPP' }
       },
-      { n: '06', label: 'Scrap barrido', lane: 'pro', variant: 'pro3',
+      { n: '07', label: 'Scrap barrido', lane: 'pro', variant: 'pro3',
         title: 'Scrap de barrido — Fuera de alcance',
         desc: 'Piezas contaminadas (piso, zonas no habilitadas). No se declaran en SAP. No es proceso de Calidad. Fuera de alcance Etapa 1.',
         tags: ['RQ-CAL-20', 'fuera de alcance', 'no es proceso de Calidad']
@@ -659,7 +665,7 @@ function el(tag, attrs={}, ...children){
 /* ================================================================= */
 /* ROUTE BAR                                                          */
 /* ================================================================= */
-function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1kcxuIvFaRofo_tdewfBB2C5PVBdHpDz3/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🔬 GESTIÓN DE CALIDAD'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.4'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.4 · 15-nov-2026'));}
+function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1UKdqWI6LP5W_OZYr8Jr01L7QNocztj48/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🔬 GESTIÓN DE CALIDAD'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.5'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.5 · 17-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -688,7 +694,7 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 4 procesos del área de Gestión de Calidad. <strong>Natalia Cascardo</strong> es la Key User. Calidad es un área cross de soporte a todas las demás áreas. Controla recepción y producción con los módulos de calidad de Odoo 17 Enterprise y desarrollos propios (<strong>libus_calidad</strong>, <strong>quality_alert_disposition</strong>, <strong>quality_operator_pin</strong>), en dos instancias: primer control y análisis. El circuito RMA se gestiona con <strong>OCA/rma</strong> (17.0) y la orden de devolución del DFT48. Alineado con el MF Calidad v5.4 (20261115_Sistemas_Calidad_MF_v5_4). Los procesos de Producción se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 4 procesos del área de Gestión de Calidad. <strong>Natalia Cascardo</strong> es la Key User. Calidad es un área cross de soporte a todas las demás áreas. Controla recepción y producción con los módulos de calidad de Odoo 17 Enterprise y desarrollos propios (<strong>libus_calidad</strong>, <strong>quality_alert_disposition</strong>, <strong>quality_operator_pin</strong>), en dos instancias: primer control y análisis. El circuito RMA se gestiona con <strong>OCA/rma</strong> (17.0) y la orden de devolución del DFT48. Alineado con el MF Calidad v5.5 (20261117_Sistemas_Calidad_MF_v5_5). Los procesos de Producción se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
   }));
 
   app.appendChild(el('div',{
