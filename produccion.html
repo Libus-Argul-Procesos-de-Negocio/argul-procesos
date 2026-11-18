@@ -318,7 +318,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · PRODUCCIÓN · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.4 · alineado con MF Producción v5.4</footer>
+<footer>ODOO 17 ENTERPRISE · PRODUCCIÓN · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.5 · alineado con MF Producción v5.5</footer>
 
 <script>
 /* ================================================================= */
@@ -515,9 +515,9 @@ const PROCESSES = {
       { divider: 'PRODUCTO NO CONFORME — wizard DEV-PRO-02 · DFT12' },
       { n: '08', label: 'Producto No Conforme', lane: 'pro', variant: 'pro',
         title: 'Declaración de Producto No Conforme durante la orden',
-        desc: 'Se declara la cantidad no conforme con un motivo de lista, obligatorio, desde la OF o desde Calidad. El sistema: (a) desecha los componentes reales de la orden en proporción, con sus lotes, a CD/SCRAP, con valuación y asiento; (b) no desecha el terminado ni los componentes «Reutilizable en PNC»; (c) <em>mantiene intacto el pendiente de la orden</em> (si exige 20 cajas buenas y se rechazan 2, el pendiente sigue siendo 20); (d) deja una nota en la OF y descarga la etiqueta A4 habilitante para molienda.',
-        tags: ['RQ-PRO-14', 'DEV-PRO-02 · DFT12', 'DEV-CAL-01 · etiqueta A4'],
-        pill: { color: 'pro', text: '🔧 DEV-PRO-02 · DFT12 · desecho de componentes sin reducir el pendiente · compartido con CAL (DEV-CAL-02) · [ABIERTO] quién declara desde la OF' }
+        desc: 'Se declara la cantidad no conforme con un motivo de lista, obligatorio, desde la OF o desde Calidad. El sistema: (a) desecha los componentes reales de la orden en proporción, con sus lotes, a CD/SCRAP, con valuación y asiento; si el stock suelto del lote no alcanza, el desecho sale del palet; (b) no desecha el terminado ni los componentes que se tildan «Reutilizable» en cada línea del asistente (arranca con la marca del producto; por ejemplo, el embalaje que no se usó); (c) <em>mantiene intacto el pendiente de la orden</em> (si exige 20 cajas buenas y se rechazan 2, el pendiente sigue siendo 20); (d) deja una nota en la OF y descarga la etiqueta A4 habilitante para molienda; (e) registra la declaración (PNC/xxxxx) con sus desechos, en la solapa «Producto no conforme» de la OF y en Calidad > Declaraciones de PNC. «Revertir PNC» (solo Calidad / Administrador, una sola vez) reingresa lo dado de baja desde CD/SCRAP a la ubicación de origen, con el mismo lote y cantidad (T02826).',
+        tags: ['RQ-PRO-14', 'DEV-PRO-02 · DFT12', 'DEV-CAL-01 · etiqueta A4', 'T02826', '[ABIERTO] cuenta de CD/SCRAP para la reversión', '[ABIERTO] vuelta al palet'],
+        pill: { color: 'pro', text: '🔧 DEV-PRO-02 · DFT12 · desecho de componentes sin reducir el pendiente · reutilizable por línea · declaración y reversión · compartido con CAL (DEV-CAL-02) · [ABIERTO] quién declara desde la OF' }
       },
       { divider: 'SCRAP DE ARRANQUE / BARRIDO — Fuera de alcance Etapa 1', type: 'warn' },
       { n: '09', label: 'Scrap arranque', lane: 'pro', variant: 'pro3',
@@ -606,8 +606,8 @@ const PROCESSES = {
     steps: [
       { n: '01', label: 'Notif. Rápida', lane: 'pro', variant: 'pro2',
         title: 'Notificación Rápida desde la computadora (alternativa)',
-        desc: 'Fabricación > Operaciones > Notificación Rápida de Producción: orden, cantidad y operario con PIN. Al buscar la orden, sugiere como cantidad un palet del terminado (cajas por palet × unidades por caja) o el remanente si queda menos de un palet; sin palet configurado, lo pendiente. El operario puede cambiarla (T02821). Controla el consumo de los componentes retrógrados, reparte el consumo entre lotes y no deja notificar dos veces el mismo palet. Si se notifica más que lo pendiente, amplía la OF.',
-        tags: ['RQ-PRO-18', 'DEV-PRO-03 · DFT10', 'T02821', '[ABIERTO] notificar de más (T01923)', '[ABIERTO] redondeo del remanente']
+        desc: 'Fabricación > Operaciones > Notificación Rápida de Producción: orden, cantidad y operario con PIN. Al buscar la orden, sugiere como cantidad un palet del terminado (cajas por palet × unidades por caja) o el remanente si queda menos de un palet; sin palet configurado, lo pendiente. El operario puede cambiarla (T02821). Controla el consumo de los componentes retrógrados, reparte el consumo entre lotes y no deja notificar dos veces el mismo palet. Si se notifica más que lo pendiente, amplía la OF. Al notificar, aquí o con «Producir» desde la OF, el sistema imprime solo la etiqueta de contenedor de cada palet en la impresora directa de la compañía (Zebra 2), la misma que usa la cámara, y el PDF del paquete en la impresora de reporte o, si no hay, en el navegador. Una falla de impresión queda en el chatter y no corta la notificación (T02822).',
+        tags: ['RQ-PRO-18', 'DEV-PRO-03 · DFT10', 'DFT59', 'T02821', 'T02822', '[ABIERTO] notificar de más (T01923)', '[ABIERTO] redondeo del remanente', '[ABIERTO] una Zebra por máquina o por CD']
       },
       { n: '02', label: 'Cámara por palet', lane: 'sis', variant: 'sis',
         title: 'Notificación por palet con la cámara',
@@ -856,7 +856,7 @@ function el(tag, attrs={}, ...children){
 /* ================================================================= */
 /* ROUTE BAR                                                          */
 /* ================================================================= */
-function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1-KE4CQaEaQO7Hzz5r0hU0KaDD2Jbin8Z/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🏭 PRODUCCIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.4'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.4 · 17-nov-2026'));}
+function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1PPhLaZ1Zlt6Rut6WEghEiEnouHXXn8QE/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🏭 PRODUCCIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.5'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.5 · 17-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -885,7 +885,7 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 9 procesos del área de Producción. <strong>Natalia Cascardo</strong> es la Key User. Producción ejecuta las órdenes lanzadas por Planificación (Victoria Gini). El molde es un equipo de Mantenimiento con versiones, que gobierna Matricería (<strong>DEV-PRO-05 · DFT07</strong>); no se usa mrp_tool_tracking. Alineado con el MF Producción v5.4 (20261117_Sistemas_Produccion_MF_v5_4). Los procesos de Gestión de Calidad se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 9 procesos del área de Producción. <strong>Natalia Cascardo</strong> es la Key User. Producción ejecuta las órdenes lanzadas por Planificación (Victoria Gini). El molde es un equipo de Mantenimiento con versiones, que gobierna Matricería (<strong>DEV-PRO-05 · DFT07</strong>); no se usa mrp_tool_tracking. Alineado con el MF Producción v5.5 (20261117_Sistemas_Produccion_MF_v5_5). Los procesos de Gestión de Calidad se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
   }));
 
   app.appendChild(el('div',{
