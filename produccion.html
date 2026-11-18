@@ -318,7 +318,7 @@ body.pres-mode .pres-controls{display:flex}
 
 <div class="routebar" id="routebar"></div>
 <div id="app"></div>
-<footer>ODOO 17 ENTERPRISE · PRODUCCIÓN · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.3 · alineado con MF Producción v5.3</footer>
+<footer>ODOO 17 ENTERPRISE · PRODUCCIÓN · ARGUL Y CÍA. S.A. · PROYECTO SAP/ODOO ARGUL 2026 · v5.4 · alineado con MF Producción v5.4</footer>
 
 <script>
 /* ================================================================= */
@@ -496,9 +496,10 @@ const PROCESSES = {
         tags: ['RQ-PRO-40', 'DFT41', '[ABIERTO] activar el ajuste en Test']
       },
       { n: '05', label: 'OF impresa', lane: 'pro', variant: 'pro2',
-        title: 'Orden de producción impresa con QR para Calidad',
-        desc: 'Botón «Imprimir» con el informe «Orden de producción» (sin «Imprimir etiquetas»). El PDF trae en el encabezado un QR con los datos que lee la app de Calidad de planta (molde, orden, lote, posición de la máquina, cavidades, texto breve y material), las cajas a producir y las unidades por caja, el peso unitario en negrita para la balanza, los lotes asignados sin cantidad y el molde de cada operación.',
-        tags: ['RQ-PRO-47', 'RQ-PRO-48', 'RQ-PRO-49', 'RQ-PRO-42', 'DFT43']
+        title: 'OF impresa con QR para Calidad',
+        desc: 'Botón «Imprimir» con el informe «Orden de producción» (sin «Imprimir etiquetas»). El PDF trae en el encabezado un QR con los datos que lee la app de Calidad de planta (molde, orden, lote, posición de la máquina, cavidades, texto breve y material). En «orden» va el número base de la OF, sin el sufijo del pedido pendiente (CD/OP/18402-005 → «18402»), para que la búsqueda por número encuentre la familia de la OF (T02824). Al lado del producto muestra el lote del terminado («Lote:»), solo si la OF tiene lote (T02823). Trae además las cajas a producir y las unidades por caja, el peso unitario en negrita para la balanza, los lotes asignados sin cantidad y el molde de cada operación.',
+        tags: ['RQ-PRO-47', 'RQ-PRO-48', 'RQ-PRO-49', 'RQ-PRO-42', 'DFT43', 'T02824', 'T02823'],
+        pill: { color: 'pro', text: '🔧 DFT43 · número base en el QR y lote del terminado · [ABIERTO] número base o clave aparte para la app de Calidad' }
       },
       { n: '06', label: 'Cambios en la OF', lane: 'pro', variant: 'pro',
         title: 'Cambios sobre la OF confirmada y Copiar OF',
@@ -605,8 +606,8 @@ const PROCESSES = {
     steps: [
       { n: '01', label: 'Notif. Rápida', lane: 'pro', variant: 'pro2',
         title: 'Notificación Rápida desde la computadora (alternativa)',
-        desc: 'Fabricación > Operaciones > Notificación Rápida de Producción: orden, cantidad y operario con PIN. Controla el consumo de los componentes retrógrados, reparte el consumo entre lotes y no deja notificar dos veces el mismo palet. Si se notifica más que lo pendiente, amplía la OF.',
-        tags: ['RQ-PRO-18', 'DEV-PRO-03 · DFT10', '[ABIERTO] notificar de más (T01923)']
+        desc: 'Fabricación > Operaciones > Notificación Rápida de Producción: orden, cantidad y operario con PIN. Al buscar la orden, sugiere como cantidad un palet del terminado (cajas por palet × unidades por caja) o el remanente si queda menos de un palet; sin palet configurado, lo pendiente. El operario puede cambiarla (T02821). Controla el consumo de los componentes retrógrados, reparte el consumo entre lotes y no deja notificar dos veces el mismo palet. Si se notifica más que lo pendiente, amplía la OF.',
+        tags: ['RQ-PRO-18', 'DEV-PRO-03 · DFT10', 'T02821', '[ABIERTO] notificar de más (T01923)', '[ABIERTO] redondeo del remanente']
       },
       { n: '02', label: 'Cámara por palet', lane: 'sis', variant: 'sis',
         title: 'Notificación por palet con la cámara',
@@ -855,7 +856,7 @@ function el(tag, attrs={}, ...children){
 /* ================================================================= */
 /* ROUTE BAR                                                          */
 /* ================================================================= */
-function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1EHBzHHkVaVHfZOXlvi7xGMfv40RaNfj4/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🏭 PRODUCCIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.3'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.3 · 15-nov-2026'));}
+function renderRouteBar(route){const MF_URL='https://drive.google.com/file/d/1-KE4CQaEaQO7Hzz5r0hU0KaDD2Jbin8Z/view';const bar=document.getElementById('routebar');bar.innerHTML='';const left=el('div',{class:'routebar-left'});left.appendChild(el('span',{html:'🏭 PRODUCCIÓN'}));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));const center=el('div',{class:'routebar-center'});center.appendChild(el('a',{href:'index.html'},'⬡ Mapa de Procesos (Nivel 1)'));if(route!=='overview'){center.appendChild(el('a',{href:'#/overview'},'📋 Procesos de Negocio (Nivel 2)'));}center.appendChild(el('a',{href:MF_URL,target:'_blank',rel:'noopener noreferrer'},'📄 Ver Modelo Funcional v5.4'));if(route==='overview'){left.appendChild(el('span',{class:'crumb-active'},'PROCESOS DE NEGOCIO'));}else{const proc=PROCESSES[route];left.appendChild(el('span',{},'Procesos de negocio'));left.appendChild(el('span',{class:'crumb-sep',html:'/'}));left.appendChild(el('span',{class:'crumb-active'},proc.code+' · '+proc.shortName));}bar.appendChild(left);bar.appendChild(center);bar.appendChild(el('div',{class:'routebar-right'},'v5.4 · 17-nov-2026'));}
 
 /* ================================================================= */
 /* OVERVIEW VIEW                                                      */
@@ -884,7 +885,7 @@ function renderOverview(){
 
   app.appendChild(el('div',{
     class:'intro-note',
-    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 9 procesos del área de Producción. <strong>Natalia Cascardo</strong> es la Key User. Producción ejecuta las órdenes lanzadas por Planificación (Victoria Gini). El molde es un equipo de Mantenimiento con versiones, que gobierna Matricería (<strong>DEV-PRO-05 · DFT07</strong>); no se usa mrp_tool_tracking. Alineado con el MF Producción v5.3 (20261115_Sistemas_Produccion_MF_v5_3). Los procesos de Gestión de Calidad se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
+    html:'<strong>⬡ ORIENTACIÓN —</strong> Esta plataforma cubre los 9 procesos del área de Producción. <strong>Natalia Cascardo</strong> es la Key User. Producción ejecuta las órdenes lanzadas por Planificación (Victoria Gini). El molde es un equipo de Mantenimiento con versiones, que gobierna Matricería (<strong>DEV-PRO-05 · DFT07</strong>); no se usa mrp_tool_tracking. Alineado con el MF Producción v5.4 (20261117_Sistemas_Produccion_MF_v5_4). Los procesos de Gestión de Calidad se documentan en un MF y HTML separados. Hacé click en cualquier tarjeta para ver el flujo detallado.'
   }));
 
   app.appendChild(el('div',{
